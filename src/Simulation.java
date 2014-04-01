@@ -12,4 +12,5 @@ import java.awt.Dimension;
 public class Simulation
 {
     public static Dimension windowSize = new Dimension(800, 600);
+    public static boolean debugMode  = false;
 }

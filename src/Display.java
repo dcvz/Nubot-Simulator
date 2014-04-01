@@ -7,9 +7,13 @@
 //
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 
 public class Display implements ActionListener
 {
@@ -87,10 +91,95 @@ public class Display implements ActionListener
     {
         if (e.getSource() == loadR)
         {
+
             System.out.println("Load Rules");
         }
         else if (e.getSource() == loadC)
         {
+            try {
+                final JFileChooser jfc = new JFileChooser();
+
+                jfc.setDialogTitle("Select Configuration File");
+                // Creating a file filter for .conf
+                jfc.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.isDirectory())
+                            return true;
+                        String fname = f.getName();
+                        if (fname.length() > 5 && fname.substring(fname.length() - 5, fname.length()).matches(".conf")) {
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Nubot Configuration File - .conf";
+                        //return null;
+                    }
+                });
+
+                int resVal = jfc.showOpenDialog(mainFrame);
+
+                // if the ret flag results as Approve, we parse the file
+                if (resVal == JFileChooser.APPROVE_OPTION) {
+
+                    File theFile = jfc.getSelectedFile();
+                    //if the selected file is of the right extension
+                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 5, theFile.getName().length()).matches(".conf")) {
+                        map.clear();
+                        boolean inBonds = false;
+                        FileReader fre = new FileReader(theFile);
+                        BufferedReader bre = new BufferedReader(fre);
+                        boolean cont = true;
+
+                        while (cont) {
+
+                            String line = bre.readLine();
+                            if (line == null)
+                                cont = false;
+                            //if it's not a comment line and not empty, we parse
+                            if (line != null && !line.contains("[") && !line.isEmpty() && !(line == "")) {
+
+                                if (!inBonds) {
+                                    if (line.contains("States:")) {
+
+                                    } else if (line.contains("Bonds:")) {
+                                        inBonds = true;
+                                    } else {
+
+                                        String[] splitted = line.split(" ");
+                                        map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
+
+                                    }
+                                } else if (inBonds) {
+
+                                    String[] splitted = line.split(" ");
+                                    map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
+
+                                } else if (Simulation.debugMode)
+                                    System.out.println("We don't have more sections.");
+
+                            }
+
+                        }
+                        bre.close();
+                        canvas.repaint();
+                        Global.configLoaded = true;
+                        if (Global.configLoaded && Global.rulesLoaded) {
+                            startMenuItem.setEnabled(true);
+                        }
+
+                    }
+
+                }
+
+            } catch (Exception exc) {
+
+
+            }
             System.out.println("Load config");
         }
         else if (e.getSource() == menuClear)
