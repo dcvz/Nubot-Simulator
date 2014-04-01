@@ -26,13 +26,21 @@ public class Direction
     static Point TYPE_POINT_OFFSET_SOUTHWEST = new Point(0, -1);
 
 
-    static Point getNeighboringPointByDirection(Point /*origin Monomer*/ start, byte /*direction*/direction)
+    static Point getNeighborPosition(Point /*origin Monomer*/ start, byte /*direction*/direction)
     {
         if(direction == TYPE_FLAG_EAST)
             return new Point(start.x + TYPE_POINT_OFFSET_EAST.x, start.y + TYPE_POINT_OFFSET_EAST.y);
-
-
-        else return start;
+        if(direction == TYPE_FLAG_WEST)
+            return new Point(start.x + TYPE_POINT_OFFSET_WEST.x, start.y + TYPE_POINT_OFFSET_WEST.y);
+        if(direction == TYPE_FLAG_SOUTHWEST)
+            return new Point(start.x + TYPE_POINT_OFFSET_SOUTHWEST.x, start.y + TYPE_POINT_OFFSET_SOUTHWEST.y);
+        if(direction == TYPE_FLAG_NORTHWEST)
+            return new Point(start.x + TYPE_POINT_OFFSET_NORTHWEST.x, start.y + TYPE_POINT_OFFSET_NORTHWEST.y);
+        if(direction == TYPE_FLAG_NORTHEAST)
+            return new Point(start.x + TYPE_POINT_OFFSET_NORTHEAST.x, start.y + TYPE_POINT_OFFSET_NORTHEAST.y);
+        if(direction == TYPE_FLAG_SOUTHEAST)
+            return new Point(start.x + TYPE_POINT_OFFSET_SOUTHEAST.x, start.y + TYPE_POINT_OFFSET_SOUTHEAST.y);
+        return start;
 
     }
 
