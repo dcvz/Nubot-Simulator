@@ -268,8 +268,8 @@ public class Display implements ActionListener
         nubotGFX.setColor(Color.black);
 
         nubotGFX.fillOval(
-                /*X coord*/    m.getLocation().x * Simulation.monomerRadius*2 + Simulation.canvasXYoffset.x, //+m.getLocation().y * Simulation.monomerRadius + Simulation.monomerRadius/2  ,
-                /*Y coord*/    m.getLocation().y * Simulation.monomerRadius*2 + Simulation.canvasXYoffset.y, //+ -1 *(m.getLocation().y * (int)(Math.sqrt(3)*Simulation.monomerRadius))  ,
+                /*X coord*/    Simulation.canvasXYoffset.x + m.getLocation().x * 2 * Simulation.monomerRadius + m.getLocation().y * Simulation.monomerRadius,
+                /*Y coord*/    Simulation.canvasXYoffset.y + -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */    Simulation.monomerRadius*2,
                 /*Height */    Simulation.monomerRadius*2);
         nubotGFX.drawString(
