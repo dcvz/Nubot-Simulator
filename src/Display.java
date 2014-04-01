@@ -201,7 +201,7 @@ public class Display implements ActionListener
                             if (line != null && !line.contains("[") && !line.isEmpty() && line != "") {
 
                                 String[] splitted = line.split(" ");
-                             //   rules.addRule(new Rule(splitted[0], splitted[1], Integer.parseInt(splitted[2]), Global.getDirection(splitted[3]), splitted[4], splitted[5], Integer.parseInt(splitted[6]), Global.getDirection(splitted[7])));
+                                rules.addRule(new Rule(splitted[0], splitted[1], (byte)Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte)Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
 
                             }
 
@@ -217,6 +217,8 @@ public class Display implements ActionListener
                             simStart.setEnabled(true);
 
                     }
+
+                    System.out.println(rules.values());
 
                 }
 

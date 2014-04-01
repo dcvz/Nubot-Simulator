@@ -26,7 +26,9 @@ public class Direction
     static Point TYPE_POINT_OFFSET_SOUTHWEST = new Point(0, -1);
 
 
-    static Point getNeighborPosition(Point /*origin Monomer*/ start, Byte /*direction*/direction)
+
+
+   public  static Point getNeighborPosition(Point /*origin Monomer*/ start, Byte /*direction*/direction)
     {
         if(direction == TYPE_FLAG_EAST)
             return new Point(start.x + TYPE_POINT_OFFSET_EAST.x, start.y + TYPE_POINT_OFFSET_EAST.y);
@@ -41,6 +43,25 @@ public class Direction
         if(direction == TYPE_FLAG_SOUTHEAST)
             return new Point(start.x + TYPE_POINT_OFFSET_SOUTHEAST.x, start.y + TYPE_POINT_OFFSET_SOUTHEAST.y);
         return start;
+    }
+    static byte stringToFlag(String dir)
+    {
+       if(dir.matches("E"))
+           return TYPE_FLAG_EAST;
+       if(dir.matches("W"))
+           return TYPE_FLAG_WEST;
+       if(dir.matches("NE"))
+            return TYPE_FLAG_NORTHEAST;
+       if(dir.matches("NW"))
+            return TYPE_FLAG_NORTHWEST;
+       if(dir.matches("SE"))
+           return TYPE_FLAG_SOUTHEAST;
+       if(dir.matches("SW"))
+           return TYPE_FLAG_SOUTHWEST;
+
+
+        System.out.println("Inproper direction string format.");
+        return 0;
     }
 
 }
