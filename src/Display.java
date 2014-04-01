@@ -46,7 +46,7 @@ public class Display implements ActionListener
     private void initMenuBar()
     {
         JMenuBar menuBar = new JMenuBar();
-
+s
         loadR.addActionListener(this);
         about.addActionListener(this);
         loadC.addActionListener(this);
