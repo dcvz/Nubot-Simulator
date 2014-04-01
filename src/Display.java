@@ -11,6 +11,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,7 +19,7 @@ import java.io.FileReader;
 
 public class Display implements ActionListener
 {
-
+    int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
     JComponent canvas;
@@ -68,7 +69,7 @@ public class Display implements ActionListener
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         nubotGFX = (Graphics2D)nubotImage.getGraphics();
         nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        nubotGFX.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
 
         timer = new Timer(1000/60, new ActionListener() {
             @Override
@@ -265,17 +266,39 @@ public class Display implements ActionListener
     }
 
     private void drawMonomer(Monomer m) {
-        nubotGFX.setColor(Color.black);
+        nubotGFX.setColor(Color.BLACK);
 
+
+       /*          Simulation.canvasXYoffset.x + m.getLocation().x * 2 * Simulation.monomerRadius + m.getLocation().y * Simulation.monomerRadius,
+                   Simulation.canvasXYoffset.y + -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                   Simulation.monomerRadius*2,
+                   Simulation.monomerRadius*2);*/
+        Point xyPos = Simulation.getCanvasPosition(m.getLocation());
+        int monomerWidthAdjustment =   Simulation.monomerRadius/8;
+        int monomerWidth = Simulation.monomerRadius*2 - monomerWidthAdjustment;
+        int monomerHeight = Simulation.monomerRadius*2;
         nubotGFX.fillOval(
-                /*X coord*/    Simulation.canvasXYoffset.x + m.getLocation().x * 2 * Simulation.monomerRadius + m.getLocation().y * Simulation.monomerRadius,
-                /*Y coord*/    Simulation.canvasXYoffset.y + -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
-                /*Width  */    Simulation.monomerRadius*2,
-                /*Height */    Simulation.monomerRadius*2);
+                /*X coord*/   xyPos.x ,
+                /*Y coord*/   xyPos.y ,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                /*Width  */   monomerWidth,
+                /*Height */   monomerHeight);
+        nubotGFX.setColor(Color.WHITE);
+        Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
+        while(bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight)
+        {
+            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float)++fontSize));
+            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
+
+        }
+        while(bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight)
+        {
+            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float)--fontSize));
+            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
+        }
         nubotGFX.drawString(
-                /*String */     "" + m.getLocation().x + ',' + m.getLocation().y,
-                /*X Coord */    m.getLocation().x,
-                /*Y Coord */    m.getLocation().y    );
+                /*String */     m.getState(),
+                /*X Coord */    xyPos.x + Simulation.monomerRadius - (int)bounds.getWidth()/2 - monomerWidthAdjustment  ,
+                /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int)bounds.getHeight()/3 );
 
     }
 }
