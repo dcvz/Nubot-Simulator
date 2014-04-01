@@ -30,7 +30,7 @@ public class Display implements ActionListener
     {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
-        mainFrame.setSize(Simulation.windowSize.getValue0(), Simulation.windowSize.getValue1());
+        mainFrame.setSize(Simulation.windowSize.width, Simulation.windowSize.height);
         mainFrame.setLayout(new BorderLayout());
         mainFrame.setVisible(true);
 

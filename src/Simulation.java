@@ -6,9 +6,10 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
-import org.javatuples.*;
+
+import java.awt.Dimension;
 
 public class Simulation
 {
-    public static Pair<Integer, Integer> windowSize = Pair.with(800, 800);
+    public static Dimension windowSize = new Dimension(800, 600);
 }
