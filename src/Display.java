@@ -273,7 +273,7 @@ public class Display implements ActionListener
                 /*Width  */    Simulation.monomerRadius*2,
                 /*Height */    Simulation.monomerRadius*2);
         nubotGFX.drawString(
-                /*String */     m.getState(),
+                /*String */     "" + m.getLocation().x + ',' + m.getLocation().y,
                 /*X Coord */    m.getLocation().x,
                 /*Y Coord */    m.getLocation().y    );
 
