@@ -15,9 +15,17 @@ public class Display implements ActionListener
 {
     final JFrame mainFrame = new JFrame("Nubot Simulator");
 
+    private JMenu file = new JMenu("File");
+    private JMenu simulation = new JMenu("Simulation");
+    private JMenu settings = new JMenu("Settings");
+    private JMenu help = new JMenu("Help");
+    // create sub-menus for each menu
     private JMenuItem loadR = new JMenuItem("Load Rules");
+    private JMenuItem about = new JMenuItem("About");
+    private JMenuItem loadC = new JMenuItem("Load Configuration");
+    private JMenuItem menuClear = new JMenuItem("Clear");
+    private JMenuItem menuQuit = new JMenuItem("Quit");
 
-    //  WindowMain default constructor
     public Display()
     {
         mainFrame.setBackground(Color.WHITE);
@@ -35,18 +43,22 @@ public class Display implements ActionListener
     {
         JMenuBar menuBar = new JMenuBar();
 
-        // create all main menus
-        JMenu file = new JMenu("File");
-        JMenu simulation = new JMenu("Simulation");
-        JMenu settings = new JMenu("Settings");
-        JMenu help = new JMenu("Help");
-        JMenuItem about = new JMenuItem("About");
-
-        // create sub-menus for each menu
         loadR.addActionListener(this);
+        about.addActionListener(this);
+        loadC.addActionListener(this);
+        menuClear.addActionListener(this);
+        menuQuit.addActionListener(this);
 
         menuBar.add(file);
+        menuBar.add(simulation);
+        menuBar.add(settings);
+        menuBar.add(help);
+        menuBar.add(about);
         file.add(loadR);
+        file.add(loadC);
+        file.add(menuClear);
+        file.add(menuQuit);
+
 
         mainFrame.setJMenuBar(menuBar);
     }
@@ -56,7 +68,23 @@ public class Display implements ActionListener
     {
         if (e.getSource() == loadR)
         {
-            System.out.println("Hello");
+            System.out.println("Load Rules");
+        }
+        else if (e.getSource() == loadC)
+        {
+            System.out.println("Load config");
+        }
+        else if (e.getSource() == menuClear)
+        {
+            System.out.println("clear config");
+        }
+        else if (e.getSource() == menuQuit)
+        {
+            System.out.println("quit application");
+        }
+        else if (e.getSource() == about)
+        {
+            System.out.println("about this application");
         }
     }
 }
