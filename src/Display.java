@@ -19,10 +19,9 @@ public class Display implements ActionListener
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
     private JMenu help = new JMenu("Help");
-    private JMenuItem about = new JMenuItem("About");
-
     // create sub-menus for each menu
     private JMenuItem loadR = new JMenuItem("Load Rules");
+    private JMenuItem about = new JMenuItem("About");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
     private JMenuItem menuClear = new JMenuItem("Clear");
     private JMenuItem menuQuit = new JMenuItem("Quit");
@@ -36,7 +35,6 @@ public class Display implements ActionListener
         mainFrame.setVisible(true);
 
         initMenuBar();
-        //initStatusBar();
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -51,16 +49,16 @@ public class Display implements ActionListener
         menuClear.addActionListener(this);
         menuQuit.addActionListener(this);
 
-        file.add(loadR);
-        file.add(loadC);
-        file.add(menuClear);
-        file.add(menuQuit);
         menuBar.add(file);
-
         menuBar.add(simulation);
         menuBar.add(settings);
         menuBar.add(help);
         menuBar.add(about);
+        file.add(loadR);
+        file.add(loadC);
+        file.add(menuClear);
+        file.add(menuQuit);
+
 
         mainFrame.setJMenuBar(menuBar);
     }
