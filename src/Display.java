@@ -28,6 +28,9 @@ public class Display implements ActionListener
     private JMenuItem simStart = new JMenuItem("Start");
     private JMenuItem simStop = new JMenuItem("Stop");
     private JMenuItem simPause = new JMenuItem("Pause");
+    private JMenuItem record = new JMenuItem("Record");
+    private JMenuItem agitation = new JMenuItem("Agitation");
+    private JMenuItem speed = new JMenuItem("Speed");
 
 
     public Display()
@@ -55,6 +58,9 @@ public class Display implements ActionListener
         simPause.addActionListener(this);
         simStart.addActionListener(this);
         simStop.addActionListener(this);
+        record.addActionListener(this);
+        agitation.addActionListener(this);
+        speed.addActionListener(this);
 
         menuBar.add(file);
         menuBar.add(simulation);
@@ -63,11 +69,15 @@ public class Display implements ActionListener
         help.add(about);
         file.add(loadR);
         file.add(loadC);
+        file.add(new JSeparator(SwingConstants.HORIZONTAL));
         file.add(menuClear);
         file.add(menuQuit);
         simulation.add(simStart);
         simulation.add(simPause);
+        simulation.add(new JSeparator(SwingConstants.HORIZONTAL));
         simulation.add(simStop);
+        settings.add(agitation);
+        settings.add(speed);
 
         mainFrame.setJMenuBar(menuBar);
     }
@@ -90,6 +100,7 @@ public class Display implements ActionListener
         else if (e.getSource() == menuQuit)
         {
             System.out.println("quit application");
+            System.exit(0);
         }
         else if (e.getSource() == about)
         {
