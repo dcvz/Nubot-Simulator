@@ -11,30 +11,23 @@ import java.awt.*;
 // Point a, Point b, rule
 public class Action
 {
-    private Point mono1, mono2;
+    private Point mon1, mon2;
     private Rule rule;
 
     public Action(Point a, Point b, Rule r)
     {
-        mono1 = a;
-        mono2 = b;
-        rule = r;
-    }
-    public Point getMono1()   {return mono1;}
-    public Point getMono2()     {return mono2;}
-    public Rule getRule()   {return rule;}
-
-    public void setMono1(Point a)
-    {
-        mono1 = a;
-    }
-    public void setMono2(Point a)
-    {
-        mono2 = a;
-    }
-    public void setRule(Rule r)
-    {
-        rule = r;
+        this.mon1 = a;
+        this.mon2 = b;
+        this.rule = r;
     }
 
+    // accessor methods
+    public Point getMon1() { return mon1; }
+    public Point getMon2() { return mon2; }
+    public Rule getRule() { return rule; }
+
+    // mutator methods
+    public void setMon1(Point p) { this.mon1 = p; }
+    public void setMon2(Point p) { this.mon2 = p; }
+    public void setRule(Rule r) { this.rule = r; }
 }
