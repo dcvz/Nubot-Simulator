@@ -11,6 +11,11 @@ import java.awt.Dimension;
 
 public class Simulation
 {
-    public static Dimension windowSize = new Dimension(800, 600);
+    public static Dimension frameSize = new Dimension(800, 600);
+    public static Dimension canvasSize = new Dimension(800,600);
+    public static int monomerDiameter = 600/30;
+    public static boolean configLoaded = false;
+    public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;
+
 }

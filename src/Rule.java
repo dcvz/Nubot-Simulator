@@ -6,37 +6,49 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
+import org.javatuples.Quartet;
+
 import java.awt.*;
 
 public class Rule
 {
     private String s1, s2, s1p, s2p;
-    private Bond start, end;
-    private Point dir, dirp;
+    private byte bond, bondp;
+    private Byte dir, dirp;
 
-    public Rule(String a, String b, Bond c, Point d, String e, String f, Bond g, Point h)
+    public Rule(String State1, String State2, Byte initialBondType, Byte S2initialDirection, String State1P, String State2P,Byte endBondType, Byte S2EndDirection)
     {
-        this.s1 = a; this.s2 = b; this.start = c; this.dir = d;
-        this.s1p = e; this.s2p = f; this.end = g; this.dirp = h;
+        this.s1 = State1; this.s2 = State2; this.bond = initialBondType; this.dir = S2initialDirection;
+        this.s1p = State1P; this.s2p = State2P; this.bondp = endBondType; this.dirp = S2EndDirection;
     }
 
     // accessor methods
     public String getS1() { return s1; }
     public String getS2() { return s2; }
-    public Bond getStart() { return start; }
-    public Point getDir() { return dir; }
+    public Byte getBond() { return bond; }
+    public Byte getDir() { return dir; }
     public String getS1p() { return s1p; }
     public String getS2p() { return s2p; }
-    public Bond getEnd() { return end; }
-    public Point getDirp() { return dirp; }
+    public Byte getBondp() { return bondp; }
+    public Byte getDirp() { return dirp; }
 
     // mutator methods
     public void setS1(String s) { this.s1 = s; }
     public void setS2(String s) { this.s2 = s; }
-    public void setStart(Bond b) { this.start = b; }
-    public void setDir(Point p) { this.dir = p; }
+    public void setStart(byte b) { this.bond = b; }
+    public void setDir(Byte p) { this.dir = p; }
     public void setS1p(String s) { this.s1p = s; }
     public void setS2p(String s) { this.s2p = s; }
-    public void setEnd(Bond b) { this.end = b; }
-    public void setDirp(Point p) { this.dirp = p; }
+    public void setEnd(Byte b) { this.bondp = b; }
+    public void setDirp(Byte p) { this.dirp = p; }
+    public Quartet<String, String, Byte, Byte> getInputQuartet()
+    {
+
+
+        return Quartet.with(s1, s2, bond, dir);
+    }
+    public Quartet<String, String, Byte,Byte> getOutputQuartet()
+    {
+        return Quartet.with(s1p, s2p, bondp, dirp);
+    }
 }

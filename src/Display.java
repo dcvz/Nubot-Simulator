@@ -18,7 +18,9 @@ import java.io.FileReader;
 public class Display implements ActionListener
 {
     final JFrame mainFrame = new JFrame("Nubot Simulator");
-
+    JComponent canvas;
+    Configuration map;
+    RuleSet rules;
     private JMenu file = new JMenu("File");
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
@@ -41,15 +43,36 @@ public class Display implements ActionListener
     {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
-        mainFrame.setSize(Simulation.windowSize.width, Simulation.windowSize.height);
+        mainFrame.setSize(Simulation.frameSize.width, Simulation.frameSize.height);
         mainFrame.setLayout(new BorderLayout());
-        mainFrame.setVisible(true);
+
 
         initMenuBar();
-
+        Simulation.canvasSize = mainFrame.getContentPane().getSize();
+        map = new Configuration();
+        rules = new RuleSet();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        initCanvas();
+        mainFrame.add(canvas);
+        mainFrame.setVisible(true);
     }
+    public void initCanvas()
+    {
+        canvas = new JComponent() {
 
+            @Override
+            public void paintComponent(Graphics g)
+            {
+
+            }
+
+        };
+        canvas.setSize(Simulation.canvasSize);
+
+
+
+
+    }
     private void initMenuBar()
     {
         JMenuBar menuBar = new JMenuBar();
@@ -157,7 +180,7 @@ public class Display implements ActionListener
                                 } else if (inBonds) {
 
                                     String[] splitted = line.split(" ");
-                                    map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
+                                  //  map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
 
                                 } else if (Simulation.debugMode)
                                     System.out.println("We don't have more sections.");
@@ -166,10 +189,10 @@ public class Display implements ActionListener
 
                         }
                         bre.close();
-                        canvas.repaint();
-                        Global.configLoaded = true;
-                        if (Global.configLoaded && Global.rulesLoaded) {
-                            startMenuItem.setEnabled(true);
+                       // canvas.repaint();
+                        Simulation.configLoaded = true;
+                        if (Simulation.configLoaded && Simulation.rulesLoaded) {
+                            simStart.setEnabled(true);
                         }
 
                     }

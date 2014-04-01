@@ -12,6 +12,7 @@ public class Monomer
 {
     private Point location;
     private String state;
+    private byte neighbors = 0;
 
     public Monomer(Point p, String s)
     {
