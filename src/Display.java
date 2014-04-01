@@ -45,6 +45,11 @@ public class Display implements ActionListener
     private JMenuItem record = new JMenuItem("Record");
     private JMenuItem agitation = new JMenuItem("Agitation");
     private JMenuItem speed = new JMenuItem("Speed");
+    //Data
+    String rulesFileName = "";
+    String configFileName = "";
+
+
 
 
 
@@ -145,6 +150,81 @@ public class Display implements ActionListener
     {
         if (e.getSource() == loadR)
         {
+            try {
+                final JFileChooser jfc = new JFileChooser();
+
+                jfc.setDialogTitle("Select Rules File");
+                // Creating a file filter for .conf
+                jfc.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.isDirectory())
+                            return true;
+                        String fname = f.getName();
+                        if (fname.length() > 6 && fname.substring(fname.length() - 6, fname.length()).matches(".rules")) {
+
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Nubot Rules File - .rules";
+                        //return null;
+                    }
+                });
+
+                int resVal = jfc.showOpenDialog(mainFrame);
+
+                // if the ret flag results as Approve, we parse the file
+                if (resVal == JFileChooser.APPROVE_OPTION) {
+
+                    File theFile = jfc.getSelectedFile();
+                    //if the selected file is of the right extension
+                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules")) {
+                        rules.clear();
+                        rulesFileName = theFile.getName();
+                        FileReader fre = new FileReader(theFile);
+                        BufferedReader bre = new BufferedReader(fre);
+                        boolean cont = true;
+
+                        while (cont) {
+
+                            String line = bre.readLine();
+
+                            if (line == null)
+                                cont = false;
+
+                            //if it's not a comment line and not empty, we parse
+                            if (line != null && !line.contains("[") && !line.isEmpty() && line != "") {
+
+                                String[] splitted = line.split(" ");
+                             //   rules.addRule(new Rule(splitted[0], splitted[1], Integer.parseInt(splitted[2]), Global.getDirection(splitted[3]), splitted[4], splitted[5], Integer.parseInt(splitted[6]), Global.getDirection(splitted[7])));
+
+                            }
+
+                        }
+
+                        bre.close();
+
+                        Simulation.rulesLoaded = true;
+                        if (Simulation.debugMode)
+                            System.out.println("We have " + rules.size() + " rules");
+
+                        if (Simulation.rulesLoaded && Simulation.configLoaded)
+                            simStart.setEnabled(true);
+
+                    }
+
+                }
+
+            } catch (Exception exc) {
+
+
+            }
+
 
             System.out.println("Load Rules");
         }
@@ -163,6 +243,7 @@ public class Display implements ActionListener
                             return true;
                         String fname = f.getName();
                         if (fname.length() > 5 && fname.substring(fname.length() - 5, fname.length()).matches(".conf")) {
+
                             return true;
                         }
 
@@ -184,6 +265,7 @@ public class Display implements ActionListener
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
                     if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 5, theFile.getName().length()).matches(".conf")) {
+                        configFileName = theFile.getName();
                         map.clear();
                         boolean inBonds = false;
                         FileReader fre = new FileReader(theFile);
@@ -207,13 +289,12 @@ public class Display implements ActionListener
 
                                         String[] splitted = line.split(" ");
                                         map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
-                                        System.out.println("SDFFS@$QQ");
 
                                     }
                                 } else if (inBonds) {
 
                                     String[] splitted = line.split(" ");
-                                  //  map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
+                                   // map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
 
                                 } else if (Simulation.debugMode)
                                     System.out.println("We don't have more sections.");
@@ -222,10 +303,11 @@ public class Display implements ActionListener
 
                         }
                         bre.close();
-                       // canvas.repaint();
                         Simulation.configLoaded = true;
+
+
                         if (Simulation.configLoaded && Simulation.rulesLoaded) {
-                            simStart.setEnabled(true);
+                           simStart.setEnabled(true);
                         }
 
                     }
@@ -244,6 +326,7 @@ public class Display implements ActionListener
         }
         else if (e.getSource() == menuQuit)
         {
+
             System.out.println("quit application");
             System.exit(0);
         }
@@ -269,10 +352,6 @@ public class Display implements ActionListener
         nubotGFX.setColor(Color.BLACK);
 
 
-       /*          Simulation.canvasXYoffset.x + m.getLocation().x * 2 * Simulation.monomerRadius + m.getLocation().y * Simulation.monomerRadius,
-                   Simulation.canvasXYoffset.y + -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
-                   Simulation.monomerRadius*2,
-                   Simulation.monomerRadius*2);*/
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
         int monomerWidthAdjustment =   Simulation.monomerRadius/8;
         int monomerWidth = Simulation.monomerRadius*2 - monomerWidthAdjustment;
@@ -295,6 +374,7 @@ public class Display implements ActionListener
             nubotGFX.setFont(nubotGFX.getFont().deriveFont((float)--fontSize));
             bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
         }
+
         nubotGFX.drawString(
                 /*String */     m.getState(),
                 /*X Coord */    xyPos.x + Simulation.monomerRadius - (int)bounds.getWidth()/2 - monomerWidthAdjustment  ,

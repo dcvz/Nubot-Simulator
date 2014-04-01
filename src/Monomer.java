@@ -7,12 +7,13 @@
 //
 
 import java.awt.*;
+import java.util.HashMap;
 
 public class Monomer
 {
     private Point location;
     private String state;
-
+   private HashMap<Byte, Byte> neighborBonds; // Hashmap(direction,bondtype)
 
 
     public Monomer(Point p, String s)
@@ -30,7 +31,11 @@ public class Monomer
     public void setState(String s) { this.state = s; }
     public void adjustBond(byte direction, byte bondType)
     {
+        neighborBonds.put(direction, bondType);
 
+    }
 
+    public byte getBondTypeByDir(byte direction) {
+        return neighborBonds.get(direction);
     }
 }
