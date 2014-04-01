@@ -14,7 +14,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
     public boolean addMonomer(Monomer m)
     {
-        if(this.containsKey(m.getLocation()))
+        if(!this.containsKey(m.getLocation()))
         {
             this.put(m.getLocation(), m);
             return true;

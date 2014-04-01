@@ -41,7 +41,6 @@ public class Direction
         if(direction == TYPE_FLAG_SOUTHEAST)
             return new Point(start.x + TYPE_POINT_OFFSET_SOUTHEAST.x, start.y + TYPE_POINT_OFFSET_SOUTHEAST.y);
         return start;
-
     }
 
 }

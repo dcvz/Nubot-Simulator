@@ -11,16 +11,23 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
 public class Display implements ActionListener
 {
+
+    Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
     JComponent canvas;
+    //Config and rules
     Configuration map;
     RuleSet rules;
+    BufferedImage nubotImage;
+    Graphics2D nubotGFX;
+    //Menus
     private JMenu file = new JMenu("File");
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
@@ -39,6 +46,7 @@ public class Display implements ActionListener
     private JMenuItem speed = new JMenuItem("Speed");
 
 
+
     public Display()
     {
         mainFrame.setBackground(Color.WHITE);
@@ -55,6 +63,28 @@ public class Display implements ActionListener
         initCanvas();
         mainFrame.add(canvas);
         mainFrame.setVisible(true);
+
+        //for the nubot graphics/image & visuals
+        nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        nubotGFX = (Graphics2D)nubotImage.getGraphics();
+        nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+
+        timer = new Timer(1000/60, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nubotGFX.setComposite(AlphaComposite.Clear);
+                nubotGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
+                nubotGFX.setComposite(AlphaComposite.SrcOver);
+                for(Monomer m : map.values())
+                  drawMonomer(m);
+                //System.out.println(map.size());
+                canvas.repaint();
+
+            }
+        });
+        timer.setRepeats(true);
+        timer.start();
     }
     public void initCanvas()
     {
@@ -63,7 +93,7 @@ public class Display implements ActionListener
             @Override
             public void paintComponent(Graphics g)
             {
-
+                g.drawImage(nubotImage, 0 , 0 , null );
             }
 
         };
@@ -119,6 +149,7 @@ public class Display implements ActionListener
         }
         else if (e.getSource() == loadC)
         {
+
             try {
                 final JFileChooser jfc = new JFileChooser();
 
@@ -175,6 +206,7 @@ public class Display implements ActionListener
 
                                         String[] splitted = line.split(" ");
                                         map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
+                                        System.out.println("SDFFS@$QQ");
 
                                     }
                                 } else if (inBonds) {
@@ -230,5 +262,20 @@ public class Display implements ActionListener
         {
             System.out.println("pause");
         }
+    }
+
+    private void drawMonomer(Monomer m) {
+        nubotGFX.setColor(Color.black);
+
+        nubotGFX.fillOval(
+                /*X coord*/    m.getLocation().x * Simulation.monomerRadius*2 + Simulation.canvasXYoffset.x, //+m.getLocation().y * Simulation.monomerRadius + Simulation.monomerRadius/2  ,
+                /*Y coord*/    m.getLocation().y * Simulation.monomerRadius*2 + Simulation.canvasXYoffset.y, //+ -1 *(m.getLocation().y * (int)(Math.sqrt(3)*Simulation.monomerRadius))  ,
+                /*Width  */    Simulation.monomerRadius*2,
+                /*Height */    Simulation.monomerRadius*2);
+        nubotGFX.drawString(
+                /*String */     m.getState(),
+                /*X Coord */    m.getLocation().x,
+                /*Y Coord */    m.getLocation().y    );
+
     }
 }

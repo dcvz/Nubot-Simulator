@@ -7,13 +7,14 @@
 //
 
 
-import java.awt.Dimension;
+import java.awt.*;
 
 public class Simulation
 {
     public static Dimension frameSize = new Dimension(800, 600);
     public static Dimension canvasSize = new Dimension(800,600);
-    public static int monomerDiameter = 600/30;
+    public static Point canvasXYoffset = new Point(400,300);
+    public static int monomerRadius = 600/60;
     public static boolean configLoaded = false;
     public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;

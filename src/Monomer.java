@@ -12,7 +12,8 @@ public class Monomer
 {
     private Point location;
     private String state;
-    private byte neighbors = 0;
+
+
 
     public Monomer(Point p, String s)
     {
@@ -27,4 +28,9 @@ public class Monomer
     // mutator methods
     public void setLocation(Point p) { this.location= p; }
     public void setState(String s) { this.state = s; }
+    public void adjustBond(byte direction, byte bondType)
+    {
+
+
+    }
 }
