@@ -6,7 +6,16 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
-public class RuleSet
-{
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.javatuples.*;
+
+public class RuleSet extends HashMap<Quartet<String, String, Integer, Point>, ArrayList<Rule>>
+{
+    public void addRule(Rule r)
+    {
+
+    }
 }
