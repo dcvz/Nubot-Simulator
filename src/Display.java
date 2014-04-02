@@ -90,8 +90,6 @@ public class Display implements ActionListener {
                     drawBond(m);
                     drawMonomer(m);
 
-                    System.out.println(map.computeActionSet().size());
-                    System.out.println("SD");
                 }
                 canvas.repaint();
             }
