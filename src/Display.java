@@ -191,7 +191,7 @@ public class Display implements ActionListener
                     //if the selected file is of the right extension
                     if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules"))
                     {
-                        rules.clear();
+                        map.rules.clear();
                         rulesFileName = theFile.getName();
                         FileReader fre = new FileReader(theFile);
                         BufferedReader bre = new BufferedReader(fre);
@@ -208,7 +208,7 @@ public class Display implements ActionListener
                             if (line != null && !line.contains("[") && !line.isEmpty() && line != "")
                             {
                                 String[] splitted = line.split(" ");
-                                rules.addRule(new Rule(splitted[0], splitted[1], (byte) Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte) Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
+                                map.rules.addRule(new Rule(splitted[0], splitted[1], (byte) Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte) Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
                             }
                         }
 
@@ -222,7 +222,7 @@ public class Display implements ActionListener
                             simStart.setEnabled(true);
                     }
 
-                    System.out.println(rules.values());
+                    System.out.println(map.rules.values());
                 }
             }
             catch (Exception exc)
