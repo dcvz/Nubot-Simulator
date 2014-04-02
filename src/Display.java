@@ -26,7 +26,6 @@ public class Display implements ActionListener
     JComponent canvas;
     //Config and rules
     Configuration map;
-    RuleSet rules;
     BufferedImage nubotImage;
     BufferedImage bondLayerImage;
     Graphics2D nubotGFX;
@@ -64,7 +63,6 @@ public class Display implements ActionListener
         initMenuBar();
         Simulation.canvasSize = mainFrame.getContentPane().getSize();
         map = new Configuration();
-        rules = new RuleSet();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initCanvas();
         mainFrame.add(canvas);
@@ -216,7 +214,7 @@ public class Display implements ActionListener
 
                         Simulation.rulesLoaded = true;
                         if (Simulation.debugMode)
-                            System.out.println("We have " + rules.size() + " rules");
+                            System.out.println("We have " + map.rules.size() + " rules");
 
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                             simStart.setEnabled(true);
