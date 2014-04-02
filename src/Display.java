@@ -298,7 +298,7 @@ public class Display implements ActionListener {
 
                         bre.close();
                         Simulation.configLoaded = true;
-
+                        drawMonomers();
                         if (Simulation.configLoaded && Simulation.rulesLoaded)
                             simStart.setEnabled(true);
                     }
@@ -360,6 +360,18 @@ public class Display implements ActionListener {
                 /*String */     m.getState(),
                 /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment,
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
+    }
+
+    private void drawMonomers()
+    {
+        for (Monomer m : map.values()) {
+
+            drawBond(m);
+            drawMonomer(m);
+
+        }
+        canvas.repaint();
+
     }
 
 
