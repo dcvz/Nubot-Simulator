@@ -39,6 +39,7 @@ public class Configuration extends HashMap<Point, Monomer>
     // that can be executed in our current configuration
     private ActionSet computeActionSet()
     {
+        ActionSet actSet = new ActionSet();
         for (Monomer m : this.values())
         {
             for (int i = -1; i <= 1; i++)
@@ -58,16 +59,19 @@ public class Configuration extends HashMap<Point, Monomer>
                             // pass it on to RuleSet and see if any actions
                             // apply to this pair of momomers
                             Monomer neighbor = this.get(neighborPoint);
-                            Quartet<String, String, Byte, Byte> key = Quartet.with(m.getState(), neighbor.getState(), )
-                            if (rules.containsKey(key)
+
+                            Quartet<String, String, Byte, Byte> keyRig = Quartet.with(m.getState(), neighbor.getState(),m.getBondTo(neighborPoint), Direction.dirFromPoints(m.getLocation(), neighborPoint) );
+                            if (rules.containsKey(keyRig)  )
                             {
                                 // there is rules that apply to this particular pair
                                 // itirate through the returned list and add to actions
                             }
+
                         }
                     }
                 }
             }
         }
+       return actSet;
     }
 }
