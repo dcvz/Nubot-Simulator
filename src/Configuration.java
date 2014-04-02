@@ -7,11 +7,9 @@
 //
 
 import org.javatuples.Quartet;
-import sun.security.krb5.Config;
 
 import java.awt.*;
 import java.util.HashMap;
-import java.util.Random;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
@@ -31,19 +29,12 @@ public class Configuration extends HashMap<Point, Monomer>
         return false;
     }
 
-    public void executeFrame()
+    public void executeAction()
     {
         ActionSet actions = computeActionSet();
         numberOfActions = actions.size();
-        Action selected;
 
-        do
-        {
-            selected = actions.selectArbitrary();
-        }
-        while (!executeAction(selected));
-
-        timeElapsed += computeExponentialDistribution(actions.size() + 1);
+        Action selected = actions.selectArbitrary();
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -93,23 +84,6 @@ public class Configuration extends HashMap<Point, Monomer>
                 }
             }
         }
-
        return actSet;
-    }
-
-    private boolean executeAction(Action a)
-    {
-        return false;
-    }
-
-    private double computeExponentialDistribution(int i)
-    {
-        Random rand = new Random();
-        double randNum = rand.nextDouble();
-
-        while (randNum == 0.0)
-            randNum = rand.nextDouble();
-
-        return (-1 * Math.log(randNum)) / i;
     }
 }
