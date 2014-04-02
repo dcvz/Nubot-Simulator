@@ -8,7 +8,6 @@
 
 import org.javatuples.Quartet;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 import java.awt.*;
 import java.util.HashMap;
 
@@ -82,7 +81,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     else
                     {
                         Point neighborPoint = new Point(m.getLocation().x + i, m.getLocation().y + j);
-                        Quartet<String, String, Byte, Byte> key = Quartet.with("","", (byte)0, (byte)0);
+                        Quartet<String, String, Byte, Byte> key;
 
                         if (this.containsKey(neighborPoint))
                         {
@@ -123,6 +122,8 @@ public class Configuration extends HashMap<Point, Monomer>
             return performInsertion(a);
         else if (a.getRule().getClassification() == Rule.RuleType.DELETION)
             return performDeletion(a);
+        else if (a.getRule().getClassification() == Rule.RuleType.BOTH)
+            return performBoth(a);
 
         return false;
     }
@@ -155,7 +156,7 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
         // check if there is a change in bond type
-        if (a.getRule().getBond() != a.getRule().getBondp())
+        if (a.getRule().getBond().equals(a.getRule().getBondp()))
         {
             // if both monomers exist only then can we form bonds
             if (exMon1 && exMon2)
@@ -232,6 +233,11 @@ public class Configuration extends HashMap<Point, Monomer>
         return true;
     }
 
+    private boolean performBoth(Action a)
+    {
+        return true;
+    }
+
     //================================================================================
     // Helpers
     //================================================================================
@@ -278,6 +284,6 @@ public class Configuration extends HashMap<Point, Monomer>
             }
         }
 
-        remove(one);
+        this.remove(one.getLocation());
     }
 }
