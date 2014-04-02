@@ -47,6 +47,60 @@ public class Direction {
 
     }
 
+    public static Point dirToPointOffset(byte direction)
+    {
+      if(direction == TYPE_FLAG_EAST)
+        return TYPE_POINT_OFFSET_EAST;
+       if(direction == TYPE_FLAG_NORTHEAST)
+        return TYPE_POINT_OFFSET_NORTHEAST;
+        if(direction == TYPE_FLAG_SOUTHEAST)
+            return TYPE_POINT_OFFSET_SOUTHEAST;
+        if(direction == TYPE_FLAG_NORTHWEST)
+            return TYPE_POINT_OFFSET_NORTHWEST;
+        if(direction == TYPE_FLAG_SOUTHWEST)
+            return TYPE_POINT_OFFSET_SOUTHWEST;
+        if(direction == TYPE_FLAG_WEST)
+            return TYPE_POINT_OFFSET_WEST;
+
+
+
+        return new Point(0,0);
+    }
+
+    public static Point translatedPointByDir(Point point, byte dir)
+    {
+
+        return new Point(point.x + dirToPointOffset(dir).x , point.y + dirToPointOffset(dir).y) ;
+
+    }
+
+
+    public static byte deltaFromDirs(byte dir1, byte dir2)
+    {
+      /*  if(dir1 == TYPE_FLAG_EAST && dir2 == TYPE_FLAG_NORTHEAST)
+             return TYPE_FLAG_NORTHWEST;
+        if(dir1 == TYPE_FLAG_NORTHEAST && dir2 == TYPE_FLAG_EAST)
+            return TYPE_FLAG_SOUTHEAST;
+
+        if(dir1 == TYPE_FLAG_NORTHEAST&& dir2 == TYPE_FLAG_NORTHWEST)
+            return TYPE_FLAG_WEST;
+        if(dir1 == TYPE_FLAG_NORTHWEST&& dir2 == TYPE_FLAG_NORTHEAST)
+            return TYPE_FLAG_EAST;
+
+
+        if(dir1 == TYPE_FLAG_NORTHWEST&& dir2 == TYPE_FLAG_WEST)
+            return TYPE_FLAG_SOUTHWEST;
+        if(dir1 == TYPE_FLAG_WEST && dir2 == TYPE_FLAG_NORTHWEST)
+            return TYPE_FLAG_NORTHEAST;   */
+
+
+
+        return 0;
+
+
+    }
+
+
     public static byte pointOffsetToDirByte(Point off) {
         if (off.equals(TYPE_POINT_OFFSET_EAST))
             return TYPE_FLAG_EAST;
