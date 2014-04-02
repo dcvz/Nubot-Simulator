@@ -61,19 +61,27 @@ public class Configuration extends HashMap<Point, Monomer>
                             Monomer neighbor = this.get(neighborPoint);
 
                             Quartet<String, String, Byte, Byte> keyRig = Quartet.with(m.getState(), neighbor.getState(),m.getBondTo(neighborPoint), Direction.dirFromPoints(m.getLocation(), neighborPoint) );
-                            if (rules.containsKey(keyRig)  )
+                            if (rules.containsKey(keyRig))
                             {
                                 // there is rules that apply to this particular pair
-                                // itirate through the returned list and add to actions
+                                // iterate through the returned list and add to actions
+                                for (Quartet<String, String, Byte, Byte> a : rules.get(keyRig))
+                                {
+                                    actSet.add(new Action(m.getLocation(), neighbor.getLocation(), ))
+                                }
                             }
-
                         }
                         else
                         {
                             // there is no monomer at this location
                             // pass it on to RuleSet and see if any actions
                             // apply to this monomer paired with an empty space
-                            Quartet<String, String, Byte, Byte> key = Quartet.with(m.getState(), "empty", Bond.TYPE_NONE, Direction.dirFromPoints(m.getLocation(), neighborPoint));
+                            Quartet<String, String, Byte, Byte> keyRig = Quartet.with(m.getState(), "empty", Bond.TYPE_NONE, Direction.dirFromPoints(m.getLocation(), neighborPoint));
+                            if (rules.containsKey(keyRig))
+                            {
+                                // there is rules that apply to this particular pair
+                                // iterate through the returned list and add to actions
+                            }
                         }
                     }
                 }
