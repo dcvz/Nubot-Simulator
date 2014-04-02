@@ -32,6 +32,10 @@ public class Configuration extends HashMap<Point, Monomer>
         numberOfActions = numberOfMonomers = 0;
     }
 
+    //================================================================================
+    // Functionality Methods
+    //================================================================================
+
     public boolean addMonomer(Monomer m)
     {
         if(!this.containsKey(m.getLocation()))
