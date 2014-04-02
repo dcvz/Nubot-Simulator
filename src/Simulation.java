@@ -20,12 +20,27 @@ public class Simulation
     public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;
     public static boolean isPaused = false;
+    public static double scale = 1.0;
 
 
     public static Point getCanvasPosition(Point gridPosition)
     {
        return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,   canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius);
     }
+
+    public static void scaleUp()
+    {
+        scale = scale * 1.10;
+        monomerRadius = (int)(monomerRadius * scale);
+    }
+
+    public static void scaleDown()
+    {
+        scale = scale * .90;
+        monomerRadius = (int)(monomerRadius * scale);
+
+    }
+
 
     public static double calculateExpDistribution(int i)
     {

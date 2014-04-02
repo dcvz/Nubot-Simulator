@@ -9,10 +9,7 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -20,7 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class Display implements ActionListener, ComponentListener{
+public class Display implements ActionListener, ComponentListener, MouseWheelListener{
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -81,6 +78,7 @@ public class Display implements ActionListener, ComponentListener{
         mainFrame.add(canvas);
         mainFrame.setVisible(true);
         mainFrame.addComponentListener(this);
+        canvas.addMouseWheelListener(this);
 
         //for the nubot graphics/image & visuals
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -95,7 +93,7 @@ public class Display implements ActionListener, ComponentListener{
         hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
 
-        timer = new Timer(1000/10 , new ActionListener() {
+        timer = new Timer(1000/60 , new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -459,6 +457,23 @@ public class Display implements ActionListener, ComponentListener{
     @Override
     public void componentShown(ComponentEvent e)
     {
+
+    }
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e)
+    {
+
+        if (e.getWheelRotation() == 1.0)
+        {
+           Simulation.scaleDown();
+
+        }
+
+        else
+        {
+            Simulation.scaleUp();
+        }
+
 
     }
 
