@@ -17,7 +17,7 @@ public class Rule
     private Byte dir, dirp;
     private RuleType classification;
 
-    public enum RuleType { STATECHANGE, INSERTION, DELETION, BOTH, MOVEMENT };
+    public enum RuleType { NONE, STATECHANGE, INSERTION, DELETION, BOTH, MOVEMENT };
 
     public Rule(String State1, String State2, Byte initialBondType, Byte S2initialDirection, String State1P, String State2P,Byte endBondType, Byte S2EndDirection)
     {
