@@ -16,9 +16,9 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 
-public class Display implements ActionListener
-{
+public class Display implements ActionListener {
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -50,11 +50,7 @@ public class Display implements ActionListener
     String configFileName = "";
 
 
-
-
-
-    public Display()
-    {
+    public Display() {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
         mainFrame.setSize(Simulation.frameSize.width, Simulation.frameSize.height);
@@ -72,18 +68,21 @@ public class Display implements ActionListener
 
         //for the nubot graphics/image & visuals
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        nubotGFX = (Graphics2D)nubotImage.getGraphics();
+        nubotGFX = (Graphics2D) nubotImage.getGraphics();
         nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         nubotGFX.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
 
-        timer = new Timer(1000/60, new ActionListener() {
+        timer = new Timer(1000 / 60, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 nubotGFX.setComposite(AlphaComposite.Clear);
                 nubotGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
                 nubotGFX.setComposite(AlphaComposite.SrcOver);
-                for(Monomer m : map.values())
-                  drawMonomer(m);
+                for (Monomer m : map.values()) {
+                    drawBond(m);
+                    drawMonomer(m);
+
+                }
                 //System.out.println(map.size());
                 canvas.repaint();
 
@@ -92,25 +91,22 @@ public class Display implements ActionListener
         timer.setRepeats(true);
         timer.start();
     }
-    public void initCanvas()
-    {
+
+    public void initCanvas() {
         canvas = new JComponent() {
 
             @Override
-            public void paintComponent(Graphics g)
-            {
-                g.drawImage(nubotImage, 0 , 0 , null );
+            public void paintComponent(Graphics g) {
+                g.drawImage(nubotImage, 0, 0, null);
             }
 
         };
         canvas.setSize(Simulation.canvasSize);
 
 
-
-
     }
-    private void initMenuBar()
-    {
+
+    private void initMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
         loadR.addActionListener(this);
@@ -146,10 +142,8 @@ public class Display implements ActionListener
     }
 
     @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        if (e.getSource() == loadR)
-        {
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == loadR) {
             try {
                 final JFileChooser jfc = new JFileChooser();
 
@@ -201,7 +195,7 @@ public class Display implements ActionListener
                             if (line != null && !line.contains("[") && !line.isEmpty() && line != "") {
 
                                 String[] splitted = line.split(" ");
-                                rules.addRule(new Rule(splitted[0], splitted[1], (byte)Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte)Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
+                                rules.addRule(new Rule(splitted[0], splitted[1], (byte) Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte) Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
 
                             }
 
@@ -229,9 +223,7 @@ public class Display implements ActionListener
 
 
             System.out.println("Load Rules");
-        }
-        else if (e.getSource() == loadC)
-        {
+        } else if (e.getSource() == loadC) {
 
             try {
                 final JFileChooser jfc = new JFileChooser();
@@ -296,8 +288,15 @@ public class Display implements ActionListener
                                 } else if (inBonds) {
 
                                     String[] splitted = line.split(" ");
-                                   // map.adjustBonds(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3])), Integer.parseInt(splitted[4]));
+                                   // map.adjustBond(,);
+                                    Point monomerPoint1 = new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1]));
+                                    Point monomerPoint2 = new Point(Integer.parseInt(splitted[2]), Integer.parseInt(splitted[3]));
+                                    byte bondType = (byte)Integer.parseInt(splitted[4]);
+                                    map.get(monomerPoint1).adjustBond(Direction.dirFromPoints(monomerPoint1, monomerPoint2), bondType);
+                                    map.get(monomerPoint2).adjustBond(Direction.dirFromPoints(monomerPoint2, monomerPoint1), bondType);
 
+
+                                    //,
                                 } else if (Simulation.debugMode)
                                     System.out.println("We don't have more sections.");
 
@@ -309,7 +308,7 @@ public class Display implements ActionListener
 
 
                         if (Simulation.configLoaded && Simulation.rulesLoaded) {
-                           simStart.setEnabled(true);
+                            simStart.setEnabled(true);
                         }
 
                     }
@@ -321,31 +320,19 @@ public class Display implements ActionListener
 
             }
             System.out.println("Load config");
-        }
-        else if (e.getSource() == menuClear)
-        {
+        } else if (e.getSource() == menuClear) {
             System.out.println("clear config");
-        }
-        else if (e.getSource() == menuQuit)
-        {
+        } else if (e.getSource() == menuQuit) {
 
             System.out.println("quit application");
             System.exit(0);
-        }
-        else if (e.getSource() == about)
-        {
+        } else if (e.getSource() == about) {
             System.out.println("about this application");
-        }
-        else if (e.getSource() == simStart)
-        {
+        } else if (e.getSource() == simStart) {
             System.out.println("start");
-        }
-        else if (e.getSource() == simStop)
-        {
+        } else if (e.getSource() == simStop) {
             System.out.println("stop");
-        }
-        else if (e.getSource() == simPause)
-        {
+        } else if (e.getSource() == simPause) {
             System.out.println("pause");
         }
     }
@@ -355,32 +342,64 @@ public class Display implements ActionListener
 
 
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
-        int monomerWidthAdjustment =   Simulation.monomerRadius/8;
-        int monomerWidth = Simulation.monomerRadius*2 - monomerWidthAdjustment;
-        int monomerHeight = Simulation.monomerRadius*2;
+        int monomerWidthAdjustment = Simulation.monomerRadius / 4;
+        int monomerWidth = Simulation.monomerRadius * 2 - monomerWidthAdjustment;
+        int monomerHeight = Simulation.monomerRadius * 2;
         nubotGFX.fillOval(
-                /*X coord*/   xyPos.x ,
-                /*Y coord*/   xyPos.y ,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                /*X coord*/   xyPos.x,
+                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */   monomerWidth,
                 /*Height */   monomerHeight);
         nubotGFX.setColor(Color.WHITE);
-        Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
-        while(bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight)
-        {
-            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float)++fontSize));
-            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
+        Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
+        while (bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight) {
+            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) ++fontSize));
+            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
 
         }
-        while(bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight)
-        {
-            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float)--fontSize));
-            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext() );
+        while (bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight) {
+            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) --fontSize));
+            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
         }
 
         nubotGFX.drawString(
                 /*String */     m.getState(),
-                /*X Coord */    xyPos.x + Simulation.monomerRadius - (int)bounds.getWidth()/2 - monomerWidthAdjustment  ,
-                /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int)bounds.getHeight()/3 );
+                /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment,
+                /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5) );
+    }
+
+
+    public void drawBond(Monomer m) {
+
+        nubotGFX.setColor(Color.RED);
+             if(m.hasBonds())
+             {
+                 ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
+                 ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
+
+
+                    for(Byte dir : rigidDirList) {
+
+                        Point start = Simulation.getCanvasPosition(m.getLocation());
+                        Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                        start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
+                        end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
+                        nubotGFX.drawLine(start.x, start.y,end.x, end.y );
+
+                    }
+
+
+
+
+
+
+
+
+             }
+
+
 
     }
+
+
 }

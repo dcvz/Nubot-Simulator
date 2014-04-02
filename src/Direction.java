@@ -44,6 +44,35 @@ public class Direction
             return new Point(start.x + TYPE_POINT_OFFSET_SOUTHEAST.x, start.y + TYPE_POINT_OFFSET_SOUTHEAST.y);
         return start;
     }
+    public static byte dirFromPoints(Point ORIGIN_monomerPoint1, Point NEIGHBOR_monomerPoint2)
+    {
+       return pointOffsetToDirByte(new Point(NEIGHBOR_monomerPoint2.x - ORIGIN_monomerPoint1.x, NEIGHBOR_monomerPoint2.y - ORIGIN_monomerPoint1.y));
+
+
+    }
+    public static byte pointOffsetToDirByte(Point off)
+    {
+        if(off.equals(TYPE_POINT_OFFSET_EAST))
+            return TYPE_FLAG_EAST;
+        if(off.equals(TYPE_POINT_OFFSET_WEST))
+            return TYPE_FLAG_WEST;
+        if(off.equals(TYPE_POINT_OFFSET_NORTHEAST))
+            return TYPE_FLAG_NORTHEAST;
+        if(off.equals(TYPE_POINT_OFFSET_NORTHWEST))
+            return TYPE_FLAG_NORTHWEST;
+        if(off.equals(TYPE_POINT_OFFSET_SOUTHWEST))
+            return TYPE_FLAG_SOUTHWEST;
+        if(off.equals(TYPE_POINT_OFFSET_SOUTHEAST))
+            return TYPE_FLAG_SOUTHEAST;
+        return 0;
+
+    }
+    public static byte dirFromPosInts(int x1, int y1, int x2, int y2)
+    {
+        return pointOffsetToDirByte(new Point(x2 - x1, y2 - y1));
+
+    }
+
     static byte stringToFlag(String dir)
     {
        if(dir.matches("E"))
