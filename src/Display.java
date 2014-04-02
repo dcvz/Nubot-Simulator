@@ -11,6 +11,8 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -18,7 +20,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class Display implements ActionListener {
+public class Display implements ActionListener, ComponentListener{
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -27,8 +29,11 @@ public class Display implements ActionListener {
     Configuration map;
     BufferedImage nubotImage;
     BufferedImage bondLayerImage;
+    BufferedImage hudImage;
     Graphics2D nubotGFX;
     Graphics2D bondLayerGFX;
+    Graphics2D hudLayerGFX;
+
     //Menus
     private JMenu file = new JMenu("File");
     private JMenu simulation = new JMenu("Simulation");
@@ -64,12 +69,18 @@ public class Display implements ActionListener {
         simPause.setEnabled(false);
         simStop.setEnabled(false);
 
-        Simulation.canvasSize = mainFrame.getContentPane().getSize();
+
+
+
+
+
         map = new Configuration();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Simulation.canvasSize = mainFrame.getContentPane().getSize();
         initCanvas();
         mainFrame.add(canvas);
         mainFrame.setVisible(true);
+        mainFrame.addComponentListener(this);
 
         //for the nubot graphics/image & visuals
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -79,7 +90,10 @@ public class Display implements ActionListener {
         bondLayerImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         bondLayerGFX = (Graphics2D) bondLayerImage.getGraphics();
         bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        hudLayerGFX = (Graphics2D)hudImage.getGraphics();
+        hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
 
         timer = new Timer(1000/10 , new ActionListener() {
             @Override
@@ -98,6 +112,7 @@ public class Display implements ActionListener {
                         drawMonomer(m);
 
                     }
+                        drawHud();
                         map.executeFrame();
                     }
                 }
@@ -115,6 +130,7 @@ public class Display implements ActionListener {
             public void paintComponent(Graphics g) {
                 g.drawImage(bondLayerImage, 0, 0, null);
                 g.drawImage(nubotImage, 0, 0, null);
+                g.drawImage(hudImage, 0, 0, null);
             }
 
         };
@@ -355,11 +371,11 @@ public class Display implements ActionListener {
                 /*Height */   monomerHeight);
         nubotGFX.setColor(Color.WHITE);
         Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
-        while (bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight) {
+        while (bounds.getWidth() < monomerWidth -2 && bounds.getHeight() < monomerHeight - 2) {
             nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) ++fontSize));
             bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
         }
-        while (bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight) {
+        while (bounds.getWidth() > monomerWidth -2 || bounds.getHeight() > monomerHeight -2) {
             nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) --fontSize));
             bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
         }
@@ -407,6 +423,11 @@ public class Display implements ActionListener {
             }
         }
     }
+    private void drawHud()
+    {
+        hudLayerGFX.drawString("dsfgdfgdfgdfg2342342dsf", 0 ,100);
+
+    }
 
     private void clearImages() {
         nubotGFX.setComposite(AlphaComposite.Clear);
@@ -415,6 +436,30 @@ public class Display implements ActionListener {
         bondLayerGFX.setComposite(AlphaComposite.Clear);
         bondLayerGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
         bondLayerGFX.setComposite(AlphaComposite.SrcOver);
+        hudLayerGFX.setComposite(AlphaComposite.Clear);
+        hudLayerGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
+        hudLayerGFX.setComposite(AlphaComposite.SrcOver);
 
     }
+    @Override
+    public void componentResized(ComponentEvent e)
+    {
+
+    }
+    @Override
+    public void componentHidden(ComponentEvent e)
+    {
+
+    }
+    @Override
+    public void componentMoved(ComponentEvent e)
+    {
+
+    }
+    @Override
+    public void componentShown(ComponentEvent e)
+    {
+
+    }
+
 }

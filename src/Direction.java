@@ -67,6 +67,11 @@ public class Direction {
         return new Point(0,0);
     }
 
+    public static byte getOppositeDir(byte directon)
+    {
+        return(pointOffsetToDirByte(new Point(dirToPointOffset(directon).x * -1,dirToPointOffset(directon).y * -1 )));
+    }
+
     public static Point translatedPointByDir(Point point, byte dir)
     {
 
