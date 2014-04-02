@@ -160,7 +160,7 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
         // check if there is a change in bond type
-        if (a.getRule().getBond().equals(a.getRule().getBondp()))
+        if (!a.getRule().getBond().equals(a.getRule().getBondp()))
         {
             // if both monomers exist only then can we form bonds
             if (exMon1 && exMon2)
