@@ -33,6 +33,8 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         ActionSet actions = computeActionSet();
         numberOfActions = actions.size();
+
+        Action selected = actions.selectArbitrary();
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -53,38 +55,29 @@ public class Configuration extends HashMap<Point, Monomer>
                     else
                     {
                         Point neighborPoint = new Point(m.getLocation().x + i, m.getLocation().y + j);
+                        Quartet<String, String, Byte, Byte> keyRig;
+
                         if (this.containsKey(neighborPoint))
                         {
                             // there is a monomer in this neighboring position
-                            // pass it on to RuleSet and see if any actions
-                            // apply to this pair of momomers
                             Monomer neighbor = this.get(neighborPoint);
-
-                            Quartet<String, String, Byte, Byte> keyRig = Quartet.with(m.getState(), neighbor.getState(),m.getBondTo(neighborPoint), Direction.dirFromPoints(m.getLocation(), neighborPoint) );
-                            if (rules.containsKey(keyRig))
-                            {
-                                // there is rules that apply to this particular pair
-                                // iterate through the returned list and add to actions
-                                for (Rule r : rules.get(keyRig))
-                                {
-                                    actSet.add(new Action(m.getLocation(), neighbor.getLocation(), r));
-                                }
-                            }
+                            keyRig = Quartet.with(m.getState(), neighbor.getState(), m.getBondTo(neighborPoint), Direction.dirFromPoints(m.getLocation(), neighborPoint) );
                         }
                         else
                         {
                             // there is no monomer at this location
-                            // pass it on to RuleSet and see if any actions
-                            // apply to this monomer paired with an empty space
-                            Quartet<String, String, Byte, Byte> keyRig = Quartet.with(m.getState(), "empty", Bond.TYPE_NONE, Direction.dirFromPoints(m.getLocation(), neighborPoint));
-                            if (rules.containsKey(keyRig))
+                            keyRig = Quartet.with(m.getState(), "empty", Bond.TYPE_NONE, Direction.dirFromPoints(m.getLocation(), neighborPoint));
+                        }
+
+                        // pass it on to RuleSet and see if any actions
+                        // apply to this particular pair
+                        if (rules.containsKey(keyRig))
+                        {
+                            // there is rules that apply to this particular pair
+                            // iterate through the returned list and add to actions
+                            for (Rule r : rules.get(keyRig))
                             {
-                                // there is rules that apply to this particular pair
-                                // iterate through the returned list and add to actions
-                                for (Rule r : rules.get(keyRig))
-                                {
-                                    actSet.add(new Action(m.getLocation(), neighborPoint, r));
-                                }
+                                actSet.add(new Action(m.getLocation(), neighborPoint, r));
                             }
                         }
                     }
