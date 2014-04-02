@@ -29,7 +29,5 @@ public class RuleSet extends HashMap<Quartet<String, String, Byte, Byte>, ArrayL
            outputList.add(r.getOutputQuartet());
            this.put(key, outputList);
        }
-
-
     }
 }
