@@ -8,6 +8,7 @@
 
 import org.javatuples.Quartet;
 
+import javax.xml.bind.annotation.XmlElementDecl;
 import java.awt.*;
 import java.util.HashMap;
 
@@ -23,8 +24,10 @@ public class Configuration extends HashMap<Point, Monomer>
 
     public Configuration()
     {
-
         rules = new RuleSet();
+        isFinished = false;
+        timeElapsed = 0.0;
+        numberOfActions = numberOfMonomers = 0;
     }
     public boolean addMonomer(Monomer m)
     {
@@ -36,19 +39,25 @@ public class Configuration extends HashMap<Point, Monomer>
         return false;
     }
 
-    public void executeAction()
+    public void executeFrame()
     {
         ActionSet actions = computeActionSet();
         numberOfActions = actions.size();
+        Action selected;
 
-        Action selected = actions.selectArbitrary();
+        do
+        {
+            selected = actions.selectArbitrary();
+        } while (!executeAction(selected));
+
+        timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
     }
 
     // given a ruleset, compute a list of all possible actions
     // that can be executed in our current configuration
     public ActionSet computeActionSet()
     {
-        ActionSet actSet = new ActionSet();
+        ActionSet ret = new ActionSet();
         for (Monomer m : this.values())
         {
             for (int i = -1; i <= 1; i++)
@@ -84,13 +93,19 @@ public class Configuration extends HashMap<Point, Monomer>
                             // iterate through the returned list and add to actions
                             for (Rule r : rules.get(key))
                             {
-                                actSet.add(new Action(m.getLocation(), neighborPoint, r));
+                                ret.add(new Action(m.getLocation(), neighborPoint, r));
                             }
                         }
                     }
                 }
             }
         }
-       return actSet;
+
+       return ret;
+    }
+
+    private boolean executeAction(Action a)
+    {
+        return false;
     }
 }

@@ -8,6 +8,7 @@
 
 
 import java.awt.*;
+import java.util.Random;
 
 public class Simulation
 {
@@ -23,7 +24,16 @@ public class Simulation
     public static Point getCanvasPosition(Point gridPosition)
     {
        return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,   canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius);
+    }
 
+    public static double calculateExpDistribution(int i)
+    {
+        Random rand = new Random();
+        double randNum = rand.nextDouble();
 
+        while (randNum == 0.0)
+            randNum = rand.nextDouble();
+
+        return (-1 * Math.log(randNum)) / i;
     }
 }
