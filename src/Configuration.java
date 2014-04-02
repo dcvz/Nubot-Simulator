@@ -18,7 +18,6 @@ public class Configuration extends HashMap<Point, Monomer>
     public boolean isFinished;
     public double timeElapsed;
     public int numberOfActions;
-    public int numberOfMonomers;
 
     //================================================================================
     // Constructors
@@ -29,7 +28,7 @@ public class Configuration extends HashMap<Point, Monomer>
         rules = new RuleSet();
         isFinished = false;
         timeElapsed = 0.0;
-        numberOfActions = numberOfMonomers = 0;
+        numberOfActions = 0;
     }
 
     //================================================================================
@@ -114,13 +113,11 @@ public class Configuration extends HashMap<Point, Monomer>
     private boolean executeAction(Action a)
     {
         if (a.getRule().getClassification() == Rule.RuleType.STATECHANGE)
-        {
             return performStateChange(a);
-        }
         else if (a.getRule().getClassification() == Rule.RuleType.INSERTION)
-        {
             return performInsertion(a);
-        }
+        else if (a.getRule().getClassification() == Rule.RuleType.DELETION)
+            return performDeletion(a);
 
         return false;
     }
@@ -199,6 +196,37 @@ public class Configuration extends HashMap<Point, Monomer>
         return true;
     }
 
+    // action that consists of deleting a monomer
+    private boolean performDeletion(Action a)
+    {
+        // if monomer 1 wasn't empty then becomes empty, then it must have gotten deleted
+        if (!a.getRule().getS1().equals("empty") && a.getRule().getS1p().equals("empty"))
+        {
+            destroyMonomer(a.getMon1());
+
+            // if monomer 2 is not empty, there might have been a state change for it
+            if (!a.getRule().getS2p().equals("empty"))
+            {
+                Monomer tmp = this.get(a.getMon2());
+                tmp.setState(a.getRule().getS2p());
+            }
+        }
+
+        // if monomer 2 wasn't empty then becomes empty, then it must have gotten deleted
+        if (!a.getRule().getS2().equals("empty") && a.getRule().getS2p().equals("empty"))
+        {
+            destroyMonomer(a.getMon2());
+
+            // if monomer 1 is not empty, there might have been a state change for it
+            if (!a.getRule().getS1p().equals("empty"))
+            {
+                Monomer tmp = this.get(a.getMon1());
+                tmp.setState(a.getRule().getS1p());
+            }
+        }
+        return true;
+    }
+
     //================================================================================
     // Helpers
     //================================================================================
@@ -211,5 +239,37 @@ public class Configuration extends HashMap<Point, Monomer>
 
         one.adjustBond(Direction.dirFromPoints(a, b), c);
         two.adjustBond(Direction.dirFromPoints(b, a), c);
+    }
+
+    private void destroyMonomer(Point p)
+    {
+        Monomer one = this.get(p);
+
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == j)
+                {
+                    // do nothing
+                }
+                else
+                {
+                    Point neighborPoint = new Point(one.getLocation().x + i, one.getLocation().y + j);
+
+                    // check if there is a monomer in that neighboring position
+                    if (this.containsKey(neighborPoint))
+                    {
+                        Monomer two = this.get(neighborPoint);
+
+                        // check if there is a bond between this monomer and its neighbor, if so, break it
+                        if (one.getBondTypeByDir(Direction.dirFromPoints(one.getLocation(), neighborPoint)) != Bond.TYPE_NONE)
+                        {
+                            two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
