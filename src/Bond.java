@@ -11,5 +11,4 @@ public class Bond
     public final static byte TYPE_RIGID = 1;
     public final static byte TYPE_FLEXIBLE = 2;
     public final static byte TYPE_NONE = 0;
-
 }

@@ -16,6 +16,9 @@ public class Monomer {
     private HashMap<Byte, Byte> neighborBonds = new HashMap<Byte, Byte>(); // Hashmap(direction,bondtype)
     private HashMap<Byte, ArrayList<Byte>> neighborBondDirs = new HashMap<Byte, ArrayList<Byte>>();
 
+    //================================================================================
+    // Constructors
+    //================================================================================
 
     public Monomer(Point p, String s)
     {
@@ -25,13 +28,23 @@ public class Monomer {
         neighborBondDirs.put(Bond.TYPE_FLEXIBLE, new ArrayList<Byte>());
     }
 
-    // accessor methods
+    //================================================================================
+    // Accessors
+    //================================================================================
+
     public Point getLocation() { return location; }
     public String getState() { return state; }
 
-    // mutator methods
+    //================================================================================
+    // Mutators
+    //================================================================================
+
     public void setLocation(Point p) { this.location = p; }
     public void setState(String s) { this.state = s; }
+
+    //================================================================================
+    // Functionality Methods
+    //================================================================================
 
     public void adjustBond(byte direction, byte bondType)
     {

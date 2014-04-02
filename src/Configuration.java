@@ -20,6 +20,10 @@ public class Configuration extends HashMap<Point, Monomer>
     public int numberOfActions;
     public int numberOfMonomers;
 
+    //================================================================================
+    // Constructors
+    //================================================================================
+
     public Configuration()
     {
         rules = new RuleSet();
@@ -109,11 +113,19 @@ public class Configuration extends HashMap<Point, Monomer>
         {
             return performStateChange(a);
         }
+        else if (a.getRule().getClassification() == Rule.RuleType.INSERTION)
+        {
+            return performInsertion(a);
+        }
 
         return false;
     }
 
-    // action execution types
+    //================================================================================
+    // Action Execution Types
+    //================================================================================
+
+    // action that consists of only changing the states of monomers and/or bond types
     private boolean performStateChange(Action a)
     {
         // flags to indicate whether the monomers exist in the configuration
@@ -128,7 +140,7 @@ public class Configuration extends HashMap<Point, Monomer>
             exMon1 = true;
         }
 
-        // if monomer 2 exists (we could have the dcase of "empty, A, 0, NE -> empty, B, 0, NE").
+        // if monomer 2 exists (we could have the case of "empty, A, 0, NE -> empty, B, 0, NE").
         if (this.containsKey(a.getMon2()))
         {
             Monomer tmp = this.get(a.getMon2());
@@ -142,15 +154,58 @@ public class Configuration extends HashMap<Point, Monomer>
             // if both monomers exist only then can we form bonds
             if (exMon1 && exMon2)
             {
-                Monomer one = this.get(a.getMon1());
-                Monomer two = this.get(a.getMon2());
-
                 // adjust bond types
-                one.adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), a.getRule().getBondp());
-                two.adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), a.getRule().getBondp());
+                adjustBonds(a.getMon1(), a.getMon2(), a.getRule().getBondp());
             }
         }
 
         return true;
+    }
+
+    // action that consists of inserting a monomer
+    private boolean performInsertion(Action a)
+    {
+        // if monomer 1 exists then it is monomer 2 that is going to appear or vice-versa
+        if (this.containsKey(a.getMon1()))
+        {
+            Monomer toIns = new Monomer(a.getMon2(), a.getRule().getS2p());
+            if (!addMonomer(toIns))
+                return false;
+
+            // set monomer 1's state to whatever is in the rule
+            // there might have been a change of state for monomer 1
+            Monomer one = this.get(a.getMon1());
+            one.setState(a.getRule().getS1p());
+        }
+        else
+        {
+            Monomer toIns = new Monomer(a.getMon1(), a.getRule().getS1p());
+            if (!addMonomer(toIns))
+                return false;
+
+            // set monomer 2's state to whatever is in the rule
+            // there might have been a change of state for monomer 2
+            Monomer two = this.get(a.getMon2());
+            two.setState(a.getRule().getS2p());
+        }
+
+        // adjust bond types
+        adjustBonds(a.getMon1(), a.getMon2(), a.getRule().getBondp());
+
+        return true;
+    }
+
+    //================================================================================
+    // Helpers
+    //================================================================================
+
+    // adjusts bonds between two monomers, assumes that you are passing existing monomers
+    private void adjustBonds(Point a, Point b, byte c)
+    {
+        Monomer one = this.get(a);
+        Monomer two = this.get(b);
+
+        one.adjustBond(Direction.dirFromPoints(a, b), c);
+        two.adjustBond(Direction.dirFromPoints(b, a), c);
     }
 }
