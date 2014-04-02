@@ -46,7 +46,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
     // given a ruleset, compute a list of all possible actions
     // that can be executed in our current configuration
-    private ActionSet computeActionSet()
+    public ActionSet computeActionSet()
     {
         ActionSet actSet = new ActionSet();
         for (Monomer m : this.values())
