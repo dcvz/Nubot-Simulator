@@ -128,7 +128,7 @@ public class Configuration extends HashMap<Point, Monomer>
             exMon1 = true;
         }
 
-        // if monomer 2 exists (we could have the case of "empty, A, 0, NE -> empty, B, 0, NE").
+        // if monomer 2 exists (we could have the dcase of "empty, A, 0, NE -> empty, B, 0, NE").
         if (this.containsKey(a.getMon2()))
         {
             Monomer tmp = this.get(a.getMon2());
@@ -146,10 +146,11 @@ public class Configuration extends HashMap<Point, Monomer>
                 Monomer two = this.get(a.getMon2());
 
                 // adjust bond types
-                one.adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
-                two.adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), /*complete this - a.getRule().getBondp() */);
+                one.adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), a.getRule().getBondp());
+                two.adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), a.getRule().getBondp());
             }
         }
 
+        return true;
     }
 }
