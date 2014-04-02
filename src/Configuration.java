@@ -20,8 +20,6 @@ public class Configuration extends HashMap<Point, Monomer>
     public int numberOfActions;
     public int numberOfMonomers;
 
-
-
     public Configuration()
     {
         rules = new RuleSet();
@@ -29,6 +27,7 @@ public class Configuration extends HashMap<Point, Monomer>
         timeElapsed = 0.0;
         numberOfActions = numberOfMonomers = 0;
     }
+
     public boolean addMonomer(Monomer m)
     {
         if(!this.containsKey(m.getLocation()))
@@ -106,6 +105,44 @@ public class Configuration extends HashMap<Point, Monomer>
 
     private boolean executeAction(Action a)
     {
+        if (a.getRule().getClassification() == Rule.RuleType.STATECHANGE)
+        {
+            return performStateChange(a);
+        }
+
         return false;
+    }
+
+    // action execution types
+    private boolean performStateChange(Action a)
+    {
+        boolean exMon1 = false;
+        boolean exMon2 = false;
+
+        // if monomer 1 exists (we could have the case of "A, empty, 0, NE -> B, empty, 0, NE").
+        if (this.containsKey(a.getMon1()))
+        {
+            Monomer tmp = this.get(a.getMon1());
+            tmp.setState(a.getRule().getS1p());
+            exMon1 = true;
+        }
+
+        // if monomer 2 exists (we could have the case of "empty, A, 0, NE -> empty, B, 0, NE").
+        if (this.containsKey(a.getMon2()))
+        {
+            Monomer tmp = this.get(a.getMon2());
+            tmp.setState(a.getRule().getS2p());
+            exMon2 = true;
+        }
+
+        // check if there is a change in bond type
+        if (a.getRule().getBond() != a.getRule().getBondp())
+        {
+            if (exMon1 && exMon2)
+            {
+                adjustBondTo(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this */);
+            }
+        }
+
     }
 }
