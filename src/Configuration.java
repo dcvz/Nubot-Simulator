@@ -51,7 +51,7 @@ public class Configuration extends HashMap<Point, Monomer>
         {
             for (int i = -1; i <= 1; i++)
             {
-                for (int j = -1; j <= 1; i++)
+                for (int j = -1; j <= 1; j++)
                 {
                     if (i == j)
                     {
