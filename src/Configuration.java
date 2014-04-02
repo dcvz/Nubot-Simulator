@@ -65,9 +65,9 @@ public class Configuration extends HashMap<Point, Monomer>
                             {
                                 // there is rules that apply to this particular pair
                                 // iterate through the returned list and add to actions
-                                for (Quartet<String, String, Byte, Byte> a : rules.get(keyRig))
+                                for (Rule r : rules.get(keyRig))
                                 {
-                                    actSet.add(new Action(m.getLocation(), neighbor.getLocation(), ))
+                                    actSet.add(new Action(m.getLocation(), neighbor.getLocation(), r));
                                 }
                             }
                         }
@@ -81,6 +81,10 @@ public class Configuration extends HashMap<Point, Monomer>
                             {
                                 // there is rules that apply to this particular pair
                                 // iterate through the returned list and add to actions
+                                for (Rule r : rules.get(keyRig))
+                                {
+                                    actSet.add(new Action(m.getLocation(), neighborPoint, r));
+                                }
                             }
                         }
                     }

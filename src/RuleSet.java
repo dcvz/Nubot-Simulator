@@ -13,21 +13,21 @@ import java.util.HashMap;
 
 import org.javatuples.*;
 
-public class RuleSet extends HashMap<Quartet<String, String, Byte, Byte>, ArrayList<Quartet<String, String, Byte, Byte>>>
+public class RuleSet extends HashMap<Quartet<String, String, Byte, Byte>, ArrayList<Rule>>
 {
     public void addRule(Rule r)
     {
        Quartet<String, String, Byte, Byte> key = r.getInputQuartet();
        if(this.containsKey(key))
        {
-           ArrayList<Quartet<String, String, Byte, Byte>> outputList = this.get(key);
-           outputList.add(r.getOutputQuartet());
+           ArrayList<Rule> rules = this.get(key);
+           rules.add(r);
        }
         else
        {
-           ArrayList<Quartet<String,String, Byte, Byte>> outputList = new ArrayList<Quartet<String, String, Byte, Byte>>();
-           outputList.add(r.getOutputQuartet());
-           this.put(key, outputList);
+           ArrayList<Rule> rules = new ArrayList<Rule>();
+           rules.add(r);
+           this.put(key, rules);
        }
     }
 }
