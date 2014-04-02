@@ -51,12 +51,17 @@ public class Configuration extends HashMap<Point, Monomer>
         numberOfActions = actions.size();
         Action selected;
 
-        do
+        if (numberOfActions > 0)
         {
-            selected = actions.selectArbitrary();
-        } while (!executeAction(selected));
+            do
+            {
+                selected = actions.selectArbitrary();
+            } while (!executeAction(selected));
 
-        timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+            timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+        }
+        else
+            isFinished = true;
     }
 
     // given a ruleset, compute a list of all possible actions
