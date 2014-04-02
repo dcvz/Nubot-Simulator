@@ -19,6 +19,7 @@ public class Simulation
     public static boolean configLoaded = false;
     public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;
+    public static boolean isPaused = false;
 
 
     public static Point getCanvasPosition(Point gridPosition)

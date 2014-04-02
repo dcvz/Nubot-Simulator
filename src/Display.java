@@ -75,7 +75,7 @@ public class Display implements ActionListener {
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         nubotGFX = (Graphics2D) nubotImage.getGraphics();
         nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        nubotGFX.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
+        nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
         bondLayerImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         bondLayerGFX = (Graphics2D) bondLayerImage.getGraphics();
         bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -86,20 +86,26 @@ public class Display implements ActionListener {
             public void actionPerformed(ActionEvent e) {
 
                 clearImages();
-                if(map.size() >0)
-                map.executeFrame();
-                for (Monomer m : map.values()) {
 
-                    drawBond(m);
-                    drawMonomer(m);
 
+                if (!Simulation.isPaused)
+                {
+                    if (!map.isFinished)
+                    {
+                        for (Monomer m : map.values()) {
+
+                        drawBond(m);
+                        drawMonomer(m);
+
+                    }
+                        map.executeFrame();
+                    }
                 }
-
                 canvas.repaint();
             }
         });
         timer.setRepeats(true);
-        timer.start();
+
     }
 
     public void initCanvas() {
@@ -317,8 +323,10 @@ public class Display implements ActionListener {
         } else if (e.getSource() == about) {
             System.out.println("about this application");
         } else if (e.getSource() == simStart) {
+            timer.start();
             System.out.println("start");
         } else if (e.getSource() == simStop) {
+            timer.stop();
             System.out.println("stop");
         } else if (e.getSource() == simPause) {
             System.out.println("pause");
