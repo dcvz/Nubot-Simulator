@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -73,9 +74,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         map = new Configuration();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Simulation.canvasSize = mainFrame.getContentPane().getSize();
+
         initCanvas();
         mainFrame.add(canvas);
+        System.out.println(canvas.getSize());
         mainFrame.setVisible(true);
         mainFrame.addComponentListener(this);
         canvas.addMouseWheelListener(this);
@@ -114,6 +116,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         map.executeFrame();
                     }
                 }
+
                 canvas.repaint();
             }
         });
@@ -465,13 +468,26 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         if (e.getWheelRotation() == 1.0)
         {
-           Simulation.scaleDown();
+            clearImages();
+            nubotGFX.scale(.95,.95);
+            bondLayerGFX.scale(.95,.95);
+            nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
+            bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
+
+            drawMonomers();
+            canvas.repaint();
 
         }
 
         else
         {
-            Simulation.scaleUp();
+            clearImages();
+            nubotGFX.scale(1.05,1.05);
+            bondLayerGFX.scale(1.05,1.05);
+            nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
+            bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
+            drawMonomers();
+            canvas.repaint();
         }
 
 
