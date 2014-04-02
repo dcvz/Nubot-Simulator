@@ -135,4 +135,23 @@ public class Monomer {
         else
             return false;
     }
+
+    public void shift(byte dir)
+    {
+        location = Direction.translatedPointByDir(location, dir);
+    }
+
+    public void adjustFlexibleBond(Monomer m, byte dir, HashMap<Byte, Byte> buffer)
+    {
+        adjustBond(Direction.dirFromPoints(getLocation(), m.getLocation()), Bond.TYPE_NONE);
+        shift(dir);
+
+        if (!adjacent(m.getLocation()))
+            System.out.println("uh, oh...");
+
+        m.getBondTypeByDir(Direction.dirFromPoints(m.getLocation(), getLocation()));
+        buffer.put(Direction.dirFromPoints(getLocation(), m.getLocation()), Bond.TYPE_FLEXIBLE);
+
+        shift(Direction.getOppositeDir(dir));
+    }
 }

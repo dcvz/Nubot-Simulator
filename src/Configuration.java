@@ -10,6 +10,7 @@ import org.javatuples.Quartet;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
@@ -262,6 +263,18 @@ public class Configuration extends HashMap<Point, Monomer>
 
         greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
 
+        if (movableSet.containsValue(one))
+        {
+            one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
+            return false;
+        }
+        else
+            shift(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
+
+        one.setState(a.getRule().getS1p());
+        two.setState(a.getRule().getS2p());
+        adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBondp());
+
         return true;
     }
 
@@ -366,6 +379,58 @@ public class Configuration extends HashMap<Point, Monomer>
         for(Monomer m : incoming.values())
         {
             put(m.getLocation(), m);
+        }
+    }
+
+    private void shift(Configuration movableSet, byte dir)
+    {
+        for( Monomer m : movableSet.values() )
+        {
+            adjustFlexibleBonds(m, dir, movableSet);
+        }
+
+        for( Monomer m : movableSet.values() )
+        {
+            remove(m.getLocation());
+            m.shift(dir);
+        }
+
+        for( Monomer m : movableSet.values() )
+            put(m.getLocation(), m);
+    }
+
+    private void adjustFlexibleBonds(Monomer m, byte dir, Configuration movableSet)
+    {
+        HashMap<Byte, Byte> buffer = new HashMap<Byte, Byte>();
+
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == j) { /* do nothing */ }
+                else
+                {
+                    if (!movableSet.containsKey(new Point(m.getLocation().x + i, m.getLocation().y +j)) && this.containsKey(new Point(m.getLocation().x + i, m.getLocation().y +j)))
+                    {
+                        if (m.getBondTypeByDir(Direction.pointOffsetToDirByte(new Point(i, j))) == Bond.TYPE_FLEXIBLE)
+                        {
+                            Monomer w = get(new Point(m.getLocation().x + i, m.getLocation().y + j));
+                            m.adjustFlexibleBond(this.get(new Point(m.getLocation().x + i, m.getLocation().y + j)), dir, buffer);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<Byte, Byte> entry : buffer.entrySet())
+        {
+            Byte key = entry.getKey();
+            Byte value = entry.getValue();
+
+            if (value == Bond.TYPE_FLEXIBLE)
+            {
+                m.adjustBond(key, Bond.TYPE_FLEXIBLE);
+            }
         }
     }
 }
