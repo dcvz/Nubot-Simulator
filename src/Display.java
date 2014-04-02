@@ -85,13 +85,13 @@ public class Display implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                clearImages();
+
 
 
                 if (!Simulation.isPaused)
                 {
                     if (!map.isFinished)
-                    {
+                    {     clearImages();
                         for (Monomer m : map.values()) {
 
                         drawBond(m);
