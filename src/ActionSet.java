@@ -7,9 +7,19 @@
 //
 
 import java.util.ArrayList;
+import java.util.Random;
 
 // list of possible actions
 public class ActionSet extends ArrayList<Action>
 {
+    public Action selectArbitrary()
+    {
+        Random rand = new Random();
+        int index = rand.nextInt(this.size());
 
+        Action ret = this.get(index);
+        this.remove(index);
+
+        return this.get(index);
+    }
 }
