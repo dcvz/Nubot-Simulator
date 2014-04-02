@@ -116,6 +116,7 @@ public class Configuration extends HashMap<Point, Monomer>
     // action execution types
     private boolean performStateChange(Action a)
     {
+        // flags to indicate whether the monomers exist in the configuration
         boolean exMon1 = false;
         boolean exMon2 = false;
 
@@ -138,9 +139,12 @@ public class Configuration extends HashMap<Point, Monomer>
         // check if there is a change in bond type
         if (a.getRule().getBond() != a.getRule().getBondp())
         {
+            // if both monomers exist only then can we form bonds
             if (exMon1 && exMon2)
             {
-                adjustBondTo(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this */);
+                // adjust bond types
+                adjustBondTo(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
+                adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), /*complete this - a.getRule().getBondp() */);
             }
         }
 
