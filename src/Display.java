@@ -81,16 +81,20 @@ public class Display implements ActionListener {
         bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 
-        timer = new Timer(1000 / 60, new ActionListener() {
+        timer = new Timer(1000/10 , new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 clearImages();
+                if(map.size() >0)
+                map.executeFrame();
                 for (Monomer m : map.values()) {
+
                     drawBond(m);
                     drawMonomer(m);
 
                 }
+
                 canvas.repaint();
             }
         });

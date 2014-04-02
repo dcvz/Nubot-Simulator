@@ -20,56 +20,80 @@ public class Monomer {
     // Constructors
     //================================================================================
 
-    public Monomer(Point p, String s)
-    {
+    public Monomer(Point p, String s) {
         this.location = p;
         this.state = s;
         neighborBondDirs.put(Bond.TYPE_RIGID, new ArrayList<Byte>());
         neighborBondDirs.put(Bond.TYPE_FLEXIBLE, new ArrayList<Byte>());
+        neighborBondDirs.put(Bond.TYPE_NONE, new ArrayList<Byte>());
+        neighborBonds.put(Direction.TYPE_FLAG_EAST, Bond.TYPE_NONE);
+        neighborBonds.put(Direction.TYPE_FLAG_NORTHEAST, Bond.TYPE_NONE);
+        neighborBonds.put(Direction.TYPE_FLAG_SOUTHEAST, Bond.TYPE_NONE);
+        neighborBonds.put(Direction.TYPE_FLAG_SOUTHWEST, Bond.TYPE_NONE);
+        neighborBonds.put(Direction.TYPE_FLAG_NORTHWEST, Bond.TYPE_NONE);
+        neighborBonds.put(Direction.TYPE_FLAG_WEST, Bond.TYPE_NONE);
     }
 
     //================================================================================
     // Accessors
     //================================================================================
 
-    public Point getLocation() { return location; }
-    public String getState() { return state; }
+    public Point getLocation() {
+        return location;
+    }
+
+    public String getState() {
+        return state;
+    }
 
     //================================================================================
     // Mutators
     //================================================================================
 
-    public void setLocation(Point p) { this.location = p; }
-    public void setState(String s) { this.state = s; }
+    public void setLocation(Point p) {
+        this.location = p;
+    }
+
+    public void setState(String s) {
+        this.state = s;
+    }
 
     //================================================================================
     // Functionality Methods
     //================================================================================
 
-    public void adjustBond(byte direction, byte bondType)
-    {
+    public void adjustBond(byte direction, byte bondType) {
         neighborBonds.put(direction, bondType);
+
+        neighborBondDirs.get(Bond.TYPE_FLEXIBLE).remove(direction);
+
+        neighborBondDirs.get(Bond.TYPE_RIGID).remove(direction);
+
+        neighborBondDirs.get(Bond.TYPE_NONE).remove(direction);
+
         neighborBondDirs.get(bondType).add(direction);
     }
 
-    public byte getBondTypeByDir(byte direction)
-    {
+    public void adjustBondTo(Monomer m, byte bondType) {
+        byte Dir = Direction.dirFromPoints(location, m.getLocation());
+        adjustBond(Dir, bondType);
+        m.adjustBond(Direction.dirFromPoints(m.getLocation(), location), bondType);
+    }
+
+    public byte getBondTypeByDir(byte direction) {
         return neighborBonds.get(direction);
     }
 
-    public ArrayList<Byte> getDirsByBondType(byte bondType)
-    {
+    public ArrayList<Byte> getDirsByBondType(byte bondType) {
         return neighborBondDirs.get(bondType);
     }
 
-    public boolean hasBonds()
-    {
+    public boolean hasBonds() {
         return !neighborBonds.isEmpty();
     }
 
-    public byte getBondTo(Point neighborPoint)
-    {
-        if(neighborBonds.containsKey(Direction.dirFromPoints(location, neighborPoint)))
+    public byte getBondTo(Point neighborPoint) {
+        if (neighborBonds.containsKey(Direction.dirFromPoints(location, neighborPoint)))
             return neighborBonds.get(Direction.dirFromPoints(location, neighborPoint));
         else
             return Bond.TYPE_NONE;
