@@ -58,7 +58,8 @@ public class Configuration extends HashMap<Point, Monomer>
         if (numberOfActions > 0)
         {
             do
-            {
+            {  if(actions.size() < 1)
+                break;
                 selected = actions.selectArbitrary();
             } while (!executeAction(selected));
 
@@ -66,6 +67,7 @@ public class Configuration extends HashMap<Point, Monomer>
         }
         else
             isFinished = true;
+
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -258,8 +260,9 @@ public class Configuration extends HashMap<Point, Monomer>
         Monomer two = this.get(a.getMon2());
 
         Configuration movableSet = new Configuration();
-        movableSet.addMonomer(one);
+        movableSet.addMonomer(two);
         one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), Bond.TYPE_NONE);
+        two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
 
         greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
 
