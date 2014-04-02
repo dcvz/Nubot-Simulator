@@ -73,7 +73,7 @@ public class Configuration extends HashMap<Point, Monomer>
                             // there is no monomer at this location
                             // pass it on to RuleSet and see if any actions
                             // apply to this monomer paired with an empty space
-                            Quartet<String, String, Byte, Byte> key = Quartet.with(m.getState(), "empty",);
+                            Quartet<String, String, Byte, Byte> key = Quartet.with(m.getState(), "empty", Bond.TYPE_NONE, Direction.dirFromPoints(m.getLocation(), neighborPoint));
                         }
                     }
                 }

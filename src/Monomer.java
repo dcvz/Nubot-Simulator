@@ -52,5 +52,11 @@ public class Monomer
     {
         return !neighborBonds.isEmpty();
     }
+    public byte getBondTo(Point neighborPoint)
+    {
+
+
+        return neighborBonds.get(Direction.dirFromPoints(location, neighborPoint));
+    }
 
 }
