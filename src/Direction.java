@@ -75,27 +75,10 @@ public class Direction {
     }
 
 
-    public static Point deltaFromDirs(byte dir1, byte dir2)
+    public static byte deltaFromDirs(byte dir1, byte dir2)
     {
-      /*  if(dir1 == TYPE_FLAG_EAST && dir2 == TYPE_FLAG_NORTHEAST)
-             return TYPE_FLAG_NORTHWEST;
-        if(dir1 == TYPE_FLAG_NORTHEAST && dir2 == TYPE_FLAG_EAST)
-            return TYPE_FLAG_SOUTHEAST;
 
-        if(dir1 == TYPE_FLAG_NORTHEAST&& dir2 == TYPE_FLAG_NORTHWEST)
-            return TYPE_FLAG_WEST;
-        if(dir1 == TYPE_FLAG_NORTHWEST&& dir2 == TYPE_FLAG_NORTHEAST)
-            return TYPE_FLAG_EAST;
-
-
-        if(dir1 == TYPE_FLAG_NORTHWEST&& dir2 == TYPE_FLAG_WEST)
-            return TYPE_FLAG_SOUTHWEST;
-        if(dir1 == TYPE_FLAG_WEST && dir2 == TYPE_FLAG_NORTHWEST)
-            return TYPE_FLAG_NORTHEAST;   */
-
-
-
-        return new Point(dirToPointOffset(dir2).x - dirToPointOffset(dir1).x, dirToPointOffset(dir2).y  - dirToPointOffset(dir1).y);
+        return pointOffsetToDirByte(new Point(dirToPointOffset(dir2).x - dirToPointOffset(dir1).x, dirToPointOffset(dir2).y  - dirToPointOffset(dir1).y));
 
 
     }
