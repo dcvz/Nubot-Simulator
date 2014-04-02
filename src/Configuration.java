@@ -19,6 +19,13 @@ public class Configuration extends HashMap<Point, Monomer>
     public int numberOfActions;
     public int numberOfMonomers;
 
+
+
+    public Configuration()
+    {
+
+        rules = new RuleSet();
+    }
     public boolean addMonomer(Monomer m)
     {
         if(!this.containsKey(m.getLocation()))
