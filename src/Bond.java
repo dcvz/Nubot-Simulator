@@ -8,8 +8,8 @@
 
 public class Bond
 {
-    public static byte TYPE_RIGID = 1;
-    public static byte TYPE_FLEXIBLE = 2;
-    public static byte TYPE_NONE = 0;
+    public final static byte TYPE_RIGID = 1;
+    public final static byte TYPE_FLEXIBLE = 2;
+    public final static byte TYPE_NONE = 0;
 
 }

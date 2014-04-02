@@ -11,19 +11,19 @@ import java.awt.*;
 
 public class Direction
 {
-    static Byte TYPE_FLAG_EAST = 1;
-    static Byte TYPE_FLAG_WEST = 2;
-    static Byte TYPE_FLAG_NORTHEAST = 4;
-    static Byte TYPE_FLAG_NORTHWEST = 8;
-    static Byte TYPE_FLAG_SOUTHEAST = 16;
-    static Byte TYPE_FLAG_SOUTHWEST = 32;
-    static Byte DIRECTION_TYPE_FLAG_MASK = 63;
-    static Point TYPE_POINT_OFFSET_EAST = new Point(1,0);
-    static Point TYPE_POINT_OFFSET_WEST = new Point(-1,0);
-    static Point  TYPE_POINT_OFFSET_NORTHEAST = new Point(0,1);
-    static Point TYPE_POINT_OFFSET_NORTHWEST = new Point(-1, 1);
-    static Point TYPE_POINT_OFFSET_SOUTHEAST = new Point(1, -1);
-    static Point TYPE_POINT_OFFSET_SOUTHWEST = new Point(0, -1);
+    static final Byte TYPE_FLAG_EAST = 1;
+    static final Byte TYPE_FLAG_WEST = 2;
+    static final Byte TYPE_FLAG_NORTHEAST = 4;
+    static final Byte TYPE_FLAG_NORTHWEST = 8;
+    static final Byte TYPE_FLAG_SOUTHEAST = 16;
+    static final Byte TYPE_FLAG_SOUTHWEST = 32;
+    static final Byte DIRECTION_TYPE_FLAG_MASK = 63;
+    static final Point TYPE_POINT_OFFSET_EAST = new Point(1,0);
+    static final Point TYPE_POINT_OFFSET_WEST = new Point(-1,0);
+    static final Point  TYPE_POINT_OFFSET_NORTHEAST = new Point(0,1);
+    static final Point TYPE_POINT_OFFSET_NORTHWEST = new Point(-1, 1);
+    static final Point TYPE_POINT_OFFSET_SOUTHEAST = new Point(1, -1);
+    static final Point TYPE_POINT_OFFSET_SOUTHWEST = new Point(0, -1);
 
 
 

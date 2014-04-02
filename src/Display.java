@@ -27,7 +27,9 @@ public class Display implements ActionListener {
     Configuration map;
     RuleSet rules;
     BufferedImage nubotImage;
+    BufferedImage bondLayerImage;
     Graphics2D nubotGFX;
+    Graphics2D bondLayerGFX;
     //Menus
     private JMenu file = new JMenu("File");
     private JMenu simulation = new JMenu("Simulation");
@@ -71,6 +73,10 @@ public class Display implements ActionListener {
         nubotGFX = (Graphics2D) nubotImage.getGraphics();
         nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         nubotGFX.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
+        bondLayerImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        bondLayerGFX = (Graphics2D)bondLayerImage.getGraphics();
+       bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 
         timer = new Timer(1000 / 60, new ActionListener() {
             @Override
@@ -83,7 +89,6 @@ public class Display implements ActionListener {
                     drawMonomer(m);
 
                 }
-                //System.out.println(map.size());
                 canvas.repaint();
 
             }
@@ -97,7 +102,9 @@ public class Display implements ActionListener {
 
             @Override
             public void paintComponent(Graphics g) {
+                g.drawImage(bondLayerImage, 0, 0, null);
                 g.drawImage(nubotImage, 0, 0, null);
+
             }
 
         };
@@ -371,22 +378,33 @@ public class Display implements ActionListener {
 
     public void drawBond(Monomer m) {
 
-        nubotGFX.setColor(Color.RED);
+
+        bondLayerGFX.setStroke(new BasicStroke(2f));
              if(m.hasBonds())
              {
                  ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
                  ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
 
-
+                 bondLayerGFX.setColor(Color.RED);
                     for(Byte dir : rigidDirList) {
 
                         Point start = Simulation.getCanvasPosition(m.getLocation());
                         Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                         start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
                         end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                        nubotGFX.drawLine(start.x, start.y,end.x, end.y );
+                        bondLayerGFX.drawLine(start.x -2 , start.y, end.x-2, end.y);
 
                     }
+                 bondLayerGFX.setColor(Color.CYAN);
+                 for(Byte dir : flexibleDirList) {
+
+                     Point start = Simulation.getCanvasPosition(m.getLocation());
+                     Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                     start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
+                     end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
+                     bondLayerGFX.drawLine(start.x , start.y, end.x-2, end.y);
+
+                 }
 
 
 
