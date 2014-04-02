@@ -315,7 +315,8 @@ public class Display implements ActionListener {
             simStart.setEnabled(false);
             simPause.setEnabled(false);
             simStop.setEnabled(false);
-
+            loadC.setEnabled(true);
+            loadR.setEnabled(true);
             System.out.println("clear config");
         } else if (e.getSource() == menuQuit) {
             System.out.println("quit application");
@@ -323,12 +324,19 @@ public class Display implements ActionListener {
         } else if (e.getSource() == about) {
             System.out.println("about this application");
         } else if (e.getSource() == simStart) {
+            map.isFinished=false;
+            Simulation.isPaused = false;
+            loadC.setEnabled(false);
+            loadR.setEnabled(false);
+            simPause.setEnabled(true);
+            simStop.setEnabled(true);
             timer.start();
             System.out.println("start");
         } else if (e.getSource() == simStop) {
             timer.stop();
             System.out.println("stop");
         } else if (e.getSource() == simPause) {
+            timer.stop();
             System.out.println("pause");
         }
     }
