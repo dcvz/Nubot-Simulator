@@ -101,4 +101,38 @@ public class Monomer {
             return Bond.TYPE_NONE;
     }
 
+    public boolean conflicts(Monomer m, byte dir)
+    {
+        Point me = getLocation();
+        Point meShifted = Direction.translatedPointByDir(me, dir);
+        Point neighbor = m.getLocation();
+
+        // check for a collision
+        if (meShifted.equals(neighbor))
+            return true;
+
+        if (neighborBonds.get(Direction.dirFromPoints(me.getLocation(), neighbor.getLocation())) == Bond.TYPE_RIGID)
+            return true;
+
+        if (neighborBonds.get(Direction.dirFromPoints(me.getLocation(), neighbor.getLocation())) == Bond.TYPE_FLEXIBLE)
+        {
+            if (!m.adjacent(meShifted))
+                return true;
+        }
+
+        return false;
+    }
+
+    // is monomer adjacent to point p?
+    boolean adjacent(Point p)
+    {
+        if((Math.abs(getLocation().x - p.x) > 1) || (Math.abs(getLocation().y - p.y) > 1))
+            return false;
+        if(getLocation().x == p.x && getLocation().y == p.y )
+            return false;
+        else if(Math.abs(getLocation().x - p.x + getLocation().y - p.y) <= 1)
+            return true;
+        else
+            return false;
+    }
 }

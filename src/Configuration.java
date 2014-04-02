@@ -41,7 +41,11 @@ public class Configuration extends HashMap<Point, Monomer>
             this.put(m.getLocation(), m);
             return true;
         }
-        return false;
+        else
+        {
+            System.out.println("There is already a monomer at that location!");
+            return false;
+        }
     }
 
     public void executeFrame()
@@ -74,10 +78,7 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if (i == j)
-                    {
-                        // do nothing.
-                    }
+                    if (i == j) { /* do nothing */ }
                     else
                     {
                         Point neighborPoint = new Point(m.getLocation().x + i, m.getLocation().y + j);
@@ -124,8 +125,8 @@ public class Configuration extends HashMap<Point, Monomer>
             return performDeletion(a);
         else if (a.getRule().getClassification() == Rule.RuleType.BOTH)
             return performBoth(a);
-
-        return false;
+        else
+            return performMovement(a);
     }
 
     //================================================================================
@@ -235,6 +236,32 @@ public class Configuration extends HashMap<Point, Monomer>
 
     private boolean performBoth(Action a)
     {
+        // if monomer 1 exists then it is monomer 2 that is going to appear or vice-versa
+        if (this.containsKey(a.getMon1()))
+        {
+            destroyMonomer(a.getMon1());
+            addMonomer(new Monomer(a.getMon2(), a.getRule().getS2p()));
+        }
+        else
+        {
+            destroyMonomer(a.getMon2());
+            addMonomer(new Monomer(a.getMon1(), a.getRule().getS1p()));
+        }
+
+        return true;
+    }
+
+    private boolean performMovement(Action a)
+    {
+        Monomer one = this.get(a.getMon1());
+        Monomer two = this.get(a.getMon2());
+
+        Configuration movableSet = new Configuration();
+        movableSet.addMonomer(one);
+        one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), Bond.TYPE_NONE);
+
+        greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
+
         return true;
     }
 
@@ -260,10 +287,7 @@ public class Configuration extends HashMap<Point, Monomer>
         {
             for (int j = -1; j <= 1; j++)
             {
-                if (i == j)
-                {
-                    // do nothing
-                }
+                if (i == j) { /* do nothing */ }
                 else
                 {
                     Point neighborPoint = new Point(one.getLocation().x + i, one.getLocation().y + j);
@@ -285,5 +309,63 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
         this.remove(one.getLocation());
+    }
+
+    // will keep expanding the movable set until nothing else can be added
+    private void greedyExpand(Configuration movableSet, byte dir)
+    {
+        int increase;
+        do
+        {
+            increase = expandMovableSet(movableSet, dir);
+        } while(increase > 0);
+    }
+
+    //
+    private int expandMovableSet(Configuration movableSet, byte dir)
+    {
+        int initalSize = movableSet.size();
+        HashMap<Point, Monomer> conflictMap = new HashMap<Point, Monomer>();
+
+        for (Monomer m : movableSet.values())
+        {
+            addConflicts(m, dir, conflictMap);
+        }
+
+        movableSet.merge(conflictMap);
+
+        return movableSet.size() - initalSize;
+    }
+
+    private void addConflicts(Monomer m, byte dir, HashMap<Point,Monomer> conflictMap)
+    {
+        //loop through 6 neighbor positions
+        for(int i = -1; i <= 1; i++)
+        {
+            for(int j = -1; j <= 1; j++)
+            {
+                if (i == j) { /* do nothing */ }
+                else
+                {
+                    Point neighborPoint = new Point(m.getLocation().x + i, m.getLocation().y + j);
+
+                    if (this.containsKey(neighborPoint))
+                    {
+                        Monomer tmp = this.get(neighborPoint);
+
+                        if (m.conflicts(tmp, dir))
+                            conflictMap.put(neighborPoint, tmp);
+                    }
+                }
+            }
+        }
+    }
+
+    public void merge(HashMap<Point,Monomer> incoming)
+    {
+        for(Monomer m : incoming.values())
+        {
+            put(m.getLocation(), m);
+        }
     }
 }
