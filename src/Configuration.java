@@ -142,9 +142,12 @@ public class Configuration extends HashMap<Point, Monomer>
             // if both monomers exist only then can we form bonds
             if (exMon1 && exMon2)
             {
+                Monomer one = this.get(a.getMon1());
+                Monomer two = this.get(a.getMon2());
+
                 // adjust bond types
-                adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
-                adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), /*complete this - a.getRule().getBondp() */);
+                one.adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
+                two.adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), /*complete this - a.getRule().getBondp() */);
             }
         }
 
