@@ -37,8 +37,6 @@ public class Monomer
     {
         neighborBonds.put(direction, bondType);
         neighborBondDirs.get(bondType).add(direction);
-
-
     }
 
     public byte getBondTypeByDir(byte direction) {
@@ -48,14 +46,13 @@ public class Monomer
     {
         return neighborBondDirs.get(bondType);
     }
+
     public boolean hasBonds()
     {
         return !neighborBonds.isEmpty();
     }
     public byte getBondTo(Point neighborPoint)
     {
-
-
         return neighborBonds.get(Direction.dirFromPoints(location, neighborPoint));
     }
 
