@@ -65,6 +65,13 @@ public class Configuration extends HashMap<Point, Monomer>
                                 // itirate through the returned list and add to actions
                             }
                         }
+                        else
+                        {
+                            // there is no monomer at this location
+                            // pass it on to RuleSet and see if any actions
+                            // apply to this monomer paired with an empty space
+                            Quartet<String, String, Byte, Byte> key = Quartet.with(m.getState(), "empty",);
+                        }
                     }
                 }
             }
