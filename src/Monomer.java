@@ -74,11 +74,13 @@ public class Monomer {
         neighborBondDirs.get(bondType).add(direction);
     }
 
+    /*
     public void adjustBondTo(Monomer m, byte bondType) {
         byte Dir = Direction.dirFromPoints(location, m.getLocation());
         adjustBond(Dir, bondType);
         m.adjustBond(Direction.dirFromPoints(m.getLocation(), location), bondType);
     }
+    */
 
     public byte getBondTypeByDir(byte direction) {
         return neighborBonds.get(direction);
