@@ -270,11 +270,14 @@ public class Configuration extends HashMap<Point, Monomer>
                         // check if there is a bond between this monomer and its neighbor, if so, break it
                         if (one.getBondTypeByDir(Direction.dirFromPoints(one.getLocation(), neighborPoint)) != Bond.TYPE_NONE)
                         {
+                            // adjust bond types
                             two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
                         }
                     }
                 }
             }
         }
+
+        remove(one);
     }
 }
