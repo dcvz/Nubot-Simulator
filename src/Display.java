@@ -18,7 +18,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class Display implements ActionListener {
+public class Display implements ActionListener
+{
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -52,7 +53,8 @@ public class Display implements ActionListener {
     String configFileName = "";
 
 
-    public Display() {
+    public Display()
+    {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
         mainFrame.setSize(Simulation.frameSize.width, Simulation.frameSize.height);
@@ -75,45 +77,45 @@ public class Display implements ActionListener {
         nubotGFX.setFont(new Font("TimesRoman", Font.PLAIN, fontSize));
         bondLayerImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         bondLayerGFX = (Graphics2D)bondLayerImage.getGraphics();
-       bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 
         timer = new Timer(1000 / 60, new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 nubotGFX.setComposite(AlphaComposite.Clear);
                 nubotGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
                 nubotGFX.setComposite(AlphaComposite.SrcOver);
-                for (Monomer m : map.values()) {
+                for (Monomer m : map.values())
+                {
                     drawBond(m);
                     drawMonomer(m);
-
                 }
                 canvas.repaint();
-
             }
         });
         timer.setRepeats(true);
         timer.start();
     }
 
-    public void initCanvas() {
+    public void initCanvas()
+    {
         canvas = new JComponent() {
 
             @Override
-            public void paintComponent(Graphics g) {
+            public void paintComponent(Graphics g)
+            {
                 g.drawImage(bondLayerImage, 0, 0, null);
                 g.drawImage(nubotImage, 0, 0, null);
-
             }
 
         };
         canvas.setSize(Simulation.canvasSize);
-
-
     }
 
-    private void initMenuBar() {
+    private void initMenuBar()
+    {
         JMenuBar menuBar = new JMenuBar();
 
         loadR.addActionListener(this);
@@ -149,29 +151,32 @@ public class Display implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == loadR) {
-            try {
+    public void actionPerformed(ActionEvent e)
+    {
+        if (e.getSource() == loadR)
+        {
+            try
+            {
                 final JFileChooser jfc = new JFileChooser();
 
                 jfc.setDialogTitle("Select Rules File");
                 // Creating a file filter for .conf
                 jfc.setFileFilter(new FileFilter() {
                     @Override
-                    public boolean accept(File f) {
+                    public boolean accept(File f)
+                    {
                         if (f.isDirectory())
                             return true;
                         String fname = f.getName();
-                        if (fname.length() > 6 && fname.substring(fname.length() - 6, fname.length()).matches(".rules")) {
-
+                        if (fname.length() > 6 && fname.substring(fname.length() - 6, fname.length()).matches(".rules"))
                             return true;
-                        }
 
                         return false;
                     }
 
                     @Override
-                    public String getDescription() {
+                    public String getDescription()
+                    {
                         return "Nubot Rules File - .rules";
                         //return null;
                     }
@@ -180,32 +185,31 @@ public class Display implements ActionListener {
                 int resVal = jfc.showOpenDialog(mainFrame);
 
                 // if the ret flag results as Approve, we parse the file
-                if (resVal == JFileChooser.APPROVE_OPTION) {
-
+                if (resVal == JFileChooser.APPROVE_OPTION)
+                {
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
-                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules")) {
+                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules"))
+                    {
                         rules.clear();
                         rulesFileName = theFile.getName();
                         FileReader fre = new FileReader(theFile);
                         BufferedReader bre = new BufferedReader(fre);
                         boolean cont = true;
 
-                        while (cont) {
-
+                        while (cont)
+                        {
                             String line = bre.readLine();
 
                             if (line == null)
                                 cont = false;
 
                             //if it's not a comment line and not empty, we parse
-                            if (line != null && !line.contains("[") && !line.isEmpty() && line != "") {
-
+                            if (line != null && !line.contains("[") && !line.isEmpty() && line != "")
+                            {
                                 String[] splitted = line.split(" ");
                                 rules.addRule(new Rule(splitted[0], splitted[1], (byte) Integer.parseInt(splitted[2]), Direction.stringToFlag(splitted[3]), splitted[4], splitted[5], (byte) Integer.parseInt(splitted[6]), Direction.stringToFlag(splitted[7])));
-
                             }
-
                         }
 
                         bre.close();
@@ -216,43 +220,42 @@ public class Display implements ActionListener {
 
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                             simStart.setEnabled(true);
-
                     }
 
                     System.out.println(rules.values());
-
                 }
-
-            } catch (Exception exc) {
-
+            }
+            catch (Exception exc)
+            {
 
             }
 
-
             System.out.println("Load Rules");
-        } else if (e.getSource() == loadC) {
-
-            try {
+        }
+        else if (e.getSource() == loadC)
+        {
+            try
+            {
                 final JFileChooser jfc = new JFileChooser();
 
                 jfc.setDialogTitle("Select Configuration File");
                 // Creating a file filter for .conf
                 jfc.setFileFilter(new FileFilter() {
                     @Override
-                    public boolean accept(File f) {
+                    public boolean accept(File f)
+                    {
                         if (f.isDirectory())
                             return true;
                         String fname = f.getName();
-                        if (fname.length() > 5 && fname.substring(fname.length() - 5, fname.length()).matches(".conf")) {
-
+                        if (fname.length() > 5 && fname.substring(fname.length() - 5, fname.length()).matches(".conf"))
                             return true;
-                        }
 
                         return false;
                     }
 
                     @Override
-                    public String getDescription() {
+                    public String getDescription()
+                    {
                         return "Nubot Configuration File - .conf";
                         //return null;
                     }
@@ -261,11 +264,12 @@ public class Display implements ActionListener {
                 int resVal = jfc.showOpenDialog(mainFrame);
 
                 // if the ret flag results as Approve, we parse the file
-                if (resVal == JFileChooser.APPROVE_OPTION) {
-
+                if (resVal == JFileChooser.APPROVE_OPTION)
+                {
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
-                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 5, theFile.getName().length()).matches(".conf")) {
+                    if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 5, theFile.getName().length()).matches(".conf"))
+                    {
                         configFileName = theFile.getName();
                         map.clear();
                         boolean inBonds = false;
@@ -273,27 +277,32 @@ public class Display implements ActionListener {
                         BufferedReader bre = new BufferedReader(fre);
                         boolean cont = true;
 
-                        while (cont) {
-
+                        while (cont)
+                        {
                             String line = bre.readLine();
                             if (line == null)
                                 cont = false;
                             //if it's not a comment line and not empty, we parse
-                            if (line != null && !line.contains("[") && !line.isEmpty() && !(line == "")) {
-
-                                if (!inBonds) {
-                                    if (line.contains("States:")) {
-
-                                    } else if (line.contains("Bonds:")) {
-                                        inBonds = true;
-                                    } else {
-
-                                        String[] splitted = line.split(" ");
-                                        map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
+                            if (line != null && !line.contains("[") && !line.isEmpty() && !(line == ""))
+                            {
+                                if (!inBonds)
+                                {
+                                    if (line.contains("States:"))
+                                    {
 
                                     }
-                                } else if (inBonds) {
-
+                                    else if (line.contains("Bonds:"))
+                                    {
+                                        inBonds = true;
+                                    }
+                                    else
+                                    {
+                                        String[] splitted = line.split(" ");
+                                        map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
+                                    }
+                                }
+                                else if (inBonds)
+                                {
                                     String[] splitted = line.split(" ");
                                    // map.adjustBond(,);
                                     Point monomerPoint1 = new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1]));
@@ -301,52 +310,55 @@ public class Display implements ActionListener {
                                     byte bondType = (byte)Integer.parseInt(splitted[4]);
                                     map.get(monomerPoint1).adjustBond(Direction.dirFromPoints(monomerPoint1, monomerPoint2), bondType);
                                     map.get(monomerPoint2).adjustBond(Direction.dirFromPoints(monomerPoint2, monomerPoint1), bondType);
-
-
-                                    //,
-                                } else if (Simulation.debugMode)
+                                }
+                                else if (Simulation.debugMode)
                                     System.out.println("We don't have more sections.");
-
                             }
-
                         }
+
                         bre.close();
                         Simulation.configLoaded = true;
 
-
-                        if (Simulation.configLoaded && Simulation.rulesLoaded) {
+                        if (Simulation.configLoaded && Simulation.rulesLoaded)
                             simStart.setEnabled(true);
-                        }
-
                     }
-
                 }
-
-            } catch (Exception exc) {
-
-
+            }
+            catch (Exception exc)
+            {
             }
             System.out.println("Load config");
-        } else if (e.getSource() == menuClear) {
+        }
+        else if (e.getSource() == menuClear)
+        {
             System.out.println("clear config");
-        } else if (e.getSource() == menuQuit) {
-
+        }
+        else if (e.getSource() == menuQuit)
+        {
             System.out.println("quit application");
             System.exit(0);
-        } else if (e.getSource() == about) {
+        }
+        else if (e.getSource() == about)
+        {
             System.out.println("about this application");
-        } else if (e.getSource() == simStart) {
+        }
+        else if (e.getSource() == simStart)
+        {
             System.out.println("start");
-        } else if (e.getSource() == simStop) {
+        }
+        else if (e.getSource() == simStop)
+        {
             System.out.println("stop");
-        } else if (e.getSource() == simPause) {
+        }
+        else if (e.getSource() == simPause)
+        {
             System.out.println("pause");
         }
     }
 
-    private void drawMonomer(Monomer m) {
+    private void drawMonomer(Monomer m)
+    {
         nubotGFX.setColor(Color.BLACK);
-
 
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
@@ -359,12 +371,13 @@ public class Display implements ActionListener {
                 /*Height */   monomerHeight);
         nubotGFX.setColor(Color.WHITE);
         Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
-        while (bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight) {
+        while (bounds.getWidth() < monomerWidth && bounds.getHeight() < monomerHeight)
+        {
             nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) ++fontSize));
             bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
-
         }
-        while (bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight) {
+        while (bounds.getWidth() > monomerWidth || bounds.getHeight() > monomerHeight)
+        {
             nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) --fontSize));
             bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
         }
@@ -376,48 +389,32 @@ public class Display implements ActionListener {
     }
 
 
-    public void drawBond(Monomer m) {
-
-
+    public void drawBond(Monomer m)
+    {
         bondLayerGFX.setStroke(new BasicStroke(2f));
-             if(m.hasBonds())
-             {
-                 ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
-                 ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
+        if(m.hasBonds())
+        {
+            ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
+            ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
 
-                 bondLayerGFX.setColor(Color.RED);
-                    for(Byte dir : rigidDirList) {
-
-                        Point start = Simulation.getCanvasPosition(m.getLocation());
-                        Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
-                        start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
-                        end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                        bondLayerGFX.drawLine(start.x -2 , start.y, end.x-2, end.y);
-
-                    }
-                 bondLayerGFX.setColor(Color.CYAN);
-                 for(Byte dir : flexibleDirList) {
-
-                     Point start = Simulation.getCanvasPosition(m.getLocation());
-                     Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
-                     start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
-                     end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                     bondLayerGFX.drawLine(start.x , start.y, end.x-2, end.y);
-
-                 }
-
-
-
-
-
-
-
-
-             }
-
-
-
+            bondLayerGFX.setColor(Color.RED);
+            for(Byte dir : rigidDirList)
+            {
+                Point start = Simulation.getCanvasPosition(m.getLocation());
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
+                end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
+                bondLayerGFX.drawLine(start.x -2 , start.y, end.x-2, end.y);
+            }
+            bondLayerGFX.setColor(Color.CYAN);
+            for(Byte dir : flexibleDirList)
+            {
+                Point start = Simulation.getCanvasPosition(m.getLocation());
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                start.translate(Simulation.monomerRadius,Simulation.monomerRadius);
+                end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
+                bondLayerGFX.drawLine(start.x , start.y, end.x-2, end.y);
+            }
+        }
     }
-
-
 }

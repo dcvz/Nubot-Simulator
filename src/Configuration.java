@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
-
     public boolean addMonomer(Monomer m)
     {
         if(!this.containsKey(m.getLocation()))
@@ -21,5 +20,4 @@ public class Configuration extends HashMap<Point, Monomer>
         }
         return false;
     }
-
 }
