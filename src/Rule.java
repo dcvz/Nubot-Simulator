@@ -13,7 +13,7 @@ import java.awt.*;
 public class Rule
 {
     private String s1, s2, s1p, s2p;
-    private byte bond, bondp;
+    private Byte bond, bondp;
     private Byte dir, dirp;
     private RuleType classification;
 
@@ -41,7 +41,7 @@ public class Rule
     // mutator methods
     public void setS1(String s) { this.s1 = s; }
     public void setS2(String s) { this.s2 = s; }
-    public void setStart(byte b) { this.bond = b; }
+    public void setStart(Byte b) { this.bond = b; }
     public void setDir(Byte p) { this.dir = p; }
     public void setS1p(String s) { this.s1p = s; }
     public void setS2p(String s) { this.s2p = s; }
