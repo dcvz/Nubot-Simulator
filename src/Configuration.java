@@ -143,7 +143,7 @@ public class Configuration extends HashMap<Point, Monomer>
             if (exMon1 && exMon2)
             {
                 // adjust bond types
-                adjustBondTo(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
+                adjustBond(Direction.dirFromPoints(a.getMon1(), a.getMon2()), /*complete this - a.getRule().getBondp() */);
                 adjustBond(Direction.dirFromPoints(a.getMon2(), a.getMon1()), /*complete this - a.getRule().getBondp() */);
             }
         }
