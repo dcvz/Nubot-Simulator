@@ -62,7 +62,7 @@ public class Monomer {
     // Functionality Methods
     //================================================================================
 
-    public void adjustBond(byte direction, byte bondType) {
+    public void adjustBond(Byte direction, Byte bondType) {
         neighborBonds.put(direction, bondType);
 
         neighborBondDirs.get(Bond.TYPE_FLEXIBLE).remove(direction);
