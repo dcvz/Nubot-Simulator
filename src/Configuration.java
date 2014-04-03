@@ -11,6 +11,7 @@ import org.javatuples.Quartet;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
@@ -52,24 +53,34 @@ public class Configuration extends HashMap<Point, Monomer>
     public void executeFrame()
     {
         ActionSet actions = computeActionSet();
-        numberOfActions = actions.size();
-        Action selected;
+        AgtionSet agtions = new AgtionSet();
+        numberOfActions = actions.size() + agtions.size();
+        Action selectedAc;
+        Agtion selectedAg;
 
         if (numberOfActions > 0)
         {
-            do
-            {  if(actions.size() < 1)
-                break;
-                selected = actions.selectArbitrary();
-            } while (!executeAction(selected));
+            if (Simulation.agitationON)
+            {
 
-            timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+            }
+            else
+            {
+                do
+                {
+                    if (actions.size() < 1)
+                        break;
+                    selectedAc = actions.selectArbitrary();
+                } while (!executeAction(selectedAc));
+
+                timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+            }
         }
-        else {
+        else
+        {
             isFinished = true;
             Simulation.isRunning = false;
         }
-
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -260,7 +271,9 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         Monomer one = this.get(a.getMon1());
         Monomer two = this.get(a.getMon2());
-        double coinFlip = Math.random();
+
+        Random rand = new Random();
+        double coinFlip = rand.nextDouble();
 
         Configuration movableSet = new Configuration();
 
