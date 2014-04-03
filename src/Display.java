@@ -472,15 +472,22 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     }
 
     private void drawMonomer(Monomer m, Graphics2D g) {
-       g.setColor(Color.BLACK);
+
         g.setComposite(AlphaComposite.SrcOver);
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
 
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
         int monomerWidth = Simulation.monomerRadius * 2 - monomerWidthAdjustment;
         int monomerHeight = Simulation.monomerRadius * 2;
-     //   g.setStroke(new BasicStroke(2f));
+        g.setColor(Color.WHITE);
         g.fillOval(
+                /*X coord*/   xyPos.x,
+                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                /*Width  */   monomerWidth,
+                /*Height */   monomerHeight);
+        g.setStroke(new BasicStroke(Simulation.monomerRadius/10));
+        g.setColor(new Color(2,180,206));
+        g.drawOval(
                 /*X coord*/   xyPos.x,
                 /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */   monomerWidth,
@@ -495,7 +502,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             g.setFont(g.getFont().deriveFont((float) --fontSize));
             bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
-
+        g.setColor(Color.BLACK);
         g.drawString(
                 /*String */     m.getState(),
                 /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment/2,
@@ -513,7 +520,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
         for (Monomer m : map.values()) {
 
-            drawMonomer(m,g2);
+            drawMonomer(m, g2);
 
         }
 
