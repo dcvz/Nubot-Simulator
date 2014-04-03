@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener{
+public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener{
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -90,6 +90,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         mainFrame.addComponentListener(this);
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
+        canvas.addMouseListener(this);
         canvasGraphics  = (Graphics2D)canvas.getGraphics();
         canvasStrokeSize = Simulation.monomerRadius/3;
         canvasGraphics.setStroke(new BasicStroke(canvasStrokeSize));
@@ -544,6 +545,32 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     @Override
     public void mouseMoved(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        lastXY = e.getPoint();
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 }
