@@ -10,7 +10,8 @@
 import java.awt.*;
 import java.util.Random;
 
-public class Simulation
+public class
+        Simulation
 {
     public static Point canvasXYoffset;
     public static volatile

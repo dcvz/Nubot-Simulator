@@ -152,7 +152,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                 }
                 statusLabel1.setText("Simulation finished");
-                JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
+                if(map.isFinished)
+                       JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
 
             }
         };
@@ -419,6 +420,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
             Simulation.isRunning = false;
+
+            simHeartBeat.interrupt();
             simStart.setEnabled(false);
             simPause.setEnabled(false);
             simStop.setEnabled(false);
@@ -451,7 +454,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             System.out.println("stop");
         } else if (e.getSource() == simPause) {
             timer.stop();
-            Simulation.isRunning = false;
+            Simulation.isPaused = true;
             System.out.println("pause");
         } else if (e.getSource() == agitation) {
             String agitationRateString = JOptionPane.showInputDialog(mainFrame,"Set Agitation Rate","Agitation",JOptionPane.PLAIN_MESSAGE);
