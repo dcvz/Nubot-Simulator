@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class Display implements ActionListener, ComponentListener, MouseWheelListener{
+public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener{
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
@@ -54,6 +54,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
 
+   //For panning
+    Point lastXY = new Point(0,0);
+
     public Display() {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
@@ -81,7 +84,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         mainFrame.setVisible(true);
         mainFrame.addComponentListener(this);
         canvas.addMouseWheelListener(this);
-
+        canvas.addMouseMotionListener(this);
         //for the nubot graphics/image & visuals
         nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         nubotGFX = (Graphics2D) nubotImage.getGraphics();
@@ -316,6 +319,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         bre.close();
                         Simulation.configLoaded = true;
                         drawMonomers();
+                        canvas.repaint();
                         if (Simulation.configLoaded && Simulation.rulesLoaded)
                             simStart.setEnabled(true);
                     }
@@ -329,6 +333,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             map.rules.clear();
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
+            Simulation.isRunning = false;
             simStart.setEnabled(false);
             simPause.setEnabled(false);
             simStop.setEnabled(false);
@@ -341,6 +346,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         } else if (e.getSource() == about) {
             System.out.println("about this application");
         } else if (e.getSource() == simStart) {
+            Simulation.isRunning = true;
             map.isFinished=false;
             Simulation.isPaused = false;
             loadC.setEnabled(false);
@@ -350,10 +356,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             timer.start();
             System.out.println("start");
         } else if (e.getSource() == simStop) {
+            Simulation.isRunning = false;
             timer.stop();
             System.out.println("stop");
         } else if (e.getSource() == simPause) {
             timer.stop();
+            Simulation.isRunning = false;
             System.out.println("pause");
         }
     }
@@ -395,7 +403,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             drawMonomer(m);
 
         }
-        canvas.repaint();
+      //  canvas.repaint();
 
     }
 
@@ -420,7 +428,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                bondLayerGFX.drawLine(start.x, start.y, end.x - 2, end.y);
+                bondLayerGFX.drawLine(start.x-2, start.y, end.x - 2, end.y);
             }
         }
     }
@@ -468,29 +476,70 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         if (e.getWheelRotation() == 1.0)
         {
+            if(!Simulation.isRunning)
             clearImages();
             nubotGFX.scale(.95,.95);
             bondLayerGFX.scale(.95,.95);
             nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
             bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
-
-            drawMonomers();
-            canvas.repaint();
+            if(!Simulation.isRunning) {
+                drawMonomers();
+                canvas.repaint();
+            }
 
         }
 
         else
         {
+            if(!Simulation.isRunning)
             clearImages();
             nubotGFX.scale(1.05,1.05);
             bondLayerGFX.scale(1.05,1.05);
             nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
             bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
-            drawMonomers();
-            canvas.repaint();
+
+            if(!Simulation.isRunning) {
+                drawMonomers();
+                canvas.repaint();
+            }
         }
 
 
     }
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+        if(lastXY.x > e.getX()) {
+            nubotGFX.translate(-2, 0);
+            bondLayerGFX.translate(-2,0);
+        }
+        else if(lastXY.x < e.getX()) {
+            nubotGFX.translate(2, 0);
+            bondLayerGFX.translate(2,0);
+        }
+        if(lastXY.y > e.getY()) {
+            nubotGFX.translate(0, -2);
+            bondLayerGFX.translate(0,-2);
+        }
+        else if(lastXY.y < e.getY()) {
+            nubotGFX.translate(0, 2);
+            bondLayerGFX.translate(0, 2);
+        }
+
+        lastXY = e.getPoint();
+        if(!Simulation.isRunning)
+        {
+            clearImages();
+            drawMonomers();
+            canvas.repaint();
+
+        }
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
+    }
 }

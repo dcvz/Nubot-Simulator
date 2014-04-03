@@ -65,8 +65,10 @@ public class Configuration extends HashMap<Point, Monomer>
 
             timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
         }
-        else
+        else {
             isFinished = true;
+            Simulation.isRunning = false;
+        }
 
     }
 
