@@ -22,6 +22,14 @@ public class Configuration extends HashMap<Point, Monomer>
     private Random rand = new Random();
 
     //================================================================================
+    // For saving Config
+    //================================================================================
+
+    Thread configSaveWorker;
+    Runnable configSaveRunnable;
+    String saveLocation = ".";
+
+    //================================================================================
     // Constructors
     //================================================================================
 
@@ -31,6 +39,14 @@ public class Configuration extends HashMap<Point, Monomer>
         isFinished = false;
         timeElapsed = 0.0;
         numberOfActions = 0;
+        configSaveRunnable = new Runnable() {
+            @Override
+            public void run() {
+
+                saveConfig(saveLocation);
+
+            }
+        };
     }
 
     //================================================================================
@@ -531,4 +547,16 @@ public class Configuration extends HashMap<Point, Monomer>
                 m.adjustBond(key, Bond.TYPE_FLEXIBLE);
         }
     }
+
+    public void saveConfig(String saveLocation)
+    {
+        HashMap<Point, Monomer> mapTemp = (HashMap<Point, Monomer>) this.clone();
+        for(Monomer m : mapTemp.values())
+        {
+
+
+        }
+    }
+
+
 }

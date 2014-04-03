@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener{
     int fontSize = 20;
@@ -420,9 +421,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             canvas.repaint();
             map.clear();
             map.rules.clear();
+
+            /////Simulation Flags
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
             Simulation.isRunning = false;
+            Simulation.agitationON = false;
+
+
 
             simHeartBeat.interrupt();
             simStart.setEnabled(false);
@@ -458,11 +464,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         } else if (e.getSource() == simPause) {
             timer.stop();
             Simulation.isPaused = true;
+
             System.out.println("pause");
         } else if (e.getSource() == agitation) {
             String agitationRateString = JOptionPane.showInputDialog(mainFrame,"Set Agitation Rate","Agitation",JOptionPane.PLAIN_MESSAGE);
             if (agitationRateString != null) {
                 agitationRate = Double.parseDouble(agitationRateString);
+                Simulation.agitationON = true;
                 System.out.println("Agitation Rate changed");
             }
         } else if (e.getSource() == speed) {
@@ -518,14 +526,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     {
 
         Graphics2D g2 = (Graphics2D)g;
-        for (Monomer m : map.values()) {
+        HashMap<Point, Monomer> mapTemp =  (HashMap<Point, Monomer>) map.clone();
+        for (Monomer m : mapTemp.values()) {
 
             drawBond(m,g2);
 
         }
-        for (Monomer m : map.values()) {
+       for (Monomer m : mapTemp.values()) {
 
-            drawMonomer(m, g2);
+          drawMonomer(m, g2);
 
         }
 
