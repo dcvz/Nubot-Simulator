@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener{
     int fontSize = 20;
@@ -63,6 +64,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //Data
     String rulesFileName = "";
     String configFileName = "";
+    HashMap<Point, Monomer> mapTemp;
 
      //change to default starting value later
       Double agitationRate;
@@ -143,6 +145,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     try {
                         Thread.sleep(80);
                         map.executeFrame();
+                       // mapTemp = map.clone();
                         statusLabel1.setText("Simulating...");
                     }
                     catch(Exception e)
