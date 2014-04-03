@@ -14,7 +14,7 @@ public class Simulation
 {
     public static Dimension frameSize = new Dimension(1000, 1000);
     public static Dimension canvasSize = new Dimension(1000,1000);
-    public static Point canvasXYoffset = new Point(500,500);
+    public static Point canvasXYoffset = new Point(500,-500);
     public static volatile
     int monomerRadius = 40;
     public static boolean configLoaded = false;
@@ -28,7 +28,7 @@ public class Simulation
 
     public static Point getCanvasPosition(Point gridPosition)
     {
-       return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,   canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius);
+        return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,  -1 * canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius);
     }
 
     public static double calculateExpDistribution(int i)

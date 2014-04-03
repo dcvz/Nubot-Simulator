@@ -7,6 +7,7 @@
 //
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -55,6 +56,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem record = new JMenuItem("Record");
     private JMenuItem agitation = new JMenuItem("Agitation");
     private JMenuItem speed = new JMenuItem("Speed");
+
+    //Status bar
+
+    JPanel statusBar = new JPanel();
+    JLabel statusLabel1 = new JLabel();
+
     //Data
     String rulesFileName = "";
     String configFileName = "";
@@ -109,10 +116,21 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         hudLayerGFX = (Graphics2D)hudImage.getGraphics();
         hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        ////
+        //Status Bar  setup
+        ////
+        statusBar.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusBar.setPreferredSize(new Dimension(mainFrame.getWidth(), 25));
+        statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
+        mainFrame.add(statusBar, BorderLayout.SOUTH);
+        statusLabel1.setHorizontalAlignment(SwingConstants.LEFT);
+        statusLabel1.setText("Status");
 
+        statusBar.add(statusLabel1);
+        //******************
 
         //////
-        ///Threads/Timer
+        ///Threads & Timer
         /////
         timer = new Timer(1000/60 , new ActionListener() {
             @Override
@@ -130,16 +148,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     try {
                         Thread.sleep(80);
                         map.executeFrame();
-                        System.out.println("SDFSD");
+                        statusLabel1.setText("Simulating...");
                     }
                     catch(Exception e)
                     {
                         System.out.println(e.getCause().getMessage());
                     }
 
-
-
                 }
+                statusLabel1.setText("Simulation Finished");
+                JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
 
             }
         };
@@ -458,6 +476,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
        g.setColor(Color.BLACK);
 
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
+
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
         int monomerWidth = Simulation.monomerRadius * 2 - monomerWidthAdjustment;
         int monomerHeight = Simulation.monomerRadius * 2;
@@ -468,18 +487,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 /*Height */   monomerHeight);
         g.setColor(Color.WHITE);
         Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
-        while (bounds.getWidth() < monomerWidth -2 && bounds.getHeight() < monomerHeight - 2) {
+        while (bounds.getWidth() < monomerWidth -4 && bounds.getHeight() < monomerHeight - 4) {
             g.setFont(g.getFont().deriveFont((float) ++fontSize));
             bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
-        while (bounds.getWidth() > monomerWidth -2 || bounds.getHeight() > monomerHeight -2) {
+        while (bounds.getWidth() > monomerWidth -4 || bounds.getHeight() > monomerHeight -4) {
             g.setFont(g.getFont().deriveFont((float) --fontSize));
             bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
 
         g.drawString(
                 /*String */     m.getState(),
-                /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment,
+                /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment/2,
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
     }
 
@@ -599,7 +618,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
           if(lastXY==null)
                  lastXY = e.getPoint();
-          Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, e.getY()  - lastXY.y );
+          Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, -(e.getY()  - lastXY.y) );
 
 
 
