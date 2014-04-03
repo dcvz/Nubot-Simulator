@@ -21,12 +21,18 @@ public class Action
         this.rule = r;
     }
 
-    // accessor methods
+    //================================================================================
+    // Accessors
+    //================================================================================
+
     public Point getMon1() { return mon1; }
     public Point getMon2() { return mon2; }
     public Rule getRule() { return rule; }
 
-    // mutator methods
+    //================================================================================
+    // Mutators
+    //================================================================================
+
     public void setMon1(Point p) { this.mon1 = p; }
     public void setMon2(Point p) { this.mon2 = p; }
     public void setRule(Rule r) { this.rule = r; }

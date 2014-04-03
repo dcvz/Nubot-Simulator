@@ -28,7 +28,6 @@ public class Simulation
        return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,   canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius);
     }
 
-
     public static double calculateExpDistribution(int i)
     {
         Random rand = new Random();

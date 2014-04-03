@@ -120,7 +120,7 @@ public class Direction {
         if (dir.matches("SW"))
             return TYPE_FLAG_SOUTHWEST;
 
-        System.out.println("Inproper direction string format.");
+        System.out.println("Improper direction string format.");
         return 0;
     }
 }
