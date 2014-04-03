@@ -78,24 +78,22 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
    //For panning
     Point lastXY;
 
-    public Display(Dimension size) {
+    public Display(Dimension size)
+    {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
         mainFrame.setSize(size.width, size.height);
         mainFrame.setResizable(false);
+        mainFrame.setLocationRelativeTo(null);
         mainFrame.setLayout(new BorderLayout());
 
+        Simulation.canvasXYoffset = new Point(size.width/2, -1 * (size.height/2 - 60));
 
         initMenuBar();
         //post creation menubar setup
         simStart.setEnabled(false);
         simPause.setEnabled(false);
         simStop.setEnabled(false);
-
-
-
-
-
 
         map = new Configuration();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

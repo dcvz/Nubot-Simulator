@@ -12,9 +12,9 @@ import java.util.Random;
 
 public class Simulation
 {
-    public static Point canvasXYoffset = new Point(500,-500);
+    public static Point canvasXYoffset;
     public static volatile
-    int monomerRadius = 40;
+    int monomerRadius = 15;
     public static boolean configLoaded = false;
     public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;
