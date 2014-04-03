@@ -1,4 +1,3 @@
-//
 // Display.java
 // Nubot Simulator
 //

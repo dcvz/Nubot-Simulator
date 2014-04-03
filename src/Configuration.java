@@ -1,4 +1,3 @@
-//
 // Configuration.java
 // Nubot Simulator
 //
@@ -6,12 +5,19 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
-import org.javatuples.Quartet;
+import org.javatuples.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.Random;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
@@ -21,34 +27,37 @@ public class Configuration extends HashMap<Point, Monomer>
     public int numberOfActions;
     private Random rand = new Random();
 
+
     //================================================================================
     // For saving Config
     //================================================================================
 
-    Thread configSaveWorker;
-    Runnable configSaveRunnable;
-    String saveLocation = ".";
+
+    Runnable recordRunnable;
+    String recordLocation = ".";
+    ExecutorService executorService =  Executors.newFixedThreadPool(4);
+    private ArrayList<Pair<Double, HashMap<Point, Monomer>>> recordArrayList;
 
     //================================================================================
     // Constructors
     //================================================================================
 
-    public Configuration()
-    {
+    public Configuration() {
         rules = new RuleSet();
         isFinished = false;
         timeElapsed = 0.0;
         numberOfActions = 0;
-        configSaveRunnable = new Runnable() {
+        recordRunnable = new Runnable() {
             @Override
             public void run() {
 
-                saveConfig(saveLocation);
 
             }
         };
-    }
 
+        recordArrayList = new ArrayList<Pair<Double, HashMap<Point, Monomer>>>();
+
+    }
     //================================================================================
     // Functionality Methods
     //================================================================================
@@ -74,6 +83,7 @@ public class Configuration extends HashMap<Point, Monomer>
         numberOfActions = actions.size() + agtions.size();
         Action selectedAc;
         Agtion selectedAg;
+        double frametime = 0;
 
         if (Simulation.agitationON)
             agtions = computeAgtionSet();
@@ -112,8 +122,8 @@ public class Configuration extends HashMap<Point, Monomer>
                         break;
                     selectedAc = actions.selectArbitrary();
                 } while (!executeAction(selectedAc));
-
-                timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+                frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
+                timeElapsed = frametime;
             }
         }
         else
@@ -121,6 +131,9 @@ public class Configuration extends HashMap<Point, Monomer>
             isFinished = true;
             Simulation.isRunning = false;
         }
+
+        recordArrayList.add(Pair.with(frametime, (HashMap<Point,Monomer>)this));
+
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -550,12 +563,19 @@ public class Configuration extends HashMap<Point, Monomer>
 
     public void saveConfig(String saveLocation)
     {
-        HashMap<Point, Monomer> mapTemp = (HashMap<Point, Monomer>) this.clone();
-        for(Monomer m : mapTemp.values())
-        {
+
+    }
+
+    public void beginRecording()
+    {
 
 
-        }
+        ///loop here based on flag for finish called by the GUI or when simulation has finished
+
+
+        //reading from
+
+
     }
 
 
