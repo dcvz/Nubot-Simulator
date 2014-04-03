@@ -91,9 +91,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
         canvasGraphics  = (Graphics2D)canvas.getGraphics();
+        canvasStrokeSize = Simulation.monomerRadius/3;
         canvasGraphics.setStroke(new BasicStroke(canvasStrokeSize));
         //for the nubot graphics/image & visuals
         canvasGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         hudLayerGFX = (Graphics2D)hudImage.getGraphics();
         hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -411,7 +413,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
     }
 
-    private void drawMonomers(Graphics g)
+    private synchronized void drawMonomers(Graphics g)
     {
 
         Graphics2D g2 = (Graphics2D)g;
@@ -420,6 +422,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
             drawBond(m,g2);
+
             drawMonomer(m, g2);
 
         }
@@ -428,9 +431,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     }
 
 
-    public void drawBond(Monomer m, Graphics2D g) {
+    public  synchronized void drawBond(Monomer m, Graphics2D g) {
 
-        System.out.println(canvasStrokeSize + "ASDFSD") ;
         if (m.hasBonds()) {
             ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
             ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
@@ -494,10 +496,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         if (e.getWheelRotation() == 1.0)
         {
-            if(!Simulation.isRunning)
 
-            Simulation.monomerRadius *= .92;
-            canvasStrokeSize *= .92;
+            Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * .92);
+            canvasStrokeSize = Simulation.monomerRadius/3;
+
 
             if(!Simulation.isRunning) {
 
@@ -510,12 +512,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         {
 
 
-            Simulation.monomerRadius *=1.08;
-            canvasStrokeSize *= 1.08;
+            Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * 1.08);
+            canvasStrokeSize = Simulation.monomerRadius/3;
             if(!Simulation.isRunning) {
 
                 canvas.repaint();
             }
+
         }
 
 

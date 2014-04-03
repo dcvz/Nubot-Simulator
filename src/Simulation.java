@@ -15,7 +15,8 @@ public class Simulation
     public static Dimension frameSize = new Dimension(1000, 1000);
     public static Dimension canvasSize = new Dimension(1000,1000);
     public static Point canvasXYoffset = new Point(500,500);
-    public static int monomerRadius = 600/30;
+    public static volatile
+    int monomerRadius = 40;
     public static boolean configLoaded = false;
     public static boolean rulesLoaded = false;
     public static boolean debugMode  = false;
