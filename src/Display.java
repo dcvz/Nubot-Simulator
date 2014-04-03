@@ -10,7 +10,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -25,12 +25,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     JComponent canvas;
     //Config and rules
     Configuration map;
-    BufferedImage nubotImage;
-    BufferedImage bondLayerImage;
+
+    //GRaphics
     BufferedImage hudImage;
-    Graphics2D nubotGFX;
-    Graphics2D bondLayerGFX;
     Graphics2D hudLayerGFX;
+    Graphics2D canvasGraphics;
+    float canvasStrokeSize = 2.0f;
+
+
 
     //Menus
     private JMenu file = new JMenu("File");
@@ -59,7 +61,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Runnable simRunnable;
 
    //For panning
-    Point lastXY = new Point(0,0);
+    Point lastXY;
 
     public Display() {
         mainFrame.setBackground(Color.WHITE);
@@ -89,18 +91,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         mainFrame.addComponentListener(this);
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
+        canvasGraphics  = (Graphics2D)canvas.getGraphics();
+        canvasGraphics.setStroke(new BasicStroke(canvasStrokeSize));
         //for the nubot graphics/image & visuals
-        nubotImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        nubotGFX = (Graphics2D) nubotImage.getGraphics();
-        nubotGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
-        bondLayerImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        bondLayerGFX = (Graphics2D) bondLayerImage.getGraphics();
-        bondLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        canvasGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         hudLayerGFX = (Graphics2D)hudImage.getGraphics();
         hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
 
 
         //////
@@ -109,28 +106,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         timer = new Timer(1000/60 , new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-
-
-
-                if (!Simulation.isPaused)
-                {
-                    if (!map.isFinished)
-                    {     clearImages();
-                       try{     for (Monomer m : map.values()) {
-
-                        drawBond(m);
-                        drawMonomer(m);
-
-                    }       }
-                       catch(Exception exc)
-                       {
-
-                       }
-                        drawHud();
-
-                    }
-                }
 
                 canvas.repaint();
             }
@@ -167,9 +142,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             @Override
             public void paintComponent(Graphics g) {
-                g.drawImage(bondLayerImage, 0, 0, null);
-                g.drawImage(nubotImage, 0, 0, null);
-                g.drawImage(hudImage, 0, 0, null);
+               // g.drawImage(bondLayerImage, 0, 0, null);
+               // g.drawImage(nubotImage, 0, 0, null);
+                //g.drawImage(hudImage, 0, 0, null);
+               // super.paintComponent(g);
+                drawMonomers(g);
             }
 
         };
@@ -353,7 +330,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                         bre.close();
                         Simulation.configLoaded = true;
-                        drawMonomers();
+
                         canvas.repaint();
                         if (Simulation.configLoaded && Simulation.rulesLoaded)
                             simStart.setEnabled(true);
@@ -363,7 +340,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
             System.out.println("Load config");
         } else if (e.getSource() == menuClear) {
-            clearImages();
+            clearGraphics();
             canvas.repaint();
             map.clear();
             map.rules.clear();
@@ -406,69 +383,76 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
     }
 
-    private void drawMonomer(Monomer m) {
-        nubotGFX.setColor(Color.BLACK);
+    private void drawMonomer(Monomer m, Graphics2D g) {
+       g.setColor(Color.BLACK);
 
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
         int monomerWidth = Simulation.monomerRadius * 2 - monomerWidthAdjustment;
         int monomerHeight = Simulation.monomerRadius * 2;
-        nubotGFX.fillOval(
+        g.fillOval(
                 /*X coord*/   xyPos.x,
                 /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */   monomerWidth,
                 /*Height */   monomerHeight);
-        nubotGFX.setColor(Color.WHITE);
-        Rectangle2D bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
+        g.setColor(Color.WHITE);
+        Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         while (bounds.getWidth() < monomerWidth -2 && bounds.getHeight() < monomerHeight - 2) {
-            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) ++fontSize));
-            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
+            g.setFont(g.getFont().deriveFont((float) ++fontSize));
+            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
         while (bounds.getWidth() > monomerWidth -2 || bounds.getHeight() > monomerHeight -2) {
-            nubotGFX.setFont(nubotGFX.getFont().deriveFont((float) --fontSize));
-            bounds = nubotGFX.getFont().getStringBounds(m.getState(), 0, m.getState().length(), nubotGFX.getFontRenderContext());
+            g.setFont(g.getFont().deriveFont((float) --fontSize));
+            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
 
-        nubotGFX.drawString(
+        g.drawString(
                 /*String */     m.getState(),
                 /*X Coord */    xyPos.x + Simulation.monomerRadius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment,
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
     }
 
-    private void drawMonomers()
+    private void drawMonomers(Graphics g)
     {
+
+        Graphics2D g2 = (Graphics2D)g;
         for (Monomer m : map.values()) {
 
-            drawBond(m);
-            drawMonomer(m);
+
+
+            drawBond(m,g2);
+            drawMonomer(m, g2);
 
         }
-      //  canvas.repaint();
+
 
     }
 
 
-    public void drawBond(Monomer m) {
-        bondLayerGFX.setStroke(new BasicStroke(2f));
+    public void drawBond(Monomer m, Graphics2D g) {
+
+        System.out.println(canvasStrokeSize + "ASDFSD") ;
         if (m.hasBonds()) {
             ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
             ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
 
-            bondLayerGFX.setColor(Color.RED);
+            g.setColor(Color.RED);
             for (Byte dir : rigidDirList) {
                 Point start = Simulation.getCanvasPosition(m.getLocation());
                 Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                bondLayerGFX.drawLine(start.x - 2, start.y, end.x - 2, end.y);
+               g.setStroke(new BasicStroke(canvasStrokeSize));
+                g.draw(new Line2D.Float(start.x - 2, start.y, end.x - 2, end.y));
             }
-            bondLayerGFX.setColor(Color.CYAN);
+            g.setColor(Color.CYAN);
             for (Byte dir : flexibleDirList) {
                 Point start = Simulation.getCanvasPosition(m.getLocation());
                 Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                bondLayerGFX.drawLine(start.x-2, start.y, end.x - 2, end.y);
+                g.setStroke(new BasicStroke(canvasStrokeSize));
+                g.draw(new Line2D.Float(start.x - 2, start.y, end.x - 2, end.y));
             }
         }
     }
@@ -478,16 +462,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     }
 
-    private void clearImages() {
-        nubotGFX.setComposite(AlphaComposite.Clear);
-        nubotGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
-        nubotGFX.setComposite(AlphaComposite.SrcOver);
-        bondLayerGFX.setComposite(AlphaComposite.Clear);
-        bondLayerGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
-        bondLayerGFX.setComposite(AlphaComposite.SrcOver);
-        hudLayerGFX.setComposite(AlphaComposite.Clear);
-        hudLayerGFX.fillRect(0, 0, nubotImage.getWidth(), nubotImage.getHeight());
-        hudLayerGFX.setComposite(AlphaComposite.SrcOver);
+    private void clearGraphics() {
+        Graphics2D g = (Graphics2D)canvas.getGraphics();
+        g.setComposite(AlphaComposite.Clear);
+        g.fillRect(0, 0, Simulation.canvasSize.width, Simulation.canvasSize.height);
+        g.setComposite(AlphaComposite.SrcOver);
 
     }
     @Override
@@ -517,13 +496,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         if (e.getWheelRotation() == 1.0)
         {
             if(!Simulation.isRunning)
-            clearImages();
-            nubotGFX.scale(.95,.95);
-            bondLayerGFX.scale(.95,.95);
-            nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
-            bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * .972, Simulation.canvasSize.height -Simulation.canvasSize.height * .972);
+
+            Simulation.monomerRadius *= .92;
+            canvasStrokeSize *= .92;
+
             if(!Simulation.isRunning) {
-                drawMonomers();
+
                 canvas.repaint();
             }
 
@@ -531,15 +509,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         else
         {
-            if(!Simulation.isRunning)
-            clearImages();
-            nubotGFX.scale(1.05,1.05);
-            bondLayerGFX.scale(1.05,1.05);
-            nubotGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
-            bondLayerGFX.translate( Simulation.canvasSize.width -Simulation.canvasSize.width * 1.025, Simulation.canvasSize.height -Simulation.canvasSize.height * 1.025);
 
+
+            Simulation.monomerRadius *=1.08;
+            canvasStrokeSize *= 1.08;
             if(!Simulation.isRunning) {
-                drawMonomers();
+
                 canvas.repaint();
             }
         }
@@ -550,30 +525,17 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void mouseDragged(MouseEvent e) {
 
-        if(lastXY.x > e.getX()) {
-            nubotGFX.translate(-2, 0);
-            bondLayerGFX.translate(-2,0);
-        }
-        else if(lastXY.x < e.getX()) {
-            nubotGFX.translate(2, 0);
-            bondLayerGFX.translate(2,0);
-        }
-        if(lastXY.y > e.getY()) {
-            nubotGFX.translate(0, -2);
-            bondLayerGFX.translate(0,-2);
-        }
-        else if(lastXY.y < e.getY()) {
-            nubotGFX.translate(0, 2);
-            bondLayerGFX.translate(0, 2);
-        }
+          if(lastXY==null)
+                 lastXY = e.getPoint();
+          Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, e.getY()  - lastXY.y );
+
+
+
 
         lastXY = e.getPoint();
         if(!Simulation.isRunning)
         {
-            clearImages();
-            drawMonomers();
             canvas.repaint();
-
         }
 
     }
