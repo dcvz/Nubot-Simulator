@@ -54,6 +54,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
 
+    //Threads
+    Thread simHeartBeat;
+    Runnable simRunnable;
+
    //For panning
     Point lastXY = new Point(0,0);
 
@@ -98,6 +102,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         nubotGFX.setFont(new Font("TimesRoman", Font.BOLD, fontSize));
 
+
+        //////
+        ///Threads/Timer
+        /////
         timer = new Timer(1000/60 , new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,14 +117,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     if (!map.isFinished)
                     {     clearImages();
-                        for (Monomer m : map.values()) {
+                       try{     for (Monomer m : map.values()) {
 
                         drawBond(m);
                         drawMonomer(m);
 
-                    }
+                    }       }
+                       catch(Exception exc)
+                       {
+
+                       }
                         drawHud();
-                        map.executeFrame();
+
                     }
                 }
 
@@ -124,6 +136,29 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
         });
         timer.setRepeats(true);
+
+        simRunnable = new Runnable() {
+            @Override
+            public void run() {
+                while(Simulation.isRunning) {
+                    try {
+                        Thread.sleep(80);
+                        map.executeFrame();
+                        System.out.println("SDFSD");
+                    }
+                    catch(Exception e)
+                    {
+                        System.out.println(e.getCause().getMessage());
+                    }
+
+
+
+                }
+
+            }
+        };
+
+
 
     }
 
@@ -329,6 +364,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             System.out.println("Load config");
         } else if (e.getSource() == menuClear) {
             clearImages();
+            canvas.repaint();
             map.clear();
             map.rules.clear();
             Simulation.configLoaded = false;
@@ -353,11 +389,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             loadR.setEnabled(false);
             simPause.setEnabled(true);
             simStop.setEnabled(true);
+            simHeartBeat = new Thread(simRunnable);
+            simHeartBeat.start();
             timer.start();
+
             System.out.println("start");
         } else if (e.getSource() == simStop) {
             Simulation.isRunning = false;
             timer.stop();
+            simHeartBeat.interrupt();
             System.out.println("stop");
         } else if (e.getSource() == simPause) {
             timer.stop();
