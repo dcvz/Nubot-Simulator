@@ -19,6 +19,7 @@ public class Configuration extends HashMap<Point, Monomer>
     public boolean isFinished;
     public double timeElapsed;
     public int numberOfActions;
+    private Random rand = new Random();
 
     //================================================================================
     // Constructors
@@ -58,11 +59,34 @@ public class Configuration extends HashMap<Point, Monomer>
         Action selectedAc;
         Agtion selectedAg;
 
+        if (Simulation.agitationON)
+            agtions = computeAgtionSet();
+
         if (numberOfActions > 0)
         {
             if (Simulation.agitationON)
             {
+                double percent = (double)actions.size() / (double)(actions.size() + agtions.size());
+                double pick = rand.nextDouble();
 
+                if (pick <= percent)
+                {
+                    do
+                    {
+                        if (actions.size() < 1)
+                            break;
+                        selectedAc = actions.selectArbitrary();
+                    } while (!executeAction(selectedAc));
+                }
+                else
+                {
+                    do
+                    {
+                        if (agtions.size() < 1)
+                            break;
+                        selectedAg = agtions.selectArbitrary();
+                    } while (!executeAgtion(selectedAg));
+                }
             }
             else
             {
@@ -85,7 +109,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
     // given a ruleset, compute a list of all possible actions
     // that can be executed in our current configuration
-    public ActionSet computeActionSet()
+    private ActionSet computeActionSet()
     {
         ActionSet ret = new ActionSet();
         for (Monomer m : this.values())
@@ -131,6 +155,28 @@ public class Configuration extends HashMap<Point, Monomer>
        return ret;
     }
 
+    private AgtionSet computeAgtionSet()
+    {
+        AgtionSet ret = new AgtionSet();
+
+        for (Monomer m : this.values())
+        {
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    if (i == j) { /* do nothing */ }
+                    else
+                    {
+                        ret.add(new Agtion(m.getLocation(), Direction.dirFromPoints(m.getLocation(), new Point(m.getLocation().x + i, m.getLocation().y + j))));
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
     private boolean executeAction(Action a)
     {
         if (a.getRule().getClassification() == Rule.RuleType.STATECHANGE)
@@ -143,6 +189,19 @@ public class Configuration extends HashMap<Point, Monomer>
             return performBoth(a);
         else
             return performMovement(a);
+    }
+
+    private boolean executeAgtion(Agtion a)
+    {
+        Monomer source = this.get(a.getMon());
+
+        Configuration movableSet = new Configuration();
+        movableSet.addMonomer(source);
+
+        greedyExpand(movableSet, a.getDir());
+        shift(movableSet, a.getDir());
+
+        return true;
     }
 
     //================================================================================
@@ -271,8 +330,6 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         Monomer one = this.get(a.getMon1());
         Monomer two = this.get(a.getMon2());
-
-        Random rand = new Random();
         double coinFlip = rand.nextDouble();
 
         Configuration movableSet = new Configuration();

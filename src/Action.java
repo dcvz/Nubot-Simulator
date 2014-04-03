@@ -14,6 +14,10 @@ public class Action
     private Point mon1, mon2;
     private Rule rule;
 
+    //================================================================================
+    // Constructors
+    //================================================================================
+
     public Action(Point a, Point b, Rule r)
     {
         this.mon1 = a;
