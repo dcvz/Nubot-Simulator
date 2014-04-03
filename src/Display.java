@@ -11,12 +11,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.geom.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.awt.event.*;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -485,7 +484,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */   monomerWidth,
                 /*Height */   monomerHeight);
-        g.setStroke(new BasicStroke(Simulation.monomerRadius/10));
+        g.setStroke(new BasicStroke(Simulation.monomerRadius / 10));
         g.setColor(new Color(2,180,206));
         g.drawOval(
                 /*X coord*/   xyPos.x,
@@ -541,17 +540,21 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 g.setStroke(new BasicStroke(canvasStrokeSize));
-                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/4, start.y, end.x , end.y));
+                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/3.5f, start.y, end.x , end.y));
 
             }
-            g.setColor(Color.CYAN);
+
             for (Byte dir : flexibleDirList) {
                 Point start = Simulation.getCanvasPosition(m.getLocation());
                 Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-                g.setStroke(new BasicStroke(canvasStrokeSize));
-                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/4, start.y, end.x , end.y));
+                g.setStroke(new BasicStroke(canvasStrokeSize *1.20f));
+                g.setColor(Color.RED);
+                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/3.5f, start.y, end.x , end.y));
+                g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(canvasStrokeSize * .80f));
+                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/3.5f, start.y, end.x , end.y));
             }
         }
     }
