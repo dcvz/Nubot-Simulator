@@ -260,21 +260,46 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         Monomer one = this.get(a.getMon1());
         Monomer two = this.get(a.getMon2());
+        double coinFlip = Math.random();
 
         Configuration movableSet = new Configuration();
-        movableSet.addMonomer(two);
+
+        // in movement you must arbitrarily select who will be the base and
+        // who will be the arm, so we simulate a coin toss to select which
+        if (coinFlip < 0.5)
+            movableSet.addMonomer(two);
+        else
+            movableSet.addMonomer(one);
+
         one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), Bond.TYPE_NONE);
         two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
 
-        greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
-
-        if (movableSet.containsValue(one))
+        if (coinFlip < 0.5)
         {
-            one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
-            return false;
+            greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
+
+            if (movableSet.containsValue(one))
+            {
+                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
+                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                return false;
+            }
+            else
+                shift(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
         }
         else
-            shift(movableSet, Direction.deltaFromDirs(a.getRule().getDir(), a.getRule().getDirp()));
+        {
+            greedyExpand(movableSet, Direction.deltaFromDirs(a.getRule().getDirp(), a.getRule().getDir()));
+
+            if (movableSet.containsValue(two))
+            {
+                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
+                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                return false;
+            }
+            else
+                shift(movableSet, Direction.deltaFromDirs(a.getRule().getDirp(), a.getRule().getDir()));
+        }
 
         one.setState(a.getRule().getS1p());
         two.setState(a.getRule().getS2p());
@@ -433,9 +458,7 @@ public class Configuration extends HashMap<Point, Monomer>
             Byte value = entry.getValue();
 
             if (value == Bond.TYPE_FLEXIBLE)
-            {
                 m.adjustBond(key, Bond.TYPE_FLEXIBLE);
-            }
         }
     }
 }

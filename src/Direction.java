@@ -62,8 +62,6 @@ public class Direction {
         if(direction == TYPE_FLAG_WEST)
             return TYPE_POINT_OFFSET_WEST;
 
-
-
         return new Point(0,0);
     }
 
