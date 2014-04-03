@@ -8,7 +8,11 @@
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -22,6 +26,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     int fontSize = 20;
     Timer timer;
     final JFrame mainFrame = new JFrame("Nubot Simulator");
+    final JFrame aboutF = new JFrame("A.S.A.R.G");
     JComponent canvas;
     //Config and rules
     Configuration map;
@@ -53,6 +58,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //Data
     String rulesFileName = "";
     String configFileName = "";
+
+     //change to default starting value later
+      Double agitationRate;
+      Double speedRate;
 
 
     //Threads
@@ -181,6 +190,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         file.add(menuClear);
         file.add(menuQuit);
         simulation.add(simStart);
+        simulation.add(record);
         simulation.add(simPause);
         simulation.add(new JSeparator(SwingConstants.HORIZONTAL));
         simulation.add(simStop);
@@ -188,6 +198,50 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         settings.add(speed);
 
         mainFrame.setJMenuBar(menuBar);
+        //about screen
+
+        final JPanel aboutP = new JPanel();
+        aboutF.setResizable(false);
+        aboutP.setLayout(new BoxLayout(aboutP, BoxLayout.PAGE_AXIS));
+        aboutF.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        JLabel aboutGroupName = new JLabel("Algorithmic Self-Assembly Research Group");
+        JLabel aboutSchool = new JLabel("The University of Texas - Pan American");
+        aboutGroupName.setFont(new Font("",Font.BOLD, 23));
+        aboutSchool.setFont(new Font("", Font.BOLD, 20));
+        aboutGroupName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        aboutSchool.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel groupLink = new JLabel("Visit Our Website");
+        groupLink.setAlignmentX(Component.CENTER_ALIGNMENT);
+        groupLink.setForeground(Color.blue);
+
+        aboutP.add(aboutGroupName);
+        aboutP.add(Box.createRigidArea(new Dimension(0, 15)));
+        aboutP.add(aboutSchool);
+        aboutP.add(Box.createRigidArea(new Dimension(0, 30)));
+        aboutP.add(groupLink);
+        final URI websiteLink;
+        MouseAdapter openURL = null;
+        try {
+            websiteLink = new URI("http://faculty.utpa.edu/orgs/asarg/");
+            openURL = new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        Desktop.getDesktop().browse(websiteLink);
+                    } catch (IOException e1) {
+                        System.out.println("error visiting the website URL");
+                    }
+                }
+            };
+        } catch (URISyntaxException e) {
+            System.out.println("something is wrong with the URI or MouseAdapter");
+        }
+        groupLink.addMouseListener(openURL);
+
+        aboutP.setBorder(new EmptyBorder(20, 20, 10, 20));
+        aboutF.add(aboutP);
+        aboutF.pack();
+        aboutF.setVisible(false);
     }
 
     @Override
@@ -360,6 +414,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             System.exit(0);
         } else if (e.getSource() == about) {
             System.out.println("about this application");
+            aboutF.setVisible(true);
         } else if (e.getSource() == simStart) {
             Simulation.isRunning = true;
             map.isFinished=false;
@@ -382,6 +437,20 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             timer.stop();
             Simulation.isRunning = false;
             System.out.println("pause");
+        } else if (e.getSource() == agitation) {
+            String agitationRateString = JOptionPane.showInputDialog(mainFrame,"Set Agitation Rate","Agitation",JOptionPane.PLAIN_MESSAGE);
+            if (agitationRateString != null) {
+                agitationRate = Double.parseDouble(agitationRateString);
+                System.out.println("Agitation Rate changed");
+            }
+        } else if (e.getSource() == speed) {
+            String speedRateString = JOptionPane.showInputDialog(mainFrame,"Set Speed", "Speed",JOptionPane.PLAIN_MESSAGE);
+            if (speedRateString != null) {
+                speedRate = Double.parseDouble(speedRateString);
+                System.out.println("speed changed");
+            }
+        } else if (e.getSource() == record) {
+            System.out.println("record button started");
         }
     }
 
