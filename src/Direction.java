@@ -81,7 +81,6 @@ public class Direction {
         return pointOffsetToDirByte(new Point(dirToPointOffset(dir2).x - dirToPointOffset(dir1).x, dirToPointOffset(dir2).y  - dirToPointOffset(dir1).y));
     }
 
-
     public static byte pointOffsetToDirByte(Point off)
     {
         if (off.equals(TYPE_POINT_OFFSET_EAST))

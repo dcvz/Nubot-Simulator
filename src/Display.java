@@ -559,7 +559,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private void clearGraphics() {
         Graphics2D g = (Graphics2D)canvas.getGraphics();
         g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, Simulation.canvasSize.width, Simulation.canvasSize.height);
+        g.fillRect(0, 0, mainFrame.getSize().width, mainFrame.getSize().height);
         g.setComposite(AlphaComposite.SrcOver);
 
     }
