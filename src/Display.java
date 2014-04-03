@@ -33,7 +33,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     float canvasStrokeSize = 2.0f;
 
 
-
     //Menus
     private JMenu file = new JMenu("File");
     private JMenu simulation = new JMenu("Simulation");
