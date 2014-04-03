@@ -35,7 +35,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //GRaphics
     BufferedImage hudImage;
     Graphics2D hudLayerGFX;
-    Graphics2D canvasGraphics;
     float canvasStrokeSize = 2.0f;
 
 
@@ -106,11 +105,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
         canvas.addMouseListener(this);
-        canvasGraphics  = (Graphics2D)canvas.getGraphics();
         canvasStrokeSize = Simulation.monomerRadius/3;
-        canvasGraphics.setStroke(new BasicStroke(canvasStrokeSize));
         //for the nubot graphics/image & visuals
-        canvasGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 
         hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
         hudLayerGFX = (Graphics2D)hudImage.getGraphics();
@@ -170,11 +167,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             @Override
             public void paintComponent(Graphics g) {
-               // g.drawImage(bondLayerImage, 0, 0, null);
-               // g.drawImage(nubotImage, 0, 0, null);
-                //g.drawImage(hudImage, 0, 0, null);
-               // super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D)g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setComposite(AlphaComposite.SrcOver);
                 drawMonomers(g);
+
             }
 
         };
@@ -476,18 +473,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     private void drawMonomer(Monomer m, Graphics2D g) {
        g.setColor(Color.BLACK);
-
+        g.setComposite(AlphaComposite.SrcOver);
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
 
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
         int monomerWidth = Simulation.monomerRadius * 2 - monomerWidthAdjustment;
         int monomerHeight = Simulation.monomerRadius * 2;
+     //   g.setStroke(new BasicStroke(2f));
         g.fillOval(
                 /*X coord*/   xyPos.x,
                 /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
                 /*Width  */   monomerWidth,
                 /*Height */   monomerHeight);
-        g.setColor(Color.WHITE);
+        g.setColor(Color.white);
         Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         while (bounds.getWidth() < monomerWidth -4 && bounds.getHeight() < monomerHeight - 4) {
             g.setFont(g.getFont().deriveFont((float) ++fontSize));
@@ -510,11 +508,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         Graphics2D g2 = (Graphics2D)g;
         for (Monomer m : map.values()) {
 
-
-
             drawBond(m,g2);
 
-            drawMonomer(m, g2);
+        }
+        for (Monomer m : map.values()) {
+
+            drawMonomer(m,g2);
 
         }
 
@@ -534,8 +533,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
-               g.setStroke(new BasicStroke(canvasStrokeSize));
-                g.draw(new Line2D.Float(start.x - 2, start.y, end.x - 2, end.y));
+                g.setStroke(new BasicStroke(canvasStrokeSize));
+                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/4, start.y, end.x , end.y));
+
             }
             g.setColor(Color.CYAN);
             for (Byte dir : flexibleDirList) {
@@ -544,7 +544,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 g.setStroke(new BasicStroke(canvasStrokeSize));
-                g.draw(new Line2D.Float(start.x - 2, start.y, end.x - 2, end.y));
+                g.draw(new Line2D.Float(start.x - Simulation.monomerRadius/4, start.y, end.x , end.y));
             }
         }
     }
