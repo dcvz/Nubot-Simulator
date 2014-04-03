@@ -7,17 +7,21 @@
 //
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Main
 {
     public static void main(String args[])
     {
+        Toolkit toolkit =  Toolkit.getDefaultToolkit ();
+        Dimension dim = toolkit.getScreenSize();
+        final Dimension window = new Dimension((int)(dim.width * .9), (int)(dim.height * .9));
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Display mainWindow = new Display();
+                Display mainWindow = new Display(window);
             }
         });
-
     }
 }

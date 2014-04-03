@@ -78,10 +78,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
    //For panning
     Point lastXY;
 
-    public Display() {
+    public Display(Dimension size) {
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
-        mainFrame.setSize(Simulation.frameSize.width, Simulation.frameSize.height);
+        mainFrame.setSize(size.width, size.height);
+        mainFrame.setResizable(false);
         mainFrame.setLayout(new BorderLayout());
 
 
@@ -156,7 +157,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     }
 
                 }
-                statusLabel1.setText("Simulation Finished");
+                statusLabel1.setText("Simulation finished");
                 JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
 
             }
@@ -179,7 +180,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
 
         };
-        canvas.setSize(Simulation.canvasSize);
+        canvas.setSize(mainFrame.getSize());
     }
 
     private void initMenuBar() {
@@ -294,6 +295,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                 // if the ret flag results as Approve, we parse the file
                 if (resVal == JFileChooser.APPROVE_OPTION) {
+                    statusLabel1.setText("Loading rules");
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
                     if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules")) {
@@ -321,6 +323,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         Simulation.rulesLoaded = true;
                         if (Simulation.debugMode)
                             System.out.println("We have " + map.rules.size() + " rules");
+
+                        statusLabel1.setText("Rules loaded");
 
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                             simStart.setEnabled(true);

@@ -12,8 +12,6 @@ import java.util.Random;
 
 public class Simulation
 {
-    public static Dimension frameSize = new Dimension(1000, 1000);
-    public static Dimension canvasSize = new Dimension(1000,1000);
     public static Point canvasXYoffset = new Point(500,-500);
     public static volatile
     int monomerRadius = 40;
