@@ -16,9 +16,6 @@ public class AgtionSet extends ArrayList<Agtion>
         Random rand = new Random();
         int index = rand.nextInt(this.size());
 
-        Agtion ret = this.get(index);
-        this.remove(ret);
-
-        return ret;
+        return this.get(index);
     }
 }

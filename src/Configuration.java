@@ -80,13 +80,14 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         ActionSet actions = computeActionSet();
         AgtionSet agtions = new AgtionSet();
-        numberOfActions = actions.size() + agtions.size();
         Action selectedAc;
         Agtion selectedAg;
         double frametime = 0;
 
         if (Simulation.agitationON)
             agtions = computeAgtionSet();
+
+        numberOfActions = actions.size() + agtions.size();
 
         if (numberOfActions > 0)
         {
@@ -99,7 +100,7 @@ public class Configuration extends HashMap<Point, Monomer>
                 {
                     do
                     {
-                        if (actions.size() < 1)
+                        if (actions.size() + agtions.size() < 1)
                             break;
                         selectedAc = actions.selectArbitrary();
                     } while (!executeAction(selectedAc));
@@ -108,7 +109,7 @@ public class Configuration extends HashMap<Point, Monomer>
                 {
                     do
                     {
-                        if (agtions.size() < 1)
+                        if (actions.size() + agtions.size() < 1)
                             break;
                         selectedAg = agtions.selectArbitrary();
                     } while (!executeAgtion(selectedAg));

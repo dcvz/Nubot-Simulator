@@ -17,9 +17,6 @@ public class ActionSet extends ArrayList<Action>
         Random rand = new Random();
         int index = rand.nextInt(this.size());
 
-        Action ret = this.get(index);
-        this.remove(ret);
-
-        return ret;
+        return this.get(index);
     }
 }
