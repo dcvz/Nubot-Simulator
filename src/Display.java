@@ -65,8 +65,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
      //change to default starting value later
-      Double agitationRate;
-      Double speedRate;
+    Double agitationRate;
+    Double speedRate;
 
 
     //Threads

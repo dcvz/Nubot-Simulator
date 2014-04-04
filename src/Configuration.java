@@ -89,6 +89,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
         numberOfActions = actions.size() + agtions.size();
 
+        System.out.printf("Number of actions: %d", numberOfActions);
+
         if (numberOfActions > 0)
         {
             if (Simulation.agitationON)
@@ -101,7 +103,11 @@ public class Configuration extends HashMap<Point, Monomer>
                     do
                     {
                         if (actions.size() + agtions.size() < 1)
+                        {
+                            isFinished = true;
+                            Simulation.isRunning = false;
                             break;
+                        }
                         selectedAc = actions.selectArbitrary();
                     } while (!executeAction(selectedAc));
                 }
@@ -110,7 +116,11 @@ public class Configuration extends HashMap<Point, Monomer>
                     do
                     {
                         if (actions.size() + agtions.size() < 1)
+                        {
+                            isFinished = true;
+                            Simulation.isRunning = false;
                             break;
+                        }
                         selectedAg = agtions.selectArbitrary();
                     } while (!executeAgtion(selectedAg));
                 }
@@ -120,7 +130,11 @@ public class Configuration extends HashMap<Point, Monomer>
                 do
                 {
                     if (actions.size() < 1)
+                    {
+                        isFinished = true;
+                        Simulation.isRunning = false;
                         break;
+                    }
                     selectedAc = actions.selectArbitrary();
                 } while (!executeAction(selectedAc));
                 frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
@@ -371,8 +385,7 @@ public class Configuration extends HashMap<Point, Monomer>
         else
             movableSet.addMonomer(one);
 
-        one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), Bond.TYPE_NONE);
-        two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
+        adjustBonds(one.getLocation(), two.getLocation(), Bond.TYPE_NONE);
 
         if (coinFlip < 0.5)
         {
@@ -380,8 +393,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(one))
             {
-                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
-                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                System.out.println("Hai <");
+                adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
             else
@@ -393,8 +406,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(two))
             {
-                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
-                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                System.out.println("Hai >");
+                adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
             else
