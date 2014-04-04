@@ -7,11 +7,26 @@
 //
 
 import java.awt.*;
+import java.io.Serializable;
 
 // Point a, Point b, rule
-public class Action
+public class Action implements Serializable
 {
-    private Point mon1, mon2;
+    static final long serialVersionUID = 1234L;
+    /**
+     *Location of monomer1 on grid
+     * @serial
+     */
+    private Point mon1;
+    /**
+     *Location of monomer2 on grid
+     * @serial
+     */
+    private Point mon2;
+    /**
+     *Rule that applies to the two monomers
+     * @serial
+     */
     private Rule rule;
 
     //================================================================================

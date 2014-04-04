@@ -9,14 +9,65 @@
 import org.javatuples.Quartet;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Rule
+public class Rule implements Serializable
 {
-    private String s1, s2, s1p, s2p;
-    private Byte bond, bondp;
-    private Byte dir, dirp;
+    static final long serialVersionUID = 1234L;
+
+    /**
+     *
+     * @serial
+     */
+    private String s1;
+    /**
+     *
+     * @serial
+     */
+    String s2;
+
+    /**
+     *
+     * @serial
+     */
+    String s1p;
+
+    /**
+     *
+     * @serial
+     */
+    String s2p;
+    /**
+     *
+     * @serial
+     */
+    private Byte bond;
+    /**
+     *
+     * @serial
+     */
+    private Byte bondp;
+    /**
+     *
+     * @serial
+     */
+
+    private Byte dir;
+    /**
+     *
+     * @serial
+     */
+    private Byte dirp;
+    /**
+     *
+     * @serial
+     */
     private RuleType classification;
 
+    /**
+     *Location of monomer1 on grid
+     * @serial
+     */
     public enum RuleType { STATECHANGE, INSERTION, DELETION, BOTH, MOVEMENT };
 
     public Rule(String State1, String State2, Byte initialBondType, Byte S2initialDirection, String State1P, String State2P,Byte endBondType, Byte S2EndDirection)

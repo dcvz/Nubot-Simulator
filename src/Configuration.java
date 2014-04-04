@@ -8,21 +8,19 @@
 import org.javatuples.*;
 
 import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.Random;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
 
-public class Configuration extends HashMap<Point, Monomer>
+public class Configuration extends HashMap<Point, Monomer>  implements Serializable
 {
     public RuleSet rules;
     public boolean isFinished;
+    public boolean isRecording = true;
     public double timeElapsed;
     public int numberOfActions;
     private Random rand = new Random();
@@ -35,8 +33,9 @@ public class Configuration extends HashMap<Point, Monomer>
 
     Runnable recordRunnable;
     String recordLocation = ".";
-    ExecutorService executorService =  Executors.newFixedThreadPool(4);
-    private ArrayList<Pair<Double, HashMap<Point, Monomer>>> recordArrayList;
+   // ExecutorService executorService =  Executors.newFixedThreadPool(4);
+    private HashMap<Point, Monomer> recordInitial;
+    private ArrayList<Pair<Double, Action>> recordFrameHistory;
 
     //================================================================================
     // Constructors
@@ -54,8 +53,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             }
         };
+       recordFrameHistory = new ArrayList<Pair<Double, Action>>();
 
-        recordArrayList = new ArrayList<Pair<Double, HashMap<Point, Monomer>>>();
 
     }
     //================================================================================
@@ -80,7 +79,7 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         ActionSet actions = computeActionSet();
         AgtionSet agtions = new AgtionSet();
-        Action selectedAc;
+        Action selectedAc = null;
         Agtion selectedAg;
         double frametime = 0;
 
@@ -132,6 +131,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     if (actions.size() < 1)
                     {
                         isFinished = true;
+
                         Simulation.isRunning = false;
                         break;
                     }
@@ -144,10 +144,18 @@ public class Configuration extends HashMap<Point, Monomer>
         else
         {
             isFinished = true;
+            saveConfig("SS");
+            readHistory();
+            System.out.println("End Simulation.");
+
             Simulation.isRunning = false;
         }
+        if(isRecording) {
 
-        recordArrayList.add(Pair.with(frametime, (HashMap<Point,Monomer>)this));
+            recordFrameHistory.add(Pair.with(frametime, selectedAc ));
+
+
+        }
 
     }
 
@@ -572,14 +580,50 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (value == Bond.TYPE_FLEXIBLE)
                 m.adjustBond(key, Bond.TYPE_FLEXIBLE);
+
         }
     }
 
     public void saveConfig(String saveLocation)
     {
 
-    }
+        try{
+            FileOutputStream fileOut = new FileOutputStream("dog.ser");
+            ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
 
+
+            ArrayList< Pair<Integer, Monomer> > yo1 = new ArrayList<Pair<Integer, Monomer>>();
+            Pair<Integer, Monomer> yo = Pair.with(1,new Monomer(new Point(0,0), "SDF"));
+            yo1.add(yo);
+            objOut.writeObject(recordFrameHistory);
+
+
+
+        }
+        catch(Exception e)
+        {
+            System.out.println("Exception thrown writing history: " +  e.toString());
+        }
+
+    }
+    public void readHistory()
+    {
+        try{
+            FileInputStream fileIn = new FileInputStream("dog.ser");
+            ObjectInputStream objIn = new ObjectInputStream(fileIn);
+            recordFrameHistory = (ArrayList<Pair<Double,Action>>)objIn.readObject();
+
+        }catch(Exception e)
+        {
+            System.out.println("Exception thrown reading history: " + e.getMessage());
+
+        }
+
+    }
+    public void storeInitial()
+    {
+        recordInitial = (HashMap<Point, Monomer>)this.clone();
+    }
     public void beginRecording()
     {
 
