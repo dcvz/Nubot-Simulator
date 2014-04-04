@@ -1,4 +1,3 @@
-//
 // Monomer.java
 // Nubot Simulator
 //
@@ -7,14 +6,35 @@
 //
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Monomer {
+public class Monomer implements Serializable{
+
+    /**
+    *Location of monomer on grid
+    * @serial
+    */
     private Point location;
+
+    /**
+     * String state of monomer
+     * @serial
+     */
     private String state;
-    private HashMap<Byte, Byte> neighborBonds = new HashMap<Byte, Byte>(); // Hashmap(direction,bondtype)
-    private HashMap<Byte, ArrayList<Byte>> neighborBondDirs = new HashMap<Byte, ArrayList<Byte>>();
+
+    /**
+     * Hashmap(direction,bondtype)   pass a Direction.Type as key, receive the bondtype, is 0 or Bond.TYPE_NONE if no bond exists, or if no neighbor
+     * @serial
+     */
+    private HashMap<Byte, Byte> neighborBonds = new HashMap<Byte, Byte>();
+
+    /**
+     * Hashmap(Bond.Type, ArrayList<Direction.TYPE>)  pass Bond.TYPE as key, receive an ArrayList of Direction.TYPE(Byte) that have this bond type
+     * @serial
+     */
+    private HashMap<Byte, ArrayList<Byte>> neighborBondDirs = new HashMap<Byte, ArrayList<Byte>>();//Hashmap(BondType, ArrayList<Direction>)
 
     //================================================================================
     // Constructors

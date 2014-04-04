@@ -1,4 +1,3 @@
-//
 // Configuration.java
 // Nubot Simulator
 //
@@ -6,12 +5,19 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
-import org.javatuples.Quartet;
+import org.javatuples.*;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.Random;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 
 public class Configuration extends HashMap<Point, Monomer>
 {
@@ -21,18 +27,37 @@ public class Configuration extends HashMap<Point, Monomer>
     public int numberOfActions;
     private Random rand = new Random();
 
+
+    //================================================================================
+    // For saving Config
+    //================================================================================
+
+
+    Runnable recordRunnable;
+    String recordLocation = ".";
+    ExecutorService executorService =  Executors.newFixedThreadPool(4);
+    private ArrayList<Pair<Double, HashMap<Point, Monomer>>> recordArrayList;
+
     //================================================================================
     // Constructors
     //================================================================================
 
-    public Configuration()
-    {
+    public Configuration() {
         rules = new RuleSet();
         isFinished = false;
         timeElapsed = 0.0;
         numberOfActions = 0;
-    }
+        recordRunnable = new Runnable() {
+            @Override
+            public void run() {
 
+
+            }
+        };
+
+        recordArrayList = new ArrayList<Pair<Double, HashMap<Point, Monomer>>>();
+
+    }
     //================================================================================
     // Functionality Methods
     //================================================================================
@@ -55,12 +80,16 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         ActionSet actions = computeActionSet();
         AgtionSet agtions = new AgtionSet();
-        numberOfActions = actions.size() + agtions.size();
         Action selectedAc;
         Agtion selectedAg;
+        double frametime = 0;
 
         if (Simulation.agitationON)
             agtions = computeAgtionSet();
+
+        numberOfActions = actions.size() + agtions.size();
+
+        System.out.printf("Number of actions: %d", numberOfActions);
 
         if (numberOfActions > 0)
         {
@@ -73,8 +102,12 @@ public class Configuration extends HashMap<Point, Monomer>
                 {
                     do
                     {
-                        if (actions.size() < 1)
+                        if (actions.size() + agtions.size() < 1)
+                        {
+                            isFinished = true;
+                            Simulation.isRunning = false;
                             break;
+                        }
                         selectedAc = actions.selectArbitrary();
                     } while (!executeAction(selectedAc));
                 }
@@ -82,8 +115,12 @@ public class Configuration extends HashMap<Point, Monomer>
                 {
                     do
                     {
-                        if (agtions.size() < 1)
+                        if (actions.size() + agtions.size() < 1)
+                        {
+                            isFinished = true;
+                            Simulation.isRunning = false;
                             break;
+                        }
                         selectedAg = agtions.selectArbitrary();
                     } while (!executeAgtion(selectedAg));
                 }
@@ -93,11 +130,15 @@ public class Configuration extends HashMap<Point, Monomer>
                 do
                 {
                     if (actions.size() < 1)
+                    {
+                        isFinished = true;
+                        Simulation.isRunning = false;
                         break;
+                    }
                     selectedAc = actions.selectArbitrary();
                 } while (!executeAction(selectedAc));
-
-                timeElapsed += Simulation.calculateExpDistribution(numberOfActions + 1);
+                frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
+                timeElapsed = frametime;
             }
         }
         else
@@ -105,6 +146,9 @@ public class Configuration extends HashMap<Point, Monomer>
             isFinished = true;
             Simulation.isRunning = false;
         }
+
+        recordArrayList.add(Pair.with(frametime, (HashMap<Point,Monomer>)this));
+
     }
 
     // given a ruleset, compute a list of all possible actions
@@ -341,8 +385,7 @@ public class Configuration extends HashMap<Point, Monomer>
         else
             movableSet.addMonomer(one);
 
-        one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), Bond.TYPE_NONE);
-        two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), Bond.TYPE_NONE);
+        adjustBonds(one.getLocation(), two.getLocation(), Bond.TYPE_NONE);
 
         if (coinFlip < 0.5)
         {
@@ -350,8 +393,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(one))
             {
-                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
-                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                System.out.println("Hai <");
+                adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
             else
@@ -363,8 +406,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(two))
             {
-                one.adjustBond(Direction.dirFromPoints(one.getLocation(), two.getLocation()), a.getRule().getBond());
-                two.adjustBond(Direction.dirFromPoints(two.getLocation(), one.getLocation()), a.getRule().getBond());
+                System.out.println("Hai >");
+                adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
             else
@@ -531,4 +574,23 @@ public class Configuration extends HashMap<Point, Monomer>
                 m.adjustBond(key, Bond.TYPE_FLEXIBLE);
         }
     }
+
+    public void saveConfig(String saveLocation)
+    {
+
+    }
+
+    public void beginRecording()
+    {
+
+
+        ///loop here based on flag for finish called by the GUI or when simulation has finished
+
+
+        //reading from
+
+
+    }
+
+
 }

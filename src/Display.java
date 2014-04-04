@@ -1,4 +1,3 @@
-//
 // Display.java
 // Nubot Simulator
 //
@@ -43,6 +42,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
     private JMenu help = new JMenu("Help");
+    private JMenu agitationMenu = new JMenu("Agitation");
     // create sub-menus for each menu
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem about = new JMenuItem("About");
@@ -53,23 +53,25 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem simStop = new JMenuItem("Stop");
     private JMenuItem simPause = new JMenuItem("Pause");
     private JMenuItem record = new JMenuItem("Record");
-    private JMenuItem agitation = new JMenuItem("Agitation");
+    private JCheckBoxMenuItem agitationToggle = new JCheckBoxMenuItem("On");
+    private JMenuItem agitationSetRate = new JMenuItem("Set Rate");
     private JMenuItem speed = new JMenuItem("Speed");
 
     //Status bar
 
     JPanel statusBar = new JPanel();
-    JLabel statusLabel1 = new JLabel();
+    JLabel statusSimulation = new JLabel();
+    JLabel statusRules = new JLabel();
+    JLabel statusConfig = new JLabel();
+    JLabel statusAgitation = new JLabel();
+    JLabel statusSpeed = new JLabel();
 
     //Data
     String rulesFileName = "";
     String configFileName = "";
-    HashMap<Point, Monomer> mapTemp;
 
      //change to default starting value later
-      Double agitationRate;
-      Double speedRate;
-
+    Double speedRate;
 
     //Threads
     Thread simHeartBeat;
@@ -120,10 +122,31 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusBar.setPreferredSize(new Dimension(mainFrame.getWidth(), 25));
         statusBar.setLayout(new BoxLayout(statusBar, BoxLayout.X_AXIS));
         mainFrame.add(statusBar, BorderLayout.SOUTH);
-        statusLabel1.setHorizontalAlignment(SwingConstants.LEFT);
-        statusLabel1.setText("Status");
+        statusSimulation.setText("Waiting on Files ");
+        statusRules.setText("No Rules ");
+        statusConfig.setText("No config ");
+        statusAgitation.setText("Agitation off ");
+        statusSpeed.setText("Speed: "+speedRate);
 
-        statusBar.add(statusLabel1);
+        JSeparator statusSeparator1 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator1.setMaximumSize(new Dimension(5,25));
+        JSeparator statusSeparator2 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator2.setMaximumSize(new Dimension(5,25));
+        JSeparator statusSeparator3 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator3.setMaximumSize(new Dimension(5,25));
+        JSeparator statusSeparator4 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator4.setMaximumSize(new Dimension(5,25));
+
+        statusBar.add(statusSimulation);
+        statusBar.add(statusSeparator1);
+        statusBar.add(statusRules);
+        statusBar.add(statusSeparator2);
+        statusBar.add(statusConfig);
+        statusBar.add(statusSeparator3);
+        statusBar.add(statusAgitation);
+        statusBar.add(statusSeparator4);
+        statusBar.add(statusSpeed);
+
         //******************
 
         //////
@@ -145,24 +168,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     try {
                         Thread.sleep(80);
                         map.executeFrame();
-                       // mapTemp = map.clone();
-                        statusLabel1.setText("Simulating...");
+                        statusSimulation.setText("Simulating...");
                     }
                     catch(Exception e)
                     {
                         System.out.println(e.getCause().getMessage());
                     }
-
                 }
-                statusLabel1.setText("Simulation finished");
+                statusSimulation.setText("Simulation finished");
                 if(map.isFinished)
                        JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
-
             }
         };
-
-
-
     }
 
     public void initCanvas() {
@@ -193,7 +210,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         simStart.addActionListener(this);
         simStop.addActionListener(this);
         record.addActionListener(this);
-        agitation.addActionListener(this);
+        agitationSetRate.addActionListener(this);
+        agitationToggle.addActionListener(this);
         speed.addActionListener(this);
 
         menuBar.add(file);
@@ -211,7 +229,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         simulation.add(simPause);
         simulation.add(new JSeparator(SwingConstants.HORIZONTAL));
         simulation.add(simStop);
-        settings.add(agitation);
+        settings.add(agitationMenu);
+        agitationMenu.add(agitationToggle);
+        agitationMenu.add(agitationSetRate);
         settings.add(speed);
 
         mainFrame.setJMenuBar(menuBar);
@@ -293,7 +313,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                 // if the ret flag results as Approve, we parse the file
                 if (resVal == JFileChooser.APPROVE_OPTION) {
-                    statusLabel1.setText("Loading rules");
+                    statusRules.setText("Loading rules");
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
                     if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules")) {
@@ -322,10 +342,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if (Simulation.debugMode)
                             System.out.println("We have " + map.rules.size() + " rules");
 
-                        statusLabel1.setText("Rules loaded");
+                        statusRules.setText("Rules loaded");
 
-                        if (Simulation.rulesLoaded && Simulation.configLoaded)
+                        if (Simulation.rulesLoaded && Simulation.configLoaded) {
                             simStart.setEnabled(true);
+                            statusSimulation.setText("Files Loaded");
+                        }
                     }
 
                     System.out.println(map.rules.values());
@@ -410,9 +432,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         bre.close();
                         Simulation.configLoaded = true;
 
+                        statusConfig.setText("Config loaded");
+
                         canvas.repaint();
-                        if (Simulation.configLoaded && Simulation.rulesLoaded)
+                        if (Simulation.configLoaded && Simulation.rulesLoaded) {
                             simStart.setEnabled(true);
+                            statusSimulation.setText("Files Loaded");
+                        }
                     }
                 }
             } catch (Exception exc) {
@@ -423,9 +449,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             canvas.repaint();
             map.clear();
             map.rules.clear();
+
+            /////Simulation Flags
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
             Simulation.isRunning = false;
+            Simulation.agitationON = false;
+
+            ///// Statusbar Text
+            statusSimulation.setText("Waiting on Files ");
+            statusRules.setText("No Rules ");
+            statusConfig.setText("No config ");
+            statusAgitation.setText("Agitation off ");
 
             simHeartBeat.interrupt();
             simStart.setEnabled(false);
@@ -461,12 +496,28 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         } else if (e.getSource() == simPause) {
             timer.stop();
             Simulation.isPaused = true;
+
             System.out.println("pause");
-        } else if (e.getSource() == agitation) {
+        } else if (e.getSource() == agitationToggle) {
+            if (Simulation.agitationRate == 0.0) {
+                JOptionPane.showMessageDialog(mainFrame,"Please set the agitation rate", "Error",JOptionPane.ERROR_MESSAGE);
+                agitationToggle.setState(false);
+            } else {
+                Simulation.agitationON = agitationToggle.getState();
+                if (Simulation.agitationON == true)
+                    statusAgitation.setText("Agitation On: "+Simulation.agitationRate);
+                else
+                    statusAgitation.setText("Agitation Off");
+                System.out.println("Agitation is: "+Simulation.agitationON+' '+ Simulation.agitationRate);
+            }
+        } else if (e.getSource() == agitationSetRate) {
             String agitationRateString = JOptionPane.showInputDialog(mainFrame,"Set Agitation Rate","Agitation",JOptionPane.PLAIN_MESSAGE);
             if (agitationRateString != null) {
-                agitationRate = Double.parseDouble(agitationRateString);
-                System.out.println("Agitation Rate changed");
+                Simulation.agitationRate = Double.parseDouble(agitationRateString);
+                Simulation.agitationON = true;
+                statusAgitation.setText("Agitation On: "+Simulation.agitationRate);
+                agitationToggle.setState(true);
+                System.out.println("Agitation Rate changed and set to on");
             }
         } else if (e.getSource() == speed) {
             String speedRateString = JOptionPane.showInputDialog(mainFrame,"Set Speed", "Speed",JOptionPane.PLAIN_MESSAGE);
@@ -521,14 +572,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     {
 
         Graphics2D g2 = (Graphics2D)g;
-        for (Monomer m : map.values()) {
+        HashMap<Point, Monomer> mapTemp =  (HashMap<Point, Monomer>) map.clone();
+        for (Monomer m : mapTemp.values()) {
 
             drawBond(m,g2);
 
         }
-        for (Monomer m : map.values()) {
+       for (Monomer m : mapTemp.values()) {
 
-            drawMonomer(m, g2);
+          drawMonomer(m, g2);
 
         }
 
