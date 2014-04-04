@@ -173,7 +173,8 @@ public class Monomer implements Serializable{
         if (!adjacent(m.getLocation()))
             System.out.println("uh, oh...");
 
-        m.getBondTypeByDir(Direction.dirFromPoints(m.getLocation(), getLocation()));
+        //m.getBondTypeByDir(Direction.dirFromPoints(m.getLocation(), getLocation()));
+        m.adjustBond(Direction.dirFromPoints(m.getLocation(), getLocation()), Bond.TYPE_FLEXIBLE);
         buffer.put(Direction.dirFromPoints(getLocation(), m.getLocation()), Bond.TYPE_FLEXIBLE);
 
         shift(Direction.getOppositeDir(dir));

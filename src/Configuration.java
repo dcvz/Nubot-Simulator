@@ -89,8 +89,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
         numberOfActions = actions.size() + agtions.size();
 
-        System.out.printf("Number of actions: %d", numberOfActions);
-
         if (numberOfActions > 0)
         {
             if (Simulation.agitationON)
@@ -393,7 +391,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(one))
             {
-                System.out.println("Hai <");
                 adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
@@ -406,7 +403,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
             if (movableSet.containsValue(two))
             {
-                System.out.println("Hai >");
                 adjustBonds(one.getLocation(), two.getLocation(), a.getRule().getBond());
                 return false;
             }
