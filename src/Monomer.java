@@ -66,6 +66,8 @@ public class Monomer implements Serializable{
         return state;
     }
 
+    public HashMap<Byte, Byte> getNeighborBonds() { return neighborBonds; }
+
     //================================================================================
     // Mutators
     //================================================================================
@@ -164,6 +166,8 @@ public class Monomer implements Serializable{
     public void adjustFlexibleBond(Monomer m, byte dir, HashMap<Byte, Byte> buffer)
     {
         adjustBond(Direction.dirFromPoints(getLocation(), m.getLocation()), Bond.TYPE_NONE);
+        m.adjustBond(Direction.dirFromPoints(m.getLocation(), getLocation()), Bond.TYPE_NONE);
+
         shift(dir);
 
         if (!adjacent(m.getLocation()))
