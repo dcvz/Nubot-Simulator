@@ -172,7 +172,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     }
                     catch(Exception e)
                     {
-                        System.out.println(e.getCause().getMessage());
+                        System.out.println(e.getMessage());
                     }
                 }
                 statusSimulation.setText("Simulation finished");
@@ -436,6 +436,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                         canvas.repaint();
                         if (Simulation.configLoaded && Simulation.rulesLoaded) {
+                            map.storeInitial();
                             simStart.setEnabled(true);
                             statusSimulation.setText("Files Loaded");
                         }
@@ -591,8 +592,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public  synchronized void drawBond(Monomer m, Graphics2D g) {
 
         if (m.hasBonds()) {
-            ArrayList<Byte> rigidDirList = m.getDirsByBondType(Bond.TYPE_RIGID);
-            ArrayList<Byte> flexibleDirList = m.getDirsByBondType(Bond.TYPE_FLEXIBLE);
+            ArrayList<Byte> rigidDirList =  (ArrayList<Byte>)m.getDirsByBondType(Bond.TYPE_RIGID).clone();
+            ArrayList<Byte> flexibleDirList = (ArrayList<Byte>)m.getDirsByBondType(Bond.TYPE_FLEXIBLE).clone();
 
             g.setColor(Color.RED);
             for (Byte dir : rigidDirList) {

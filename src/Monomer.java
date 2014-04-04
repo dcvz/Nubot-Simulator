@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Monomer implements Serializable{
-
+    static final long serialVersionUID = 1234L;
     /**
     *Location of monomer on grid
     * @serial
