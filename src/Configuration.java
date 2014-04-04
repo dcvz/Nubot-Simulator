@@ -24,6 +24,9 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
     public double timeElapsed;
     public int numberOfActions;
     private Random rand = new Random();
+    public int getSize(){
+        return this.size();
+    }
 
 
     //================================================================================

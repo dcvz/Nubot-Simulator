@@ -65,13 +65,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     JLabel statusConfig = new JLabel();
     JLabel statusAgitation = new JLabel();
     JLabel statusSpeed = new JLabel();
-
+    JLabel statusMonomerNumber = new JLabel();
+    JLabel statusTime = new JLabel();
     //Data
     String rulesFileName = "";
     String configFileName = "";
 
      //change to default starting value later
     Double speedRate;
+    Double totalTime=0.0;
 
     //Threads
     Thread simHeartBeat;
@@ -126,7 +128,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusRules.setText("No Rules ");
         statusConfig.setText("No config ");
         statusAgitation.setText("Agitation off ");
-        statusSpeed.setText("Speed: "+speedRate);
+        statusSpeed.setText("Speed: "+ speedRate);
+        statusTime.setText("Time: " + totalTime);
+        statusMonomerNumber.setText("Monomers: "+map.getSize());
 
         JSeparator statusSeparator1 = new JSeparator(SwingConstants.VERTICAL);
         statusSeparator1.setMaximumSize(new Dimension(5,25));
@@ -136,6 +140,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusSeparator3.setMaximumSize(new Dimension(5,25));
         JSeparator statusSeparator4 = new JSeparator(SwingConstants.VERTICAL);
         statusSeparator4.setMaximumSize(new Dimension(5,25));
+        JSeparator statusSeparator5 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator5.setMaximumSize(new Dimension(5,25));
+        JSeparator statusSeparator6 = new JSeparator(SwingConstants.VERTICAL);
+        statusSeparator6.setMaximumSize(new Dimension(5,25));
 
         statusBar.add(statusSimulation);
         statusBar.add(statusSeparator1);
@@ -146,6 +154,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusBar.add(statusAgitation);
         statusBar.add(statusSeparator4);
         statusBar.add(statusSpeed);
+        statusBar.add(statusSeparator5);
+        statusBar.add(statusMonomerNumber);
+        statusBar.add(statusSeparator6);
+        statusBar.add(statusTime);
 
         //******************
 
@@ -171,13 +183,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         Thread.sleep(80);
                         map.executeFrame();
                         statusSimulation.setText("Simulating...");
+                        totalTime+= map.timeElapsed;
+                        statusMonomerNumber.setText("Monomers: "+map.getSize());
+                        statusTime.setText("Time: "+totalTime);
                     }
                     catch(Exception e)
                     {
                         System.out.println(e.getMessage());
                     }
                 }
-                statusSimulation.setText("Simulation finished");
+                statusSimulation.setText("Simulation finished ");
                 if(map.isFinished)
                        JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
             }
@@ -330,7 +345,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 // if the ret flag results as Approve, we parse the file
                 if (resVal == JFileChooser.APPROVE_OPTION)
                 {
-                    statusRules.setText("Loading rules");
+                    statusRules.setText("Loading rules ");
                     File theFile = jfc.getSelectedFile();
                     //if the selected file is of the right extension
                     if (theFile.length() > 5 && theFile.getName().substring(theFile.getName().length() - 6, theFile.getName().length()).matches(".rules"))
@@ -362,12 +377,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if (Simulation.debugMode)
                             System.out.println("We have " + map.rules.size() + " rules");
 
-                        statusRules.setText("Rules loaded");
+                        statusRules.setText("Rules loaded ");
 
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                         {
                             simStart.setEnabled(true);
-                            statusSimulation.setText("Files Loaded");
+                            statusSimulation.setText("Ready to Start ");
                         }
                     }
 
@@ -469,14 +484,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         bre.close();
                         Simulation.configLoaded = true;
 
-                        statusConfig.setText("Config loaded");
+                        statusConfig.setText("Config loaded ");
+                        statusMonomerNumber.setText("Monomers: "+map.getSize());
 
                         canvas.repaint();
                         if (Simulation.configLoaded && Simulation.rulesLoaded)
                         {
                             map.storeInitial();
                             simStart.setEnabled(true);
-                            statusSimulation.setText("Files Loaded");
+                            statusSimulation.setText("Files Loaded ");
                         }
                     }
                 }
@@ -504,6 +520,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             statusRules.setText("No Rules ");
             statusConfig.setText("No config ");
             statusAgitation.setText("Agitation off ");
+            totalTime = 0.0;
+            statusMonomerNumber.setText("Monomers: 0");
 
             simHeartBeat.interrupt();
             simStart.setEnabled(false);
@@ -511,7 +529,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             simStop.setEnabled(false);
             loadC.setEnabled(true);
             loadR.setEnabled(true);
-            System.out.println("clear config");
+            System.out.println("clear ");
         }
         else if (e.getSource() == menuQuit)
         {
@@ -564,7 +582,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 if (Simulation.agitationON == true)
                     statusAgitation.setText("Agitation On: "+Simulation.agitationRate);
                 else
-                    statusAgitation.setText("Agitation Off");
+                    statusAgitation.setText("Agitation Off ");
                 System.out.println("Agitation is: "+Simulation.agitationON+' '+ Simulation.agitationRate);
             }
         }
