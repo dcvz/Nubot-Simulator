@@ -75,7 +75,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
      //change to default starting value later
-    int speedRate;
+    int speedRate= 50;
     int speedMax = 100;
     Double totalTime=0.0;
 
@@ -184,7 +184,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep(80);
+                        Thread.sleep(speedRate);
                         map.executeFrame();
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.timeElapsed;
@@ -263,9 +263,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         speedSlider.setMinorTickSpacing(1);
         speedSlider.setPaintTicks(true);
         Hashtable speedLabels = new Hashtable();
-        speedLabels.put( new Integer(1), new JLabel("Slow"));
-        speedLabels.put( new Integer(speedMax/2), new JLabel("Normal"));
-        speedLabels.put( new Integer(speedMax), new JLabel("Max"));
+        speedLabels.put(1, new JLabel("Slow"));
+        speedLabels.put(speedMax / 2, new JLabel("Normal"));
+        speedLabels.put(speedMax, new JLabel("Max"));
         speedSlider.setLabelTable(speedLabels);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(new ChangeListener() {
@@ -521,7 +521,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         {
                             map.storeInitial();
                             simStart.setEnabled(true);
-                            statusSimulation.setText("Files Loaded ");
+                            statusSimulation.setText("Ready to Start");
                         }
                     }
                 }
@@ -627,14 +627,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 System.out.println("Agitation Rate changed and set to on");
             }
         }
-        //else if (e.getSource() == speed)
-        //{
-        //    JSlider speedSlider = new JSlider(JSlider.HORIZONTAL);
-        //    speedSlider.setMajorTickSpacing(10);
-        //    speedSlider.setMinorTickSpacing(1);
-        //    speedSlider.setPaintTicks(true);
-        //    speedMenu.add(speedSlider);
-//        }
         else if (e.getSource() == record)
         {
             System.out.println("record button started");
