@@ -6,6 +6,7 @@
 //
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -21,9 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.*;
 
 public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener
 {
@@ -36,8 +35,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Configuration map;
 
     //GRaphics
-    BufferedImage hudImage;
-    Graphics2D hudLayerGFX;
+
     float canvasStrokeSize = 2.0f;
 
     //Menus
@@ -118,9 +116,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         //for the nubot graphics/image & visuals
 
 
-        hudImage = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        hudLayerGFX = (Graphics2D)hudImage.getGraphics();
-        hudLayerGFX.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         ////
         //Status Bar  setup
         ////
@@ -172,7 +168,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                canvas.repaint();
+              //  canvas.repaint();
             }
         });
         timer.setRepeats(true);
@@ -184,8 +180,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep((long) (speedRate*1000.0*map.executeTime));
+                        Thread.sleep((long) (speedRate*1000.0*map.executeTime*10));
                         map.executeFrame();
+                        canvas.repaint();
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
@@ -641,7 +638,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
     }
 
-    private void drawMonomer(Monomer m, Graphics2D g)
+    private synchronized void drawMonomer(Monomer m, Graphics2D g)
     {
         g.setComposite(AlphaComposite.SrcOver);
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
@@ -683,17 +680,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     private synchronized void drawMonomers(Graphics g)
     {
-        Graphics2D g2 = (Graphics2D)g;
-        HashMap<Point, Monomer> mapTemp =  (HashMap<Point, Monomer>) map.clone();
 
-        for (Monomer m : mapTemp.values())
+        Set<Map.Entry<Point, Monomer>> mapTemp = map.entrySet();
+
+        for (Map.Entry<Point, Monomer> entry: mapTemp)
         {
-            drawBond(m,g2);
+            drawBond(new Monomer(entry.getValue()),(Graphics2D)g);
         }
-       for (Monomer m : mapTemp.values())
+       for (Map.Entry<Point, Monomer> entry : mapTemp)
        {
-           drawMonomer(m, g2);
+           drawMonomer(new Monomer(entry.getValue()), (Graphics2D)g);
        }
+
+
     }
 
 
@@ -701,8 +700,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         if (m.hasBonds())
         {
-            ArrayList<Byte> rigidDirList =  (ArrayList<Byte>)m.getDirsByBondType(Bond.TYPE_RIGID).clone();
-            ArrayList<Byte> flexibleDirList = (ArrayList<Byte>)m.getDirsByBondType(Bond.TYPE_FLEXIBLE).clone();
+            ArrayList<Byte> rigidDirList =     new ArrayList<Byte>();
+            ArrayList<Byte> flexibleDirList =   new ArrayList<Byte>();
+            for( Byte b : m.getDirsByBondType(Bond.TYPE_RIGID))
+            {
+                rigidDirList.add((Byte)b.byteValue());
+            }
+            for( Byte b : m.getDirsByBondType(Bond.TYPE_FLEXIBLE))
+            {
+                flexibleDirList.add((Byte) b.byteValue());
+            }
 
             g.setColor(Color.RED);
             for (Byte dir : rigidDirList)
@@ -730,10 +737,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
         }
     }
-    private void drawHud()
-    {
-        hudLayerGFX.drawString("dsfgdfgdfgdfg2342342dsf", 0 ,100);
-    }
+
 
     private void clearGraphics()
     {
@@ -775,7 +779,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * .92);
             canvasStrokeSize = Simulation.monomerRadius/3;
 
-            if(!Simulation.isRunning)
+          //  if(!Simulation.isRunning)
                 canvas.repaint();
         }
 
@@ -783,7 +787,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         {
             Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * 1.08);
             canvasStrokeSize = Simulation.monomerRadius/3;
-            if(!Simulation.isRunning)
+            //if(!Simulation.isRunning)
                 canvas.repaint();
         }
     }
@@ -796,7 +800,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, -(e.getY()  - lastXY.y) );
 
         lastXY = e.getPoint();
-        if(!Simulation.isRunning)
+        //if(!Simulation.isRunning)
             canvas.repaint();
     }
 
