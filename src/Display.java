@@ -415,13 +415,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     System.out.println(map.rules.values());
                 }
             }
-            catch (Exception exc) {
+            catch (Exception exc)
+            {
 
             }
 
             System.out.println("Load Rules");
-        } else if (e.getSource() == loadC) {
-
+        }
+        else if (e.getSource() == loadC)
+        {
             map.clear();
             try
             {
@@ -489,7 +491,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                         String[] splitted = line.split(" ");
                                         map.addMonomer(new Monomer(new Point(Integer.parseInt(splitted[0]), Integer.parseInt(splitted[1])), splitted[2]));
                                     }
-                                } else if (inBonds)
+                                }
+                                else if (inBonds)
                                 {
                                     String[] splitted = line.split(" ");
                                     // map.adjustBond(,);
