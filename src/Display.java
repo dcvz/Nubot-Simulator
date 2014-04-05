@@ -184,10 +184,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep((long)(1000 * (map.executeTime * (speedRate/50))));
+                        Thread.sleep(speedRate);
                         map.executeFrame();
                         statusSimulation.setText("Simulating...");
-                        totalTime+= map.timeElapsed;
+                        totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
                         statusTime.setText("Time: "+totalTime);
                     }
@@ -264,9 +264,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         speedSlider.setMinorTickSpacing(1);
         speedSlider.setPaintTicks(true);
         Hashtable speedLabels = new Hashtable();
-        speedLabels.put(1, new JLabel("Slow"));
+        speedLabels.put(1, new JLabel("Fast"));
         speedLabels.put(speedMax / 2, new JLabel("Normal"));
-        speedLabels.put(speedMax, new JLabel("Max"));
+        speedLabels.put(speedMax, new JLabel("Slow"));
         speedSlider.setLabelTable(speedLabels);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(new ChangeListener() {
