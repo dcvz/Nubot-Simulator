@@ -645,6 +645,10 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         }
 
     }
+    public void initRecord()
+    {
+        recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
+    }
     public void storeInitial()
     {
 
