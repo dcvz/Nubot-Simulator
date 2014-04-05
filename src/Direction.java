@@ -27,17 +27,17 @@ public class Direction {
 
     public static Point getNeighborPosition(Point /*origin Monomer*/ start, Byte /*direction*/direction)
     {
-        if (direction == TYPE_FLAG_EAST)
+        if (direction.equals(TYPE_FLAG_EAST))
             return new Point(start.x + TYPE_POINT_OFFSET_EAST.x, start.y + TYPE_POINT_OFFSET_EAST.y);
-        if (direction == TYPE_FLAG_WEST)
+        if (direction.equals(TYPE_FLAG_WEST))
             return new Point(start.x + TYPE_POINT_OFFSET_WEST.x, start.y + TYPE_POINT_OFFSET_WEST.y);
-        if (direction == TYPE_FLAG_SOUTHWEST)
+        if (direction.equals(TYPE_FLAG_SOUTHWEST))
             return new Point(start.x + TYPE_POINT_OFFSET_SOUTHWEST.x, start.y + TYPE_POINT_OFFSET_SOUTHWEST.y);
-        if (direction == TYPE_FLAG_NORTHWEST)
+        if (direction.equals(TYPE_FLAG_NORTHWEST))
             return new Point(start.x + TYPE_POINT_OFFSET_NORTHWEST.x, start.y + TYPE_POINT_OFFSET_NORTHWEST.y);
-        if (direction == TYPE_FLAG_NORTHEAST)
+        if (direction.equals(TYPE_FLAG_NORTHEAST))
             return new Point(start.x + TYPE_POINT_OFFSET_NORTHEAST.x, start.y + TYPE_POINT_OFFSET_NORTHEAST.y);
-        if (direction == TYPE_FLAG_SOUTHEAST)
+        if (direction.equals(TYPE_FLAG_SOUTHEAST))
             return new Point(start.x + TYPE_POINT_OFFSET_SOUTHEAST.x, start.y + TYPE_POINT_OFFSET_SOUTHEAST.y);
         return start;
     }
