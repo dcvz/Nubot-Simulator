@@ -16,17 +16,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.Random;
 
-public class Configuration extends HashMap<Point, Monomer>  implements Serializable
+public class Configuration extends HashMap<Point, Monomer>
 {
     public RuleSet rules;
     public boolean isFinished;
-    public boolean isRecording = true;
     public double timeElapsed;
     public int numberOfActions;
     private Random rand = new Random();
     public int getSize(){
         return this.size();
     }
+    public double executeTime = 1.0;
 
 
     //================================================================================
@@ -48,13 +48,6 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         isFinished = false;
         timeElapsed = 0.0;
         numberOfActions = 0;
-        recordRunnable = new Runnable() {
-            @Override
-            public void run() {
-
-
-            }
-        };
        recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
 
 
@@ -138,7 +131,8 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
                     selectedAc = actions.selectArbitrary();
                 } while (!executeAction(selectedAc));
                 frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
-                timeElapsed = frametime;
+                executeTime = frametime;
+                timeElapsed += frametime;
             }
         }
         else
@@ -150,13 +144,15 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
 
             Simulation.isRunning = false;
         }
-        if(isRecording) {
+        if(Simulation.isRecording) {
             ArrayList<Monomer> monList = new ArrayList<Monomer>();
             for(Monomer m : this.values())
             {
                   monList.add(new Monomer(m));
             }
-            recordFrameHistory.add(Pair.with(frametime, monList));
+            if(timeElapsed < Simulation.recordingLength)
+             recordFrameHistory.add(Pair.with(frametime, monList));
+            else Simulation.isRecording = false;
 
 
 
@@ -595,14 +591,12 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
             ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
 
 
-
-
             try{
                 objOut.writeObject(recordFrameHistory);
 
             }catch(Exception e)
             {
-
+                System.out.println("Exception writing object.");
             }
             finally
             {
@@ -619,7 +613,7 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         }
 
     }
-    public void readRecord(String location)
+    public ArrayList<Pair<Double, ArrayList<Monomer>>> readRecord(String location)
     {
         try{
             FileInputStream fileIn = new FileInputStream(location);
@@ -629,7 +623,7 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
 
             }catch(Exception e)
             {
-
+                 System.out.println("Exception reading object");
             }
             finally
             {
@@ -643,12 +637,13 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
             System.out.println("Exception thrown reading history: " + e.getMessage());
 
         }
-
+       return null;
     }
     public void initRecord()
     {
         recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
     }
+
     public void storeInitial()
     {
 
