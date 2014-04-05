@@ -75,8 +75,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
      //change to default starting value later
-    int speedRate= 50;
-    int speedMax = 100;
+    double speedRate= 1;
+    int speedMax = 10;
     Double totalTime=0.0;
 
     //Threads
@@ -184,7 +184,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep(speedRate);
+                        Thread.sleep((long) (speedRate*1000.0*map.executeTime));
                         map.executeFrame();
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.executeTime;
@@ -259,14 +259,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         mainFrame.setJMenuBar(menuBar);
         // speed Slider
-        JSlider speedSlider = new JSlider(JSlider.VERTICAL,1,speedMax,speedMax/2);
-        speedSlider.setMajorTickSpacing(10);
-        speedSlider.setMinorTickSpacing(1);
+        JSlider speedSlider = new JSlider(JSlider.VERTICAL,-speedMax,speedMax,0);
+        speedSlider.setMajorTickSpacing(20);
+        speedSlider.setMinorTickSpacing(10);
         speedSlider.setPaintTicks(true);
         Hashtable speedLabels = new Hashtable();
-        speedLabels.put(1, new JLabel("Fast"));
-        speedLabels.put(speedMax / 2, new JLabel("Normal"));
-        speedLabels.put(speedMax, new JLabel("Slow"));
+        speedLabels.put(-speedMax, new JLabel("Slow"));
+        speedLabels.put(0, new JLabel("Normal"));
+        speedLabels.put(speedMax, new JLabel("Fast"));
+        speedSlider.setInverted(true);
         speedSlider.setLabelTable(speedLabels);
         speedSlider.setPaintLabels(true);
         speedSlider.addChangeListener(new ChangeListener() {
@@ -274,7 +275,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void stateChanged(ChangeEvent changeEvent) {
                 JSlider sliderSource = (JSlider) changeEvent.getSource();
                 if (!sliderSource.getValueIsAdjusting()) {
-                    speedRate = (int)sliderSource.getValue();
+                    speedRate = (double)sliderSource.getValue();
+                    if (speedRate == 0)
+                        speedRate = 1;
+                    else if (speedRate < 1) {
+                        speedRate = (speedMax +speedRate +1)/10;
+                    }
                     System.out.println("speed changed to: "+speedRate);
                     statusSpeed.setText("Speed: "+speedRate);
                 }
