@@ -7,6 +7,8 @@
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener
 {
@@ -43,6 +46,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenu settings = new JMenu("Settings");
     private JMenu help = new JMenu("Help");
     private JMenu agitationMenu = new JMenu("Agitation");
+    private JMenu speedMenu = new JMenu("Speed");
     // create sub-menus for each menu
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem about = new JMenuItem("About");
@@ -55,7 +59,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem record = new JMenuItem("Record");
     private JCheckBoxMenuItem agitationToggle = new JCheckBoxMenuItem("On");
     private JMenuItem agitationSetRate = new JMenuItem("Set Rate");
-    private JMenuItem speed = new JMenuItem("Speed");
 
     //Status bar
 
@@ -72,7 +75,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String configFileName = "";
 
      //change to default starting value later
-    Double speedRate;
+    int speedRate;
+    int speedMax = 100;
     Double totalTime=0.0;
 
     //Threads
@@ -231,7 +235,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         record.addActionListener(this);
         agitationSetRate.addActionListener(this);
         agitationToggle.addActionListener(this);
-        speed.addActionListener(this);
 
         menuBar.add(file);
         menuBar.add(simulation);
@@ -251,11 +254,34 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         settings.add(agitationMenu);
         agitationMenu.add(agitationToggle);
         agitationMenu.add(agitationSetRate);
-        settings.add(speed);
+        settings.add(speedMenu);
 
         mainFrame.setJMenuBar(menuBar);
-        //about screen
+        // speed Slider
+        JSlider speedSlider = new JSlider(JSlider.VERTICAL,1,speedMax,speedMax/2);
+        speedSlider.setMajorTickSpacing(10);
+        speedSlider.setMinorTickSpacing(1);
+        speedSlider.setPaintTicks(true);
+        Hashtable speedLabels = new Hashtable();
+        speedLabels.put( new Integer(1), new JLabel("Slow"));
+        speedLabels.put( new Integer(speedMax/2), new JLabel("Normal"));
+        speedLabels.put( new Integer(speedMax), new JLabel("Max"));
+        speedSlider.setLabelTable(speedLabels);
+        speedSlider.setPaintLabels(true);
+        speedSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                JSlider sliderSource = (JSlider) changeEvent.getSource();
+                if (!sliderSource.getValueIsAdjusting()) {
+                    speedRate = (int)sliderSource.getValue();
+                    System.out.println("speed changed to: "+speedRate);
+                    statusSpeed.setText("Speed: "+speedRate);
+                }
+            }
+        });
 
+        speedMenu.add(speedSlider);
+        //about screen
         final JPanel aboutP = new JPanel();
         aboutF.setResizable(false);
         aboutP.setLayout(new BoxLayout(aboutP, BoxLayout.PAGE_AXIS));
@@ -598,15 +624,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 System.out.println("Agitation Rate changed and set to on");
             }
         }
-        else if (e.getSource() == speed)
-        {
-            String speedRateString = JOptionPane.showInputDialog(mainFrame,"Set Speed", "Speed",JOptionPane.PLAIN_MESSAGE);
-            if (speedRateString != null)
-            {
-                speedRate = Double.parseDouble(speedRateString);
-                System.out.println("speed changed");
-            }
-        }
+        //else if (e.getSource() == speed)
+        //{
+        //    JSlider speedSlider = new JSlider(JSlider.HORIZONTAL);
+        //    speedSlider.setMajorTickSpacing(10);
+        //    speedSlider.setMinorTickSpacing(1);
+        //    speedSlider.setPaintTicks(true);
+        //    speedMenu.add(speedSlider);
+//        }
         else if (e.getSource() == record)
         {
             System.out.println("record button started");
