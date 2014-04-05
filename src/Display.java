@@ -184,7 +184,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep(speedRate);
+                        Thread.sleep((long)(1000 * (map.executeTime * (speedRate/50))));
                         map.executeFrame();
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.timeElapsed;
@@ -206,6 +206,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void initCanvas()
     {
         canvas = new JComponent() {
+
 
             @Override
             public void paintComponent(Graphics g) {
@@ -595,6 +596,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         else if (e.getSource() == simPause)
         {
             timer.stop();
+            Simulation.isRunning = false;
             Simulation.isPaused = true;
 
             System.out.println("pause");
