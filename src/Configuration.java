@@ -115,6 +115,9 @@ public class Configuration extends HashMap<Point, Monomer>
                         }
                         selectedAg = agtions.selectArbitrary();
                     } while (!executeAgtion(selectedAg));
+                    frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
+                    executeTime = frametime;
+                    timeElapsed += frametime;
                 }
             }
             else
