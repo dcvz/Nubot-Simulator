@@ -9,6 +9,8 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class Monomer implements Serializable{
     static final long serialVersionUID = 1234L;
@@ -39,7 +41,30 @@ public class Monomer implements Serializable{
     //================================================================================
     // Constructors
     //================================================================================
+    public Monomer(Monomer m)
+    {
+        this.state = m.getState();
+        this.location = m.getLocation();
+        Set<Map.Entry<Byte, ArrayList<Byte>>> copyFrom1 =   m.getNeighborBondDirs().entrySet();
+        for(Map.Entry<Byte, ArrayList<Byte>> set : copyFrom1)
+        {
+            ArrayList<Byte> temp = new ArrayList<Byte>();
+            for(Byte b : set.getValue())
+            {
+                 temp.add((Byte)b.byteValue());
+            }
 
+            this.neighborBondDirs.put(set.getKey(), temp);
+        }
+        Set<Map.Entry<Byte,Byte>> copyFrom2  = m.getNeighborBonds().entrySet();
+        for(Map.Entry<Byte, Byte> set : copyFrom2)
+        {
+            this.neighborBonds.put((Byte)set.getKey().byteValue(), (Byte)set.getValue().byteValue());
+        }
+
+
+
+    }
     public Monomer(Point p, String s) {
         this.location = p;
         this.state = s;
@@ -67,6 +92,7 @@ public class Monomer implements Serializable{
     }
 
     public HashMap<Byte, Byte> getNeighborBonds() { return neighborBonds; }
+    public HashMap<Byte, ArrayList<Byte>> getNeighborBondDirs() { return neighborBondDirs; }
 
     //================================================================================
     // Mutators
