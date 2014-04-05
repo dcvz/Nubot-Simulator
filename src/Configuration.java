@@ -37,8 +37,7 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
     Runnable recordRunnable;
     String recordLocation = ".";
    // ExecutorService executorService =  Executors.newFixedThreadPool(4);
-    private HashMap<Point, Monomer> recordInitial;
-    private ArrayList<Pair<Double, Action>> recordFrameHistory;
+    private ArrayList<Pair<Double, ArrayList<Monomer>>> recordFrameHistory;
 
     //================================================================================
     // Constructors
@@ -56,7 +55,7 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
 
             }
         };
-       recordFrameHistory = new ArrayList<Pair<Double, Action>>();
+       recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
 
 
     }
@@ -145,15 +144,20 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         else
         {
             isFinished = true;
-            saveConfig("SS");
-            readHistory();
+            saveRecord("dog.ser");
+            readRecord("dog.ser");
             System.out.println("End Simulation.");
 
             Simulation.isRunning = false;
         }
         if(isRecording) {
+            ArrayList<Monomer> monList = new ArrayList<Monomer>();
+            for(Monomer m : this.values())
+            {
+                  monList.add(new Monomer(m));
+            }
+            recordFrameHistory.add(Pair.with(frametime, monList));
 
-            recordFrameHistory.add(Pair.with(frametime, selectedAc ));
 
 
         }
@@ -583,18 +587,28 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         }
     }
 
-    public void saveConfig(String saveLocation)
+    public void saveRecord(String saveLocation)
     {
 
         try{
-            FileOutputStream fileOut = new FileOutputStream("dog.ser");
+            FileOutputStream fileOut = new FileOutputStream(saveLocation);
             ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
 
 
-            ArrayList< Pair<Integer, Monomer> > yo1 = new ArrayList<Pair<Integer, Monomer>>();
-            Pair<Integer, Monomer> yo = Pair.with(1,new Monomer(new Point(0,0), "SDF"));
-            yo1.add(yo);
-            objOut.writeObject(recordFrameHistory);
+
+
+            try{
+                objOut.writeObject(recordFrameHistory);
+
+            }catch(Exception e)
+            {
+
+            }
+            finally
+            {
+                fileOut.close();
+                objOut.close();
+            }
 
 
 
@@ -605,12 +619,24 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
         }
 
     }
-    public void readHistory()
+    public void readRecord(String location)
     {
         try{
-            FileInputStream fileIn = new FileInputStream("dog.ser");
+            FileInputStream fileIn = new FileInputStream(location);
             ObjectInputStream objIn = new ObjectInputStream(fileIn);
-            recordFrameHistory = (ArrayList<Pair<Double,Action>>)objIn.readObject();
+            try{
+                recordFrameHistory = (ArrayList<Pair<Double,ArrayList<Monomer>>>)objIn.readObject();
+
+            }catch(Exception e)
+            {
+
+            }
+            finally
+            {
+                 fileIn.close();
+                 objIn.close();
+            }
+
 
         }catch(Exception e)
         {
@@ -621,19 +647,9 @@ public class Configuration extends HashMap<Point, Monomer>  implements Serializa
     }
     public void storeInitial()
     {
-        recordInitial = (HashMap<Point, Monomer>)this.clone();
-    }
-    public void beginRecording()
-    {
-
-
-        ///loop here based on flag for finish called by the GUI or when simulation has finished
-
-
-        //reading from
-
 
     }
+
 
 
 }
