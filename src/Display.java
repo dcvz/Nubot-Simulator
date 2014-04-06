@@ -211,9 +211,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setComposite(AlphaComposite.SrcOver);
                 drawMonomers(g);
-
             }
-
         };
         canvas.setSize(mainFrame.getSize());
     }
