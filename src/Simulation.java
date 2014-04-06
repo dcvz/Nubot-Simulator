@@ -31,6 +31,10 @@ public class
     {
         return new Point(canvasXYoffset.x +gridPosition.x * 2 * monomerRadius + gridPosition.y * monomerRadius - monomerRadius,  -1 * (canvasXYoffset.y +  gridPosition.y * 2 * monomerRadius  - monomerRadius));
     }
+    public static Point getCanvasPosition(Point gridPosition, Point xyOffset,int radius)
+    {
+        return new Point(xyOffset.x +gridPosition.x * 2 * radius + gridPosition.y * radius - radius,  -1 * (xyOffset.y +  gridPosition.y * 2 * radius  - radius));
+    }
 
     public static double calculateExpDistribution(int i)
     {
