@@ -72,7 +72,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String rulesFileName = "";
     String configFileName = "";
 
-     //change to default starting value later
+    //change to default starting value later
     double speedRate= 1;
     int speedMax = 10;
     Double totalTime=0.0;
@@ -81,7 +81,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Thread simHeartBeat;
     Runnable simRunnable;
 
-   //For panning
+    //For panning
     Point lastXY;
 
     public Display(Dimension size)
@@ -168,7 +168,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             @Override
             public void actionPerformed(ActionEvent e) {
 
-              //  canvas.repaint();
+                //  canvas.repaint();
             }
         });
         timer.setRepeats(true);
@@ -180,7 +180,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
-                        Thread.sleep((long) (speedRate*1000.0*map.executeTime*10));
+                        Thread.sleep((long) (speedRate*1000.0*map.executeTime));
+
                         map.executeFrame();
                         canvas.repaint();
                         statusSimulation.setText("Simulating...");
@@ -195,7 +196,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 }
                 statusSimulation.setText("Simulation finished ");
                 if(map.isFinished)
-                       JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
+                    JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
             }
         };
     }
@@ -209,7 +210,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D)g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setComposite(AlphaComposite.SrcOver);
                 drawMonomers(g);
             }
         };
@@ -521,7 +521,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         canvas.repaint();
                         if (Simulation.configLoaded && Simulation.rulesLoaded)
                         {
-                            map.storeInitial();
+
                             simStart.setEnabled(true);
                             statusSimulation.setText("Ready to Start");
                         }
@@ -636,9 +636,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
     }
 
-    private synchronized void drawMonomer(Monomer m, Graphics2D g)
+    public synchronized void drawMonomer(Monomer m, Graphics2D g)
     {
-        g.setComposite(AlphaComposite.SrcOver);
+
         Point xyPos = Simulation.getCanvasPosition(m.getLocation());
 
         int monomerWidthAdjustment = Simulation.monomerRadius / 4;
@@ -676,20 +676,24 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
     }
 
-    private synchronized void drawMonomers(Graphics g)
+    public synchronized void drawMonomers(Graphics g)
     {
 
-        Set<Map.Entry<Point, Monomer>> mapTemp = map.entrySet();
+        Monomer[] mapTemp = new Monomer[map.getSize()];
+        map.values().toArray(mapTemp);
 
-
-        for (Map.Entry<Point, Monomer> entry: mapTemp)
+        ArrayList<Monomer> tempMonList = new ArrayList<Monomer>();
+        for (Monomer m: mapTemp)
         {
-            drawBond(new Monomer(entry.getValue()),(Graphics2D)g);
+            drawBond(m,(Graphics2D)g);
+
+            tempMonList.add(new Monomer(m));
         }
-       for (Map.Entry<Point, Monomer> entry : mapTemp)
-       {
-           drawMonomer(new Monomer(entry.getValue()), (Graphics2D)g);
-       }
+        for (Monomer m : tempMonList)
+        {
+
+            drawMonomer(m, (Graphics2D)g);
+        }
 
 
     }
@@ -771,8 +775,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * .92);
             canvasStrokeSize = Simulation.monomerRadius/3;
 
-          //  if(!Simulation.isRunning)
-                canvas.repaint();
+            //  if(!Simulation.isRunning)
+            canvas.repaint();
         }
 
         else
@@ -780,7 +784,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * 1.08);
             canvasStrokeSize = Simulation.monomerRadius/3;
             //if(!Simulation.isRunning)
-                canvas.repaint();
+            canvas.repaint();
         }
     }
 
@@ -793,7 +797,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         lastXY = e.getPoint();
         //if(!Simulation.isRunning)
-            canvas.repaint();
+        canvas.repaint();
     }
 
     @Override

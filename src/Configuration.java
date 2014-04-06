@@ -6,8 +6,16 @@
 //
 
 import org.javatuples.*;
+import org.monte.media.Format;
+import org.monte.media.avi.AVIWriter;
+import org.monte.media.avi.AbstractAVIStream;
+import org.monte.media.quicktime.QuickTimeWriter;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +44,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
     Runnable recordRunnable;
     String recordLocation = ".";
-   // ExecutorService executorService =  Executors.newFixedThreadPool(4);
+    // ExecutorService executorService =  Executors.newFixedThreadPool(4);
     private ArrayList<Pair<Double, ArrayList<Monomer>>> recordFrameHistory;
 
     //================================================================================
@@ -48,7 +56,7 @@ public class Configuration extends HashMap<Point, Monomer>
         isFinished = false;
         timeElapsed = 0.0;
         numberOfActions = 0;
-       recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
+        initRecord();
 
 
     }
@@ -101,6 +109,9 @@ public class Configuration extends HashMap<Point, Monomer>
                             break;
                         }
                         selectedAc = actions.selectArbitrary();
+                        frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
+                        executeTime = frametime;
+                        timeElapsed += frametime;
                     } while (!executeAction(selectedAc));
                 }
                 else
@@ -142,7 +153,7 @@ public class Configuration extends HashMap<Point, Monomer>
         {
             isFinished = true;
             saveRecord("dog.ser");
-            readRecord("dog.ser");
+            saveImages("dog.ser");
             System.out.println("End Simulation.");
 
             Simulation.isRunning = false;
@@ -151,11 +162,11 @@ public class Configuration extends HashMap<Point, Monomer>
             ArrayList<Monomer> monList = new ArrayList<Monomer>();
             for(Monomer m : this.values())
             {
-                  monList.add(new Monomer(m));
+                monList.add(new Monomer(m));
             }
-            //if(timeElapsed < Simulation.recordingLength)
-             //recordFrameHistory.add(Pair.with(frametime, monList));
-           // else Simulation.isRecording = false;
+            if(timeElapsed < Simulation.recordingLength)
+                recordFrameHistory.add(Pair.with(frametime, monList));
+            else Simulation.isRecording = false;
 
 
 
@@ -209,7 +220,7 @@ public class Configuration extends HashMap<Point, Monomer>
             }
         }
 
-       return ret;
+        return ret;
     }
 
     private AgtionSet computeAgtionSet()
@@ -623,16 +634,16 @@ public class Configuration extends HashMap<Point, Monomer>
             FileInputStream fileIn = new FileInputStream(location);
             ObjectInputStream objIn = new ObjectInputStream(fileIn);
             try{
-                recordFrameHistory = (ArrayList<Pair<Double,ArrayList<Monomer>>>)objIn.readObject();
+                return (ArrayList<Pair<Double,ArrayList<Monomer>>>)objIn.readObject();
 
             }catch(Exception e)
             {
-                 System.out.println("Exception reading object");
+                System.out.println("Exception reading object");
             }
             finally
             {
-                 fileIn.close();
-                 objIn.close();
+                fileIn.close();
+                objIn.close();
             }
 
 
@@ -641,17 +652,152 @@ public class Configuration extends HashMap<Point, Monomer>
             System.out.println("Exception thrown reading history: " + e.getMessage());
 
         }
-       return null;
+        return null;
     }
     public void initRecord()
     {
         recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
     }
-
-    public void storeInitial()
+    public void saveImages(String recordLocation)
     {
+        System.out.println("DFGDFG");
+        ArrayList<Pair<Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
+        int frameCount = 1;
+        boolean avi = false;
+
+
+        try{
+            QuickTimeWriter qtWr = new QuickTimeWriter(new File("Test.mov"));
+            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
+
+
+            for(Pair<Double, ArrayList<Monomer>> pba : record)
+            {
+
+                try {
+                    File output = new File(recordLocation + frameCount++ + ".png");
+                    BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
+                    g2.setBackground(Color.white);
+                    g2.setColor(Color.white);
+                    g2.fillRect(0,0,800,600);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    for(Monomer m : pba.getValue1())
+                    {
+                        drawBond(m, g2, 15);
+
+                    }
+                    for(Monomer m : pba.getValue1())
+                    {
+                        drawMonomer(m, g2, 15);
+
+                    }
+
+                    try{
+
+                        System.out.println(pba.getValue0() );
+                        qtWr.write(0, tempBFI, (long)(1));
+                        //ImageIO.write(tempBFI, "png", output);
+
+                    }
+                    catch(Exception e){
+
+                        System.out.println(e.getMessage());
+
+                    }
+                }
+                catch(Exception e)
+                {
+                    System.out.println(e.getMessage());
+                }
+
+            } //For Pair<>
+            qtWr.close();
+        }
+        catch(Exception e)
+        {
+
+        }
 
     }
+
+    private void drawMonomer(Monomer m, Graphics2D g, int radius)
+    {
+
+        Point xyPos = Simulation.getCanvasPosition(m.getLocation(), new Point(400,-300), radius);
+        int fontSize = 15;
+        int monomerWidthAdjustment = radius / 4;
+        int monomerWidth = radius * 2 - monomerWidthAdjustment;
+        int monomerHeight = radius * 2;
+        g.setColor(Color.WHITE);
+        g.fillOval(
+                /*X coord*/   xyPos.x,
+                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                /*Width  */   monomerWidth,
+                /*Height */   monomerHeight);
+        g.setStroke(new BasicStroke(radius / 10));
+        g.setColor(new Color(2,180,206));
+        g.drawOval(
+                /*X coord*/   xyPos.x,
+                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
+                /*Width  */   monomerWidth,
+                /*Height */   monomerHeight);
+        g.setColor(Color.white);
+        Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
+        while (bounds.getWidth() < monomerWidth -4 && bounds.getHeight() < monomerHeight - 4)
+        {
+            g.setFont(g.getFont().deriveFont((float) ++fontSize));
+            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
+        }
+        while (bounds.getWidth() > monomerWidth -4 || bounds.getHeight() > monomerHeight -4)
+        {
+            g.setFont(g.getFont().deriveFont((float) --fontSize));
+            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
+        }
+        g.setColor(Color.BLACK);
+        g.drawString(
+                /*String */     m.getState(),
+                /*X Coord */    xyPos.x + radius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment/2,
+                /*Y Coord */    xyPos.y + radius + (int) (bounds.getHeight() / 3.5));
+    }
+    public  void drawBond(Monomer m, Graphics2D g, int radius) {
+
+        Monomer tempMon = new Monomer(m);
+        if (tempMon.hasBonds())
+        {
+            ArrayList<Byte> rigidDirList =    tempMon.getDirsByBondType(Bond.TYPE_RIGID);
+            ArrayList<Byte> flexibleDirList =   tempMon.getDirsByBondType(Bond.TYPE_FLEXIBLE);
+
+            g.setColor(Color.RED);
+            for (Byte dir : rigidDirList)
+            {
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), new Point(400, -300), radius);
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), new Point(400,-300), radius);
+                start.translate(radius, radius);
+                end.translate(radius, radius);
+                g.setStroke(new BasicStroke(radius/3));
+                g.draw(new Line2D.Float(start.x - radius/3.5f, start.y, end.x , end.y));
+            }
+
+            for (Byte dir : flexibleDirList)
+            {
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), new Point(400,-300), radius);
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), new Point(400, -300), radius);
+                start.translate(radius, radius);
+                end.translate(radius, radius);
+                g.setStroke(new BasicStroke((radius/3) *1.20f));
+                g.setColor(Color.RED);
+                g.draw(new Line2D.Float(start.x - radius/3.5f, start.y, end.x , end.y));
+                g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke((radius/3) * .80f));
+                g.draw(new Line2D.Float(start.x - radius/3.5f, start.y, end.x , end.y));
+            }
+        }
+    }
+
+
+
+
 
 
 
