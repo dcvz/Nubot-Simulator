@@ -16,7 +16,6 @@ public class Direction {
     static final Byte TYPE_FLAG_NORTHWEST = 8;
     static final Byte TYPE_FLAG_SOUTHEAST = 16;
     static final Byte TYPE_FLAG_SOUTHWEST = 32;
-    static final Byte DIRECTION_TYPE_FLAG_MASK = 63;
     static final Point TYPE_POINT_OFFSET_EAST = new Point(1, 0);
     static final Point TYPE_POINT_OFFSET_WEST = new Point(-1, 0);
     static final Point TYPE_POINT_OFFSET_NORTHEAST = new Point(0, 1);
@@ -49,17 +48,17 @@ public class Direction {
 
     public static Point dirToPointOffset(byte direction)
     {
-      if(direction == TYPE_FLAG_EAST)
+      if(TYPE_FLAG_EAST.equals(direction))
         return TYPE_POINT_OFFSET_EAST;
-       if(direction == TYPE_FLAG_NORTHEAST)
+       if(TYPE_FLAG_NORTHEAST.equals(direction))
         return TYPE_POINT_OFFSET_NORTHEAST;
-        if(direction == TYPE_FLAG_SOUTHEAST)
+        if(TYPE_FLAG_SOUTHEAST.equals(direction))
             return TYPE_POINT_OFFSET_SOUTHEAST;
-        if(direction == TYPE_FLAG_NORTHWEST)
+        if(TYPE_FLAG_NORTHWEST.equals(direction))
             return TYPE_POINT_OFFSET_NORTHWEST;
-        if(direction == TYPE_FLAG_SOUTHWEST)
+        if(TYPE_FLAG_SOUTHWEST.equals(direction))
             return TYPE_POINT_OFFSET_SOUTHWEST;
-        if(direction == TYPE_FLAG_WEST)
+        if(TYPE_FLAG_WEST.equals(direction))
             return TYPE_POINT_OFFSET_WEST;
 
         return new Point(0,0);

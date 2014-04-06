@@ -153,7 +153,7 @@ public class Configuration extends HashMap<Point, Monomer>
         {
             isFinished = true;
             saveRecord("dog.ser");
-            saveImages("dog.ser");
+            saveVideo("dog.ser");
             System.out.println("End Simulation.");
 
             Simulation.isRunning = false;
@@ -658,7 +658,8 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
     }
-    public void saveImages(String recordLocation)
+
+    public void saveVideo(String recordLocation)
     {
         System.out.println("DFGDFG");
         ArrayList<Pair<Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
@@ -675,28 +676,37 @@ public class Configuration extends HashMap<Point, Monomer>
             {
 
                 try {
+
                     File output = new File(recordLocation + frameCount++ + ".png");
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+                    int  radius = 15;
+                    Point offset = new Point(400, -300 );
+
                     Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
                     g2.setBackground(Color.white);
                     g2.setColor(Color.white);
                     g2.fillRect(0,0,800,600);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    radius = calculateNubotBounds(pba.getValue1(), offset, radius, new Dimension(800,600));
+               //     System.out.println(offset + "SDF");
+                //    int radius =(int)( (600.0/  Math.max(nubotDim.width , nubotDim.height ))/ 2.3);
+
+                 //  System.out.println(nubotDim);
                     for(Monomer m : pba.getValue1())
                     {
-                        drawBond(m, g2, 15);
+                        drawBond(m, g2, radius, offset);
 
                     }
                     for(Monomer m : pba.getValue1())
                     {
-                        drawMonomer(m, g2, 15);
+                        drawMonomer(m, g2, radius, offset);
 
                     }
 
                     try{
 
-                        System.out.println(pba.getValue0() );
-                        qtWr.write(0, tempBFI, (long)(1));
+
+                        qtWr.write(0, tempBFI, (long)(10));
                         //ImageIO.write(tempBFI, "png", output);
 
                     }
@@ -720,11 +730,48 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
     }
-
-    private void drawMonomer(Monomer m, Graphics2D g, int radius)
+    public int calculateNubotBounds(ArrayList<Monomer> ap, Point offset, int radius, Dimension imgSize)
     {
 
-        Point xyPos = Simulation.getCanvasPosition(m.getLocation(), new Point(400,-300), radius);
+        int maxX = 0;
+        int minX = 0;
+        int maxY = 0;
+        int minY = 0;
+
+         for(Monomer m : ap)
+         {
+                Point gridLocation = m.getLocation();
+                Point pixelLocation =  Simulation.getCanvasPosition(gridLocation, offset, radius);
+                maxX = Math.max(maxX,  pixelLocation.x);
+                minX = Math.min(minX, pixelLocation.x);
+                maxY = Math.max(maxY, pixelLocation.y);
+                minY = Math.min(minY, pixelLocation.y);
+
+
+         }
+
+           if(maxX - minX  > imgSize.width  || maxY - minY > imgSize.height)
+                radius -= 4;
+          if(minX < 0 )
+              offset.translate(Math.abs(minX), 0);
+          if(minY < 0)
+                offset.translate(0, minY);
+            if(maxX + radius * 2> imgSize.width )
+                offset.translate(imgSize.width - (maxX+radius*2), 0);
+        if(maxY + radius*2> imgSize.height ) {
+
+            offset.translate(0, -1*( imgSize.height - (maxY + radius * 2)));
+
+        }
+         return radius;
+
+    }
+
+    private void drawMonomer(Monomer m, Graphics2D g, int radius, Point offset)
+    {
+
+        Point xyPos = Simulation.getCanvasPosition(m.getLocation(),offset, radius);
+
         int fontSize = 15;
         int monomerWidthAdjustment = radius / 4;
         int monomerWidth = radius * 2 - monomerWidthAdjustment;
@@ -760,7 +807,7 @@ public class Configuration extends HashMap<Point, Monomer>
                 /*X Coord */    xyPos.x + radius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment/2,
                 /*Y Coord */    xyPos.y + radius + (int) (bounds.getHeight() / 3.5));
     }
-    public  void drawBond(Monomer m, Graphics2D g, int radius) {
+    public  void drawBond(Monomer m, Graphics2D g, int radius, Point offset) {
 
         Monomer tempMon = new Monomer(m);
         if (tempMon.hasBonds())
@@ -771,8 +818,8 @@ public class Configuration extends HashMap<Point, Monomer>
             g.setColor(Color.RED);
             for (Byte dir : rigidDirList)
             {
-                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), new Point(400, -300), radius);
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), new Point(400,-300), radius);
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), offset, radius);
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), offset, radius);
                 start.translate(radius, radius);
                 end.translate(radius, radius);
                 g.setStroke(new BasicStroke(radius/3));
@@ -781,8 +828,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
             for (Byte dir : flexibleDirList)
             {
-                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), new Point(400,-300), radius);
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), new Point(400, -300), radius);
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), offset,radius);
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), offset, radius);
                 start.translate(radius, radius);
                 end.translate(radius, radius);
                 g.setStroke(new BasicStroke((radius/3) *1.20f));
