@@ -683,6 +683,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         Set<Map.Entry<Point, Monomer>> mapTemp = map.entrySet();
 
+
         for (Map.Entry<Point, Monomer> entry: mapTemp)
         {
             drawBond(new Monomer(entry.getValue()),(Graphics2D)g);
@@ -698,24 +699,17 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     public  synchronized void drawBond(Monomer m, Graphics2D g) {
 
-        if (m.hasBonds())
+        Monomer tempMon = new Monomer(m);
+        if (tempMon.hasBonds())
         {
-            ArrayList<Byte> rigidDirList =     new ArrayList<Byte>();
-            ArrayList<Byte> flexibleDirList =   new ArrayList<Byte>();
-            for( Byte b : m.getDirsByBondType(Bond.TYPE_RIGID))
-            {
-                rigidDirList.add((Byte)b.byteValue());
-            }
-            for( Byte b : m.getDirsByBondType(Bond.TYPE_FLEXIBLE))
-            {
-                flexibleDirList.add((Byte) b.byteValue());
-            }
+            ArrayList<Byte> rigidDirList =    tempMon.getDirsByBondType(Bond.TYPE_RIGID);
+            ArrayList<Byte> flexibleDirList =   tempMon.getDirsByBondType(Bond.TYPE_FLEXIBLE);
 
             g.setColor(Color.RED);
             for (Byte dir : rigidDirList)
             {
-                Point start = Simulation.getCanvasPosition(m.getLocation());
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation());
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 g.setStroke(new BasicStroke(canvasStrokeSize));
@@ -724,8 +718,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             for (Byte dir : flexibleDirList)
             {
-                Point start = Simulation.getCanvasPosition(m.getLocation());
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(m.getLocation(), dir));
+                Point start = Simulation.getCanvasPosition(tempMon.getLocation());
+                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir));
                 start.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 end.translate(Simulation.monomerRadius, Simulation.monomerRadius);
                 g.setStroke(new BasicStroke(canvasStrokeSize *1.20f));

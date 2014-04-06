@@ -153,9 +153,10 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                   monList.add(new Monomer(m));
             }
-            if(timeElapsed < Simulation.recordingLength)
-             recordFrameHistory.add(Pair.with(frametime, monList));
-            else Simulation.isRecording = false;
+            //if(timeElapsed < Simulation.recordingLength)
+             //recordFrameHistory.add(Pair.with(frametime, monList));
+           // else Simulation.isRecording = false;
+
 
 
 

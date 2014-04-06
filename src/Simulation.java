@@ -23,7 +23,7 @@ public class
     public static boolean isRunning = false;
     public static boolean agitationON = false;
     public static boolean isRecording = true;
-    public static double recordingLength = 0.0;
+    public static double recordingLength = 100;
 
     public static double agitationRate = 0.0;
 
@@ -42,4 +42,6 @@ public class
 
         return (-1 * Math.log(randNum)) / i;
     }
+
+
 }
