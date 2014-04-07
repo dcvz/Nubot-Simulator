@@ -181,6 +181,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 {
                     try
                     {
+                        if(!Simulation.isRecording)
                         Thread.sleep((long) (speedRate*1000.0*map.executeTime));
 
                         map.executeFrame();
@@ -525,6 +526,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         statusConfig.setText("Config loaded ");
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
 
+
                         canvas.repaint();
                         if (Simulation.configLoaded && (Simulation.rulesLoaded || Simulation.agitationON))
                         {
@@ -657,6 +659,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 Simulation.animate = false;
                 Simulation.recordingLength = recordingLength;
                 Simulation.isRecording = true;
+                map.timeElapsed = 0;
                 map.initRecord();
                 Simulation.isRunning = true;
                 map.isFinished=false;

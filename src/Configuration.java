@@ -163,14 +163,15 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                 monList.add(new Monomer(m));
             }
-            if(timeElapsed < Simulation.recordingLength)
-                recordFrameHistory.add(Pair.with(frametime, monList));
-            else
+
+            recordFrameHistory.add(Pair.with(frametime, monList));
+            if(timeElapsed > Simulation.recordingLength || isFinished)
             {
                 saveRecord("dog.ser");
                 saveVideo("dog.ser");
                 Simulation.isRecording = false;
                 Simulation.isRunning = false;
+                Simulation.recordingLength = 0;
                 isFinished = true;
 
             }
@@ -676,7 +677,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
         try{
             QuickTimeWriter qtWr = new QuickTimeWriter(new File("Test.mov"));
-            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 630);
+            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
 
             double timeElapsed = 0;
             int frameNumber = 0;
@@ -686,14 +687,14 @@ public class Configuration extends HashMap<Point, Monomer>
                 try {
 
                     File output = new File(recordLocation + frameCount++ + ".png");
-                    BufferedImage tempBFI = new BufferedImage(800, 630, BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                     int  radius = 15;
                     Point offset = new Point(400, -300 );
 
                     Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
                     g2.setBackground(Color.white);
                     g2.setColor(Color.white);
-                    g2.fillRect(0,0,800,630);
+                    g2.fillRect(0,0,800,600);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     timeElapsed += pba.getValue0();
                     g2.setColor(Color.black);
@@ -714,7 +715,8 @@ public class Configuration extends HashMap<Point, Monomer>
                     try{
 
 
-                        qtWr.write(0, tempBFI, (long)(3));
+                        qtWr.write(0, tempBFI, (long)(2));
+                        System.out.println(qtWr.getMediaTimeScale(0) + " " + record.size() + qtWr.getMediaDuration(0) + " " + qtWr.getMovieDuration());
                         //ImageIO.write(tempBFI, "png", output);
 
                     }
@@ -738,40 +740,64 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
     }
-    public int calculateNubotBounds(ArrayList<Monomer> ap, Point offset, int radius, Dimension imgSize)
-    {
+
+    public int calculateNubotBounds(ArrayList<Monomer> ap, Point offset, int radius, Dimension imgSize) {
 
         int maxX = 0;
-        int minX = 0;
+        int minX = imgSize.width / 2;
         int maxY = 0;
-        int minY = 0;
+        int minY = imgSize.height / 2;
 
-         for(Monomer m : ap)
-         {
-                Point gridLocation = m.getLocation();
-                Point pixelLocation =  Simulation.getCanvasPosition(gridLocation, offset, radius);
-                maxX = Math.max(maxX,  pixelLocation.x);
-                minX = Math.min(minX, pixelLocation.x);
-                maxY = Math.max(maxY, pixelLocation.y);
-                minY = Math.min(minY, pixelLocation.y);
-
-
-         }
-
-         /*  if(maxX - minX  > imgSize.width  || maxY - minY > imgSize.height)
-                radius -= 4; */
-          if(minX < 0 )
-              offset.translate(Math.abs(minX), 0);
-          if(minY < 0)
-                offset.translate(0, minY);
-            if(maxX + radius * 2> imgSize.width )
-                offset.translate(imgSize.width - (maxX+radius*2), 0);
-        if(maxY + radius*2> imgSize.height ) {
-
-            offset.translate(0, -1*( imgSize.height - (maxY + radius * 2)));
+        for (Monomer m : ap) {
+            Point gridLocation = m.getLocation();
+            Point pixelLocation = Simulation.getCanvasPosition(gridLocation, offset, radius);
+            maxX = Math.max(maxX, pixelLocation.x);
+            minX = Math.min(minX, pixelLocation.x);
+            maxY = Math.max(maxY, pixelLocation.y);
+            minY = Math.min(minY, pixelLocation.y);
 
         }
-         return radius;
+        int nubotWidth = maxX - minX + radius * 2;
+        int nubotHeight = maxY - minY + radius * 2;
+        int numMonsRadius = Math.max(nubotWidth, nubotHeight) / radius;
+        int oldRadius = radius;
+
+        if (nubotWidth > imgSize.width || nubotHeight > imgSize.height) {
+            if (nubotWidth > imgSize.width) {
+
+                 offset.setLocation(imgSize.width/2, offset.y);
+
+                radius = (int)Math.ceil((double)imgSize.width / (double)(numMonsRadius));
+              //  offset.translate( ((oldRadius - radius) * numMonsRadius)/2, 0);
+
+            }
+            if (nubotHeight > imgSize.height) {
+                offset.setLocation(offset.x, -1*(imgSize.height/2));
+                radius = (int)Math.ceil((double)imgSize.height / (double)numMonsRadius);
+              //  offset.translate(0, -1* ((oldRadius - radius) * numMonsRadius)/2);
+            }
+        } else {
+            if (minX < 0) {
+                offset.translate(Math.abs(minX), 0);
+            }
+            if (minY < 0) {
+
+
+                offset.translate(0, minY);
+            }
+
+
+            if (maxX + radius * 2 > imgSize.width) {
+                offset.translate(-1 * Math.abs(imgSize.width - (maxX + radius * 2)), 0);
+            }
+            if (maxY + radius * 2 > imgSize.height) {
+
+                offset.translate(0, -1 * (imgSize.height - (maxY + radius * 2)));
+
+            }
+        }
+
+        return radius;
 
     }
 
