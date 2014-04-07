@@ -100,6 +100,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         simStart.setEnabled(false);
         simPause.setEnabled(false);
         simStop.setEnabled(false);
+        record.setEnabled(false);
 
         map = new Configuration();
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -183,6 +184,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         Thread.sleep((long) (speedRate*1000.0*map.executeTime));
 
                         map.executeFrame();
+                        if(Simulation.animate)
                         canvas.repaint();
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.executeTime;
@@ -340,6 +342,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     {
         if (e.getSource() == loadR)
         {
+            map.timeElapsed=0;
             map.rules.clear();
             try
             {
@@ -411,6 +414,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                         {
                             simStart.setEnabled(true);
+                            record.setEnabled(true);
                             statusSimulation.setText("Ready to Start ");
                         }
                     }
@@ -427,6 +431,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
         else if (e.getSource() == loadC)
         {
+            map.timeElapsed = 0;
             map.clear();
             try
             {
@@ -525,6 +530,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         {
 
                             simStart.setEnabled(true);
+                            record.setEnabled(true);
                             statusSimulation.setText("Ready to Start");
                         }
                     }
@@ -541,7 +547,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             canvas.repaint();
             map.clear();
             map.rules.clear();
-
+            map.timeElapsed = 0;
             /////Simulation Flags
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
@@ -576,6 +582,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
         else if (e.getSource() == simStart)
         {
+
+            Simulation.animate = true;
             Simulation.isRunning = true;
             map.isFinished=false;
             Simulation.isPaused = false;
@@ -585,14 +593,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             simStop.setEnabled(true);
             simHeartBeat = new Thread(simRunnable);
             simHeartBeat.start();
-            timer.start();
+           // timer.start();
 
             System.out.println("start");
         }
         else if (e.getSource() == simStop)
         {
             Simulation.isRunning = false;
-            timer.stop();
+            //timer.stop();
+            map.timeElapsed = 0;
             simHeartBeat.interrupt();
             System.out.println("stop");
         }
@@ -640,6 +649,26 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
         else if (e.getSource() == record)
         {
+
+            String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time):");
+            double recordingLength = Double.parseDouble(input);
+            if(recordingLength > 0)
+            {
+                Simulation.animate = false;
+                Simulation.recordingLength = recordingLength;
+                Simulation.isRecording = true;
+                map.initRecord();
+                Simulation.isRunning = true;
+                map.isFinished=false;
+                Simulation.isPaused = false;
+                simStop.setEnabled(true);
+                simHeartBeat = new Thread(simRunnable);
+                simHeartBeat.start();
+                statusSimulation.setText("Recording.");
+                JOptionPane.showMessageDialog(mainFrame, "The simulation is recording and will not be animated.");
+
+
+            }
             System.out.println("record button started");
         }
     }

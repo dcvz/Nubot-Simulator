@@ -152,8 +152,7 @@ public class Configuration extends HashMap<Point, Monomer>
         else
         {
             isFinished = true;
-            saveRecord("dog.ser");
-            saveVideo("dog.ser");
+
             System.out.println("End Simulation.");
 
             Simulation.isRunning = false;
@@ -166,7 +165,15 @@ public class Configuration extends HashMap<Point, Monomer>
             }
             if(timeElapsed < Simulation.recordingLength)
                 recordFrameHistory.add(Pair.with(frametime, monList));
-            else Simulation.isRecording = false;
+            else
+            {
+                saveRecord("dog.ser");
+                saveVideo("dog.ser");
+                Simulation.isRecording = false;
+                Simulation.isRunning = false;
+                isFinished = true;
+
+            }
 
 
 
@@ -669,29 +676,30 @@ public class Configuration extends HashMap<Point, Monomer>
 
         try{
             QuickTimeWriter qtWr = new QuickTimeWriter(new File("Test.mov"));
-            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
+            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 630);
 
-
+            double timeElapsed = 0;
+            int frameNumber = 0;
             for(Pair<Double, ArrayList<Monomer>> pba : record)
             {
 
                 try {
 
                     File output = new File(recordLocation + frameCount++ + ".png");
-                    BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage tempBFI = new BufferedImage(800, 630, BufferedImage.TYPE_INT_ARGB);
                     int  radius = 15;
                     Point offset = new Point(400, -300 );
 
                     Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
                     g2.setBackground(Color.white);
                     g2.setColor(Color.white);
-                    g2.fillRect(0,0,800,600);
+                    g2.fillRect(0,0,800,630);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    timeElapsed += pba.getValue0();
+                    g2.setColor(Color.black);
+                    g2.drawString("Time: "  + timeElapsed + " Frame #: "  + ++frameNumber, 0, 20 );
                     radius = calculateNubotBounds(pba.getValue1(), offset, radius, new Dimension(800,600));
-               //     System.out.println(offset + "SDF");
-                //    int radius =(int)( (600.0/  Math.max(nubotDim.width , nubotDim.height ))/ 2.3);
 
-                 //  System.out.println(nubotDim);
                     for(Monomer m : pba.getValue1())
                     {
                         drawBond(m, g2, radius, offset);
@@ -706,7 +714,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     try{
 
 
-                        qtWr.write(0, tempBFI, (long)(10));
+                        qtWr.write(0, tempBFI, (long)(3));
                         //ImageIO.write(tempBFI, "png", output);
 
                     }
@@ -750,8 +758,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
          }
 
-           if(maxX - minX  > imgSize.width  || maxY - minY > imgSize.height)
-                radius -= 4;
+         /*  if(maxX - minX  > imgSize.width  || maxY - minY > imgSize.height)
+                radius -= 4; */
           if(minX < 0 )
               offset.translate(Math.abs(minX), 0);
           if(minY < 0)
@@ -791,12 +799,12 @@ public class Configuration extends HashMap<Point, Monomer>
                 /*Height */   monomerHeight);
         g.setColor(Color.white);
         Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
-        while (bounds.getWidth() < monomerWidth -4 && bounds.getHeight() < monomerHeight - 4)
+        while (bounds.getWidth() < monomerWidth -2 && bounds.getHeight() < monomerHeight - 2)
         {
             g.setFont(g.getFont().deriveFont((float) ++fontSize));
             bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
         }
-        while (bounds.getWidth() > monomerWidth -4 || bounds.getHeight() > monomerHeight -4)
+        while (bounds.getWidth() > monomerWidth -2 || bounds.getHeight() > monomerHeight -2)
         {
             g.setFont(g.getFont().deriveFont((float) --fontSize));
             bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());

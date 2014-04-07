@@ -22,8 +22,9 @@ public class
     public static boolean isPaused = false;
     public static boolean isRunning = false;
     public static boolean agitationON = false;
-    public static boolean isRecording = true;
-    public static double recordingLength = 100;
+    public static boolean isRecording = false;
+    public static double recordingLength = 0;
+    public static boolean animate = true;
 
     public static double agitationRate = 0.0;
 
