@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -671,7 +672,7 @@ public class Configuration extends HashMap<Point, Monomer>
     {
         System.out.println("DFGDFG");
         ArrayList<Pair<Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
-        int frameCount = 1;
+        int frameCount = 0;
         boolean avi = false;
 
 
@@ -680,13 +681,18 @@ public class Configuration extends HashMap<Point, Monomer>
             qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
 
             double timeElapsed = 0;
-            int frameNumber = 0;
+
             for(Pair<Double, ArrayList<Monomer>> pba : record)
             {
 
                 try {
 
-                    File output = new File(recordLocation + frameCount++ + ".png");
+
+                  //  System.out.println("out of if block "  + (frameCount*.033333 )  + " frame time "  + pba.getValue0()  +"frame# " +frameCount);
+
+                        timeElapsed += pba.getValue0();
+                   //System.out.println("inside of if block "  + (frameCount*.033333)  + " frame time "  + pba.getValue0() +"frame# " +frameCount);
+                    File output = new File(recordLocation + ++frameCount + ".png");
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                     int  radius = 15;
                     Point offset = new Point(400, -300 );
@@ -696,9 +702,9 @@ public class Configuration extends HashMap<Point, Monomer>
                     g2.setColor(Color.white);
                     g2.fillRect(0,0,800,600);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    timeElapsed += pba.getValue0();
+
                     g2.setColor(Color.black);
-                    g2.drawString("Time: "  + timeElapsed + " Frame #: "  + ++frameNumber, 0, 20 );
+                    g2.drawString("Time: "  + timeElapsed + " Frame #: "  + frameCount, 0, 20 );
                     radius = calculateNubotBounds(pba.getValue1(), offset, radius, new Dimension(800,600));
 
                     for(Monomer m : pba.getValue1())
@@ -713,10 +719,11 @@ public class Configuration extends HashMap<Point, Monomer>
                     }
 
                     try{
+                        long dur = 30*pba.getValue0() < 1 ? 2 : (long)(30*pba.getValue0())  ;
 
 
-                        qtWr.write(0, tempBFI, (long)(2));
-                        System.out.println(qtWr.getMediaTimeScale(0) + " " + record.size() + qtWr.getMediaDuration(0) + " " + qtWr.getMovieDuration());
+                        qtWr.write(0, tempBFI, dur);
+                      //  System.out.println("MovieTimeScale: " + qtWr.getMovieTimeScale() + " mediaTimeScale: " +qtWr.getMediaTimeScale(0) + " Record size: " + record.size() + " mediaDuration(): " + qtWr.getMediaDuration(0) + " MoveDuration: " + qtWr.getMovieDuration());
                         //ImageIO.write(tempBFI, "png", output);
 
                     }
@@ -725,6 +732,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         System.out.println(e.getMessage());
 
                     }
+
                 }
                 catch(Exception e)
                 {
