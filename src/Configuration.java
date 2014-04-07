@@ -690,7 +690,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
                   //  System.out.println("out of if block "  + (frameCount*.033333 )  + " frame time "  + pba.getValue0()  +"frame# " +frameCount);
 
-                        timeElapsed += pba.getValue0();
+
                    //System.out.println("inside of if block "  + (frameCount*.033333)  + " frame time "  + pba.getValue0() +"frame# " +frameCount);
                     File output = new File(recordLocation + ++frameCount + ".png");
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
@@ -719,7 +719,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     }
 
                     try{
-                        long dur = 30*pba.getValue0() < 1 ? 2 : (long)(30*pba.getValue0())  ;
+                        long dur = 30*pba.getValue0() < 1 ? 1 + 1*(Math.round(pba.getValue0()*30)) : (long)(30*pba.getValue0())  ;
 
 
                         qtWr.write(0, tempBFI, dur);
@@ -727,11 +727,13 @@ public class Configuration extends HashMap<Point, Monomer>
                         //ImageIO.write(tempBFI, "png", output);
 
                     }
+
                     catch(Exception e){
 
                         System.out.println(e.getMessage());
 
                     }
+                    timeElapsed += pba.getValue0();
 
                 }
                 catch(Exception e)
