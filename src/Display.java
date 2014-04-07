@@ -344,6 +344,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             try
             {
                 final JFileChooser jfc = new JFileChooser();
+                jfc.setCurrentDirectory(new File("."));
 
                 jfc.setDialogTitle("Select Rules File");
                 // Creating a file filter for .conf
@@ -430,6 +431,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             try
             {
                 final JFileChooser jfc = new JFileChooser();
+                jfc.setCurrentDirectory(new File("."));
 
                 jfc.setDialogTitle("Select Configuration File");
                 // Creating a file filter for .conf
@@ -519,7 +521,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
 
                         canvas.repaint();
-                        if (Simulation.configLoaded && Simulation.rulesLoaded)
+                        if (Simulation.configLoaded && (Simulation.rulesLoaded || Simulation.agitationON))
                         {
 
                             simStart.setEnabled(true);
@@ -628,6 +630,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 statusAgitation.setText("Agitation On: "+Simulation.agitationRate);
                 agitationToggle.setState(true);
                 System.out.println("Agitation Rate changed and set to on");
+
+                if (Simulation.configLoaded && Simulation.agitationON)
+                {
+                    simStart.setEnabled(true);
+                    statusSimulation.setText("Ready to Start");
+                }
             }
         }
         else if (e.getSource() == record)

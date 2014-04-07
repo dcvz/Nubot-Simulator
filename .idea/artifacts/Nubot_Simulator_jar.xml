@@ -3,8 +3,8 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Nubot_Simulator_jar</output-path>
     <root id="archive" name="Nubot Simulator.jar">
       <element id="module-output" name="Nubot Simulator" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/monte-cc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/javatuples-1.2.jar" path-in-jar="/" />
-      <element id="library" level="project" name="org.javatuples:javatuples:1.2" />
     </root>
   </artifact>
 </component>
