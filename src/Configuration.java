@@ -32,10 +32,12 @@ public class Configuration extends HashMap<Point, Monomer>
     public double timeElapsed;
     public int numberOfActions;
     private Random rand = new Random();
+    private int frameRate=10;
+    private double timeAccum = 0;
     public int getSize(){
         return this.size();
     }
-    public double executeTime = 1.0;
+    public double executeTime = 0.0;
 
 
     //================================================================================
@@ -164,8 +166,14 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                 monList.add(new Monomer(m));
             }
+            timeAccum +=executeTime;
+            if(timeAccum > 1.0/(double)frameRate) {
+                System.out.println("YO : "  +  timeAccum  + "ha  "  + Math.floor( (timeAccum) /  (1.0/(double)frameRate)));
+                for(int i = 0; i < Math.round( (timeAccum) /  (1.0/(double)frameRate)); i++ )
+                     recordFrameHistory.add(Pair.with(frametime, monList));
+                timeAccum = 0;
+            }
 
-            recordFrameHistory.add(Pair.with(frametime, monList));
             if(timeElapsed > Simulation.recordingLength || isFinished)
             {
                 saveRecord("dog.ser");
@@ -722,7 +730,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(28*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
 
 
-                        qtWr.write(0, tempBFI, dur);
+                        qtWr.write(0, tempBFI, 3);
                       //  System.out.println("MovieTimeScale: " + qtWr.getMovieTimeScale() + " mediaTimeScale: " +qtWr.getMediaTimeScale(0) + " Record size: " + record.size() + " mediaDuration(): " + qtWr.getMediaDuration(0) + " MoveDuration: " + qtWr.getMovieDuration());
                         //ImageIO.write(tempBFI, "png", output);
 
