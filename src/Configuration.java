@@ -48,7 +48,7 @@ public class Configuration extends HashMap<Point, Monomer>
     Runnable recordRunnable;
     String recordLocation = ".";
     // ExecutorService executorService =  Executors.newFixedThreadPool(4);
-    private ArrayList<Pair<Double, ArrayList<Monomer>>> recordFrameHistory;
+    private ArrayList<Triplet<Integer ,Double, ArrayList<Monomer>>> recordFrameHistory;
 
     //================================================================================
     // Constructors
@@ -168,9 +168,9 @@ public class Configuration extends HashMap<Point, Monomer>
             }
             timeAccum +=executeTime;
             if(timeAccum > 1.0/(double)frameRate) {
-                System.out.println("YO : "  +  timeAccum  + "ha  "  + Math.floor( (timeAccum) /  (1.0/(double)frameRate)));
-                for(int i = 0; i < Math.round( (timeAccum) /  (1.0/(double)frameRate)); i++ )
-                     recordFrameHistory.add(Pair.with(frametime, monList));
+                long repeat = Math.round( (timeAccum) /  (1.0/(double)frameRate));
+
+                 recordFrameHistory.add(Triplet.with((int)repeat,frametime, monList));
                 timeAccum = 0;
             }
 
@@ -645,13 +645,13 @@ public class Configuration extends HashMap<Point, Monomer>
         }
 
     }
-    public ArrayList<Pair<Double, ArrayList<Monomer>>> readRecord(String location)
+    public ArrayList<Triplet<Integer,Double, ArrayList<Monomer>>> readRecord(String location)
     {
         try{
             FileInputStream fileIn = new FileInputStream(location);
             ObjectInputStream objIn = new ObjectInputStream(fileIn);
             try{
-                return (ArrayList<Pair<Double,ArrayList<Monomer>>>)objIn.readObject();
+                return (ArrayList<Triplet<Integer, Double,ArrayList<Monomer>>>)objIn.readObject();
 
             }catch(Exception e)
             {
@@ -673,13 +673,13 @@ public class Configuration extends HashMap<Point, Monomer>
     }
     public void initRecord()
     {
-        recordFrameHistory = new ArrayList<Pair<Double, ArrayList<Monomer>>>();
+        recordFrameHistory = new ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>>();
     }
 
     public void saveVideo(String recordLocation)
     {
         System.out.println("DFGDFG");
-        ArrayList<Pair<Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
+        ArrayList<Triplet<Integer,Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
         int frameCount = 0;
         boolean avi = false;
 
@@ -690,16 +690,11 @@ public class Configuration extends HashMap<Point, Monomer>
 
             double timeElapsed = 0;
 
-            for(Pair<Double, ArrayList<Monomer>> pba : record)
+            for(Triplet<Integer,Double, ArrayList<Monomer>> pba : record)
             {
 
                 try {
 
-
-                  //  System.out.println("out of if block "  + (frameCount*.033333 )  + " frame time "  + pba.getValue0()  +"frame# " +frameCount);
-
-
-                   //System.out.println("inside of if block "  + (frameCount*.033333)  + " frame time "  + pba.getValue0() +"frame# " +frameCount);
                     File output = new File(recordLocation + ++frameCount + ".png");
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                     int  radius = 15;
@@ -713,24 +708,24 @@ public class Configuration extends HashMap<Point, Monomer>
 
                     g2.setColor(Color.black);
                     g2.drawString("Time: "  + timeElapsed + " Frame #: "  + frameCount, 0, 20 );
-                    radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue1(), radius, offset, new Dimension(800,600));
+                    radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue2(), radius, offset, new Dimension(800,600));
 
-                    for(Monomer m : pba.getValue1())
+                    for(Monomer m : pba.getValue2())
                     {
                         drawBond(m, g2, radius, offset);
 
                     }
-                    for(Monomer m : pba.getValue1())
+                    for(Monomer m : pba.getValue2())
                     {
                         drawMonomer(m, g2, radius, offset);
 
                     }
 
                     try{
-                        long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(28*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
+                        //long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(28*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
 
 
-                        qtWr.write(0, tempBFI, 3);
+                        qtWr.write(0, tempBFI, pba.getValue0()* 3);
                       //  System.out.println("MovieTimeScale: " + qtWr.getMovieTimeScale() + " mediaTimeScale: " +qtWr.getMediaTimeScale(0) + " Record size: " + record.size() + " mediaDuration(): " + qtWr.getMediaDuration(0) + " MoveDuration: " + qtWr.getMovieDuration());
                         //ImageIO.write(tempBFI, "png", output);
 
