@@ -457,6 +457,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         else if (e.getSource() == loadC)
         {
             map.timeElapsed = 0;
+            statusTime.setText("0.0");
             map.clear();
             try
             {
@@ -570,10 +571,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         else if (e.getSource() == menuClear)
         {
             clearGraphics();
+
             canvas.repaint();
             map.clear();
             map.rules.clear();
             map.timeElapsed = 0;
+            statusTime.setText("0.0");
             /////Simulation Flags
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
