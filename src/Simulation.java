@@ -58,39 +58,41 @@ public class
          Point minXY = minMaxPair.getValue0();
          Point maxXY = minMaxPair.getValue1();
          Dimension nubotDimension = calculateNubotDimension(ap, radius, mutOffset, imgSize);
-        int numMonsRadius = Math.max(nubotDimension.width, nubotDimension.height) / radius;
+        int numMonsRadius = (int)Math.ceil(Math.max(nubotDimension.width, nubotDimension.height) / radius);
 
 
         if (nubotDimension.width > imgSize.width || nubotDimension.height> imgSize.height) {
             if (nubotDimension.width > imgSize.width) {
 
-                mutOffset.setLocation(imgSize.width/2, mutOffset.y);
 
-                radius = (int)Math.ceil((double)imgSize.width / (double)(numMonsRadius));
-                //  offset.translate( ((oldRadius - radius) * numMonsRadius)/2, 0);
+
+                radius = (int)Math.floor(imgSize.width / numMonsRadius);
+                mutOffset.translate(radius , 0);
+
 
             }
             if (nubotDimension.height > imgSize.height) {
-                mutOffset.setLocation(mutOffset.x,  -1*(imgSize.height/2));
-                radius = (int)Math.ceil((double)imgSize.height / (double)numMonsRadius);
-                //  offset.translate(0, -1* ((oldRadius - radius) * numMonsRadius)/2);
+
+                radius = (int)Math.floor(imgSize.height / numMonsRadius);
+                mutOffset.translate(0, radius*2);
+
             }
         } else {
             if (minXY.x < 0) {
-                mutOffset.translate(Math.abs(minXY.x), 0);
+                mutOffset.translate(Math.abs(minXY.x) + radius, 0);
             }
             if (minXY.y < 0) {
 
-
+                System.out.println("hit here minY" );
                 mutOffset.translate(0, -1* minXY.y);
             }
 
 
-            if (maxXY.x + radius * 2 > imgSize.width) {
+            if (maxXY.x + radius * 2.5 > imgSize.width) {
                 mutOffset.translate(-1 * Math.abs(imgSize.width - (maxXY.x + radius * 2)), 0);
             }
-            if (maxXY.y + radius * 2 > imgSize.height) {
-
+            if (maxXY.y + radius * 2.5 > imgSize.height) {
+                System.out.println("hit here maxY");
                 mutOffset.translate(0, -1 * (imgSize.height - (maxXY.y + radius * 2)));
 
             }

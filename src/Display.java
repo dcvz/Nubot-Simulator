@@ -5,6 +5,8 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
+import org.javatuples.Pair;
+
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
@@ -187,8 +189,27 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         map.executeFrame();
                         if(Simulation.animate)
                         {
+                            Pair<Point,Point>  minMaxPair = Simulation.calculateMinMax(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, Simulation.canvasXYoffset, canvas.getSize());
+                            Point minXY = minMaxPair.getValue0();
+                            Point maxXY = minMaxPair.getValue1();
+                            Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, Simulation.canvasXYoffset, canvas.getSize());
+                            if(nubotDim.width < canvas.getWidth()  )
+                            {
+                            if(minXY.x < 0)
+                                Simulation.canvasXYoffset.translate(-1*minXY.x,0);
+                            if(maxXY.x + Simulation.monomerRadius*2 > canvas.getWidth());
+                                Simulation.canvasXYoffset.translate(canvas.getWidth() - (maxXY.x + Simulation.monomerRadius*2), 0);
+                            }
+                            if(nubotDim.height < canvas.getHeight())
+                            {
+                            if(minXY.y < 0)
+                               Simulation.canvasXYoffset.translate(0, minXY.y);
+                            if(maxXY.y > canvas.getHeight())
+                                Simulation.canvasXYoffset.translate(0, (maxXY.y + Simulation.monomerRadius*2) - canvas.getHeight());
+                            }
 
-                        canvas.repaint();
+
+                            canvas.repaint();
                         }
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.executeTime;
