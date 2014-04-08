@@ -719,7 +719,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     }
 
                     try{
-                        long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(29*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
+                        long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(28*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
 
 
                         qtWr.write(0, tempBFI, dur);

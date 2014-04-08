@@ -64,14 +64,14 @@ public class
         if (nubotDimension.width > imgSize.width || nubotDimension.height> imgSize.height) {
             if (nubotDimension.width > imgSize.width) {
 
-              //  mutOffset.setLocation(imgSize.width/2, mutOffset.y);
+                mutOffset.setLocation(imgSize.width/2, mutOffset.y);
 
                 radius = (int)Math.ceil((double)imgSize.width / (double)(numMonsRadius));
                 //  offset.translate( ((oldRadius - radius) * numMonsRadius)/2, 0);
 
             }
             if (nubotDimension.height > imgSize.height) {
-                //mutOffset.setLocation(mutOffset.x,  -1*(imgSize.height/2));
+                mutOffset.setLocation(mutOffset.x,  -1*(imgSize.height/2));
                 radius = (int)Math.ceil((double)imgSize.height / (double)numMonsRadius);
                 //  offset.translate(0, -1* ((oldRadius - radius) * numMonsRadius)/2);
             }
