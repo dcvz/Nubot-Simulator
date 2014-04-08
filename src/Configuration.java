@@ -728,7 +728,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
                         qtWr.write(0, tempBFI, pba.getValue0()* 3);
                       //  System.out.println("MovieTimeScale: " + qtWr.getMovieTimeScale() + " mediaTimeScale: " +qtWr.getMediaTimeScale(0) + " Record size: " + record.size() + " mediaDuration(): " + qtWr.getMediaDuration(0) + " MoveDuration: " + qtWr.getMovieDuration());
-                        //ImageIO.write(tempBFI, "png", output);
 
                     }
 
@@ -737,7 +736,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         System.out.println(e.getMessage());
 
                     }
-                    timeElapsed += pba.getValue0();
+                    timeElapsed += pba.getValue1();
 
                 }
                 catch(Exception e)

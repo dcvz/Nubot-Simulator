@@ -212,7 +212,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             canvas.repaint();
                         }
                         statusSimulation.setText("Simulating...");
-                        totalTime+= map.executeTime;
+                            totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
                         statusTime.setText("Time: "+totalTime);
                     }
@@ -581,6 +581,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;
             Simulation.isRunning = false;
+            Simulation.isRecording = false;
             Simulation.agitationON = false;
 
             ///// Statusbar Text
