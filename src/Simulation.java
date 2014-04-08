@@ -7,7 +7,11 @@
 //
 
 
+
+import org.javatuples.Pair;
+
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class
@@ -48,6 +52,90 @@ public class
 
         return (-1 * Math.log(randNum)) / i;
     }
+    public static int caclulateProperRadiusMutateOffset(ArrayList<Monomer> ap, int radius, Point mutOffset,  Dimension imgSize) {
+
+         Pair<Point, Point> minMaxPair = calculateMinMax(ap, radius, mutOffset, imgSize);
+         Point minXY = minMaxPair.getValue0();
+         Point maxXY = minMaxPair.getValue1();
+         Dimension nubotDimension = calculateNubotDimension(ap, radius, mutOffset, imgSize);
+        int numMonsRadius = Math.max(nubotDimension.width, nubotDimension.height) / radius;
+
+
+        if (nubotDimension.width > imgSize.width || nubotDimension.height> imgSize.height) {
+            if (nubotDimension.width > imgSize.width) {
+
+              //  mutOffset.setLocation(imgSize.width/2, mutOffset.y);
+
+                radius = (int)Math.ceil((double)imgSize.width / (double)(numMonsRadius));
+                //  offset.translate( ((oldRadius - radius) * numMonsRadius)/2, 0);
+
+            }
+            if (nubotDimension.height > imgSize.height) {
+                //mutOffset.setLocation(mutOffset.x,  -1*(imgSize.height/2));
+                radius = (int)Math.ceil((double)imgSize.height / (double)numMonsRadius);
+                //  offset.translate(0, -1* ((oldRadius - radius) * numMonsRadius)/2);
+            }
+        } else {
+            if (minXY.x < 0) {
+                mutOffset.translate(Math.abs(minXY.x), 0);
+            }
+            if (minXY.y < 0) {
+
+
+                mutOffset.translate(0, -1* minXY.y);
+            }
+
+
+            if (maxXY.x + radius * 2 > imgSize.width) {
+                mutOffset.translate(-1 * Math.abs(imgSize.width - (maxXY.x + radius * 2)), 0);
+            }
+            if (maxXY.y + radius * 2 > imgSize.height) {
+
+                mutOffset.translate(0, -1 * (imgSize.height - (maxXY.y + radius * 2)));
+
+            }
+        }
+
+        return radius;
+
+    }
+
+
+    public static Dimension calculateNubotDimension(ArrayList<Monomer> monList, int radius, Point mutOffset, Dimension bounds )
+    {
+
+        Pair<Point, Point> minMaxPair = calculateMinMax(monList, radius,mutOffset, bounds );
+        Point minXY = minMaxPair.getValue0();
+        Point maxXY = minMaxPair.getValue1();
+
+        int nubotWidth = maxXY.x - minXY.x + radius * 2;
+        int nubotHeight = maxXY.y - minXY.y + radius * 2;
+
+
+
+        return new Dimension(nubotWidth, nubotHeight);
+    }
+    public static Pair<Point, Point> calculateMinMax(ArrayList<Monomer> monList, int radius, Point mutOffset, Dimension bounds)
+    {
+
+
+        Point maxXY = new Point(0, 0);
+        Point minXY = new Point(bounds.width/2, bounds.height/2);
+
+        for (Monomer m : monList) {
+            Point gridLocation = m.getLocation();
+            Point pixelLocation = Simulation.getCanvasPosition(gridLocation, mutOffset, radius);
+            maxXY.x = Math.max(maxXY.x, pixelLocation.x);
+            minXY.x = Math.min(minXY.x, pixelLocation.x);
+            maxXY.y = Math.max(maxXY.y, pixelLocation.y);
+            minXY.y = Math.min(minXY.y, pixelLocation.y);
+
+        }
+
+
+            return Pair.with(minXY, maxXY);
+    }
+
 
 
 }

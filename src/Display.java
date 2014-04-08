@@ -186,7 +186,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                         map.executeFrame();
                         if(Simulation.animate)
+                        {
+
                         canvas.repaint();
+                        }
                         statusSimulation.setText("Simulating...");
                         totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());

@@ -705,7 +705,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
                     g2.setColor(Color.black);
                     g2.drawString("Time: "  + timeElapsed + " Frame #: "  + frameCount, 0, 20 );
-                    radius = calculateNubotBounds(pba.getValue1(), offset, radius, new Dimension(800,600));
+                    radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue1(), radius, offset, new Dimension(800,600));
 
                     for(Monomer m : pba.getValue1())
                     {
@@ -751,65 +751,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
     }
 
-    public int calculateNubotBounds(ArrayList<Monomer> ap, Point offset, int radius, Dimension imgSize) {
-
-        int maxX = 0;
-        int minX = imgSize.width / 2;
-        int maxY = 0;
-        int minY = imgSize.height / 2;
-
-        for (Monomer m : ap) {
-            Point gridLocation = m.getLocation();
-            Point pixelLocation = Simulation.getCanvasPosition(gridLocation, offset, radius);
-            maxX = Math.max(maxX, pixelLocation.x);
-            minX = Math.min(minX, pixelLocation.x);
-            maxY = Math.max(maxY, pixelLocation.y);
-            minY = Math.min(minY, pixelLocation.y);
-
-        }
-        int nubotWidth = maxX - minX + radius * 2;
-        int nubotHeight = maxY - minY + radius * 2;
-        int numMonsRadius = Math.max(nubotWidth, nubotHeight) / radius;
-        int oldRadius = radius;
-
-        if (nubotWidth > imgSize.width || nubotHeight > imgSize.height) {
-            if (nubotWidth > imgSize.width) {
-
-                 offset.setLocation(imgSize.width/2, offset.y);
-
-                radius = (int)Math.ceil((double)imgSize.width / (double)(numMonsRadius));
-              //  offset.translate( ((oldRadius - radius) * numMonsRadius)/2, 0);
-
-            }
-            if (nubotHeight > imgSize.height) {
-                offset.setLocation(offset.x, -1*(imgSize.height/2));
-                radius = (int)Math.ceil((double)imgSize.height / (double)numMonsRadius);
-              //  offset.translate(0, -1* ((oldRadius - radius) * numMonsRadius)/2);
-            }
-        } else {
-            if (minX < 0) {
-                offset.translate(Math.abs(minX), 0);
-            }
-            if (minY < 0) {
-
-
-                offset.translate(0, minY);
-            }
-
-
-            if (maxX + radius * 2 > imgSize.width) {
-                offset.translate(-1 * Math.abs(imgSize.width - (maxX + radius * 2)), 0);
-            }
-            if (maxY + radius * 2 > imgSize.height) {
-
-                offset.translate(0, -1 * (imgSize.height - (maxY + radius * 2)));
-
-            }
-        }
-
-        return radius;
-
-    }
 
     private void drawMonomer(Monomer m, Graphics2D g, int radius, Point offset)
     {
