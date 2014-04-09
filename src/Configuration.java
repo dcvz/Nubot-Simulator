@@ -689,7 +689,7 @@ public class Configuration extends HashMap<Point, Monomer>
             QuickTimeWriter qtWr = new QuickTimeWriter(new File("Test.mov"));
             qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
 
-            double timeElapsed = 0;
+            double timeEl = 0;
 
            //******
            //*Calculations to adjust the timings to be closer to nubot time
@@ -700,6 +700,7 @@ public class Configuration extends HashMap<Point, Monomer>
            long targetNumFrames = Math.round( timeElapsed ) * qtWr.getMediaTimeScale(0);  //TNF
 
             //the ideal duration to render each nubot frame to hit the ideal video frame count
+
             double targetFrameDuration = (double)targetNumFrames / (double)record.size();  //TFD
 
             //round of the target frame duration, this will be default timing
@@ -723,7 +724,6 @@ public class Configuration extends HashMap<Point, Monomer>
 
                 try {
 
-                    File output = new File(recordLocation + ++frameCount + ".png");
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
                     int  radius = 15;
                     Point offset = new Point(400, -300 );
@@ -735,7 +735,7 @@ public class Configuration extends HashMap<Point, Monomer>
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                     g2.setColor(Color.black);
-                    g2.drawString("Time: "  + timeElapsed + " Frame #: "  + frameCount, 0, 20 );
+                    g2.drawString("Time: "  + timeEl + " Frame #: "  + frameCount, 0, 20 );
                     radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue2(), radius, offset, new Dimension(800,600));
 
                     for(Monomer m : pba.getValue2())
@@ -759,6 +759,8 @@ public class Configuration extends HashMap<Point, Monomer>
 
                         }
                         else duration = normalDuration;
+
+
                         qtWr.write(0, tempBFI, duration  );
                         carryCounter++;
 
@@ -769,7 +771,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         System.out.println(e.getMessage());
 
                     }
-                  timeElapsed += pba.getValue1();
+                  timeEl += pba.getValue1();
 
                 }
                 catch(Exception e)
@@ -782,7 +784,7 @@ public class Configuration extends HashMap<Point, Monomer>
         }
         catch(Exception e)
         {
-
+              System.out.println(e.getMessage());
         }
 
     }
