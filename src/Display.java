@@ -16,6 +16,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.image.Raster;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -132,7 +133,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusConfig.setText("No config ");
         statusAgitation.setText("Agitation off ");
         statusSpeed.setText("Speed: "+ speedRate);
-        statusTime.setText("Time: " + totalTime);
+        statusTime.setText("Time: "+ map.timeElapsed);
         statusMonomerNumber.setText("Monomers: "+map.getSize());
 
         JSeparator statusSeparator1 = new JSeparator(SwingConstants.VERTICAL);
@@ -186,6 +187,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if(!Simulation.isRecording)
                         Thread.sleep((long) (speedRate*1000.0*map.executeTime));
 
+
                         map.executeFrame();
                         if(Simulation.animate)
                         {
@@ -214,7 +216,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         statusSimulation.setText("Simulating...");
                             totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
-                        statusTime.setText("Time: "+totalTime);
+                        statusTime.setText("Time: "+ map.timeElapsed);
                     }
                     catch(Exception e)
                     {
@@ -457,7 +459,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         else if (e.getSource() == loadC)
         {
             map.timeElapsed = 0;
-            statusTime.setText("0.0");
+            statusTime.setText("Time: "+ map.timeElapsed);
             map.clear();
             try
             {
@@ -576,7 +578,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             map.clear();
             map.rules.clear();
             map.timeElapsed = 0;
-            statusTime.setText("0.0");
+            statusTime.setText("Time: "+ map.timeElapsed);
             /////Simulation Flags
             Simulation.configLoaded = false;
             Simulation.rulesLoaded = false;

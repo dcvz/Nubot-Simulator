@@ -47,7 +47,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
     Runnable recordRunnable;
     String recordLocation = ".";
-    // ExecutorService executorService =  Executors.newFixedThreadPool(4);
+    ExecutorService executorService =  Executors.newFixedThreadPool(4);
     private ArrayList<Triplet<Integer ,Double, ArrayList<Monomer>>> recordFrameHistory;
 
     //================================================================================
@@ -167,13 +167,13 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                 monList.add(new Monomer(m));
             }
-            timeAccum +=executeTime;
-            if(timeAccum > 1.0/(double)frameRate) {
-                long repeat = Math.round( (timeAccum) /  (1.0/(double)frameRate));
+          //  timeAccum +=executeTime;
+           // if(timeAccum > 1.0/(double)frameRate) {
+           long repeat = Math.round( (timeAccum) /  (1.0/(double)frameRate));
 
                  recordFrameHistory.add(Triplet.with((int)repeat,frametime, monList));
                 timeAccum = 0;
-            }
+          //  }
 
             if(timeElapsed > Simulation.recordingLength || isFinished)
             {
@@ -691,6 +691,33 @@ public class Configuration extends HashMap<Point, Monomer>
 
             double timeElapsed = 0;
 
+           //******
+           //*Calculations to adjust the timings to be closer to nubot time
+
+
+            //number of frames that would have to be rendered to hit closest to the nubot timing
+            //30FPS
+           long targetNumFrames = Math.round( timeElapsed ) * qtWr.getMediaTimeScale(0);  //TNF
+
+            //the ideal duration to render each nubot frame to hit the ideal video frame count
+            double targetFrameDuration = (double)targetNumFrames / (double)record.size();  //TFD
+
+            //round of the target frame duration, this will be default timing
+            long normalDuration = Math.round(targetFrameDuration);
+            //now calculate the amount of missed frames because of the round
+            double missedFrames = (normalDuration - targetFrameDuration) * record.size();
+
+            //now get the amount of frames to skip to increment or decrement by 1 to adjust to nubot timing
+            int everySoFramesIncDec = record.size() / Math.abs((int)missedFrames);
+
+            //get inc or dec
+            int IncDec = missedFrames > 0 ? -1 : 1;
+            long duration = 0;
+
+            //will be the frame counter, reset when we inc or dec
+            int carryCounter = 0;
+
+            //****************
             for(Triplet<Integer,Double, ArrayList<Monomer>> pba : record)
             {
 
@@ -723,11 +750,17 @@ public class Configuration extends HashMap<Point, Monomer>
                     }
 
                     try{
-                        //long dur = 30*pba.getValue0() < 1 ? 2 - 1*(Math.round(28*pba.getValue0()) )  : (long)(30*pba.getValue0())  ;
 
+                        if(carryCounter >=everySoFramesIncDec)
+                        {
+                            carryCounter = 0;
+                            duration = normalDuration + IncDec;
+                             System.out.println("incdec");
 
-                        qtWr.write(0, tempBFI, pba.getValue0()* 3);
-                      //  System.out.println("MovieTimeScale: " + qtWr.getMovieTimeScale() + " mediaTimeScale: " +qtWr.getMediaTimeScale(0) + " Record size: " + record.size() + " mediaDuration(): " + qtWr.getMediaDuration(0) + " MoveDuration: " + qtWr.getMovieDuration());
+                        }
+                        else duration = normalDuration;
+                        qtWr.write(0, tempBFI, duration  );
+                        carryCounter++;
 
                     }
 
@@ -736,7 +769,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         System.out.println(e.getMessage());
 
                     }
-                    timeElapsed += pba.getValue1();
+                  timeElapsed += pba.getValue1();
 
                 }
                 catch(Exception e)
