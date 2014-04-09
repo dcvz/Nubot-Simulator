@@ -159,6 +159,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         statusBar.add(statusSeparator4);
         statusBar.add(statusSpeed);
         statusBar.add(statusSeparator5);
+
         statusBar.add(statusMonomerNumber);
         statusBar.add(statusSeparator6);
         statusBar.add(statusTime);
@@ -199,7 +200,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             {
                             if(minXY.x < 0)
                                 Simulation.canvasXYoffset.translate(-1*minXY.x,0);
-                            if(maxXY.x + Simulation.monomerRadius*2 > canvas.getWidth());
+                            if(maxXY.x + Simulation.monomerRadius*2 > canvas.getWidth())
                                 Simulation.canvasXYoffset.translate(canvas.getWidth() - (maxXY.x + Simulation.monomerRadius*2), 0);
                             }
                             if(nubotDim.height < canvas.getHeight())
