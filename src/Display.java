@@ -841,7 +841,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void mouseWheelMoved(MouseWheelEvent e)
     {
-        if (e.getWheelRotation() == 1.0)
+
+        {
+           System.out.println(Simulation.monomerRadius);
+        if (e.getWheelRotation() == 1.0 &&  Simulation.monomerRadius > 2)
         {
             Simulation.monomerRadius = (int)Math.round(Simulation.monomerRadius * .92);
             canvasStrokeSize = Simulation.monomerRadius/3;
@@ -852,12 +855,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             canvas.repaint();
         }
 
-        else
+        else if(Simulation.monomerRadius < canvas.getWidth()/10)
         {
-            Simulation.monomerRadius = (int)Math.floor(Simulation.monomerRadius * 1.08);
+            Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * 1.08);
             canvasStrokeSize = Simulation.monomerRadius/3;
             //if(!Simulation.isRunning)
             canvas.repaint();
+        }
         }
     }
 
