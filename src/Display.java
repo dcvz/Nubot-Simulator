@@ -843,8 +843,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     {
         if (e.getWheelRotation() == 1.0)
         {
-            Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * .92);
+            Simulation.monomerRadius = (int)Math.round(Simulation.monomerRadius * .92);
             canvasStrokeSize = Simulation.monomerRadius/3;
+
+
 
             //  if(!Simulation.isRunning)
             canvas.repaint();
@@ -852,7 +854,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         else
         {
-            Simulation.monomerRadius = (int)Math.ceil(Simulation.monomerRadius * 1.08);
+            Simulation.monomerRadius = (int)Math.floor(Simulation.monomerRadius * 1.08);
             canvasStrokeSize = Simulation.monomerRadius/3;
             //if(!Simulation.isRunning)
             canvas.repaint();

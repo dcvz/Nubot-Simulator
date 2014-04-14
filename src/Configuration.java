@@ -717,7 +717,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
             //will be the frame counter, reset when we inc or dec
             int carryCounter = 0;
-
+            int  radius = 15;
             //****************
             for(Triplet<Integer,Double, ArrayList<Monomer>> pba : record)
             {
@@ -725,7 +725,7 @@ public class Configuration extends HashMap<Point, Monomer>
                 try {
 
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-                    int  radius = 15;
+
                     Point offset = new Point(400, -300 );
 
                     Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
