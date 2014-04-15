@@ -62,6 +62,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JCheckBoxMenuItem agitationToggle = new JCheckBoxMenuItem("On");
     private JMenuItem agitationSetRate = new JMenuItem("Set Rate");
 
+    private JPopupMenu editMonMenu = new JPopupMenu();
+
     //Status bar
 
     JPanel statusBar = new JPanel();
@@ -88,6 +90,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //For panning
     Point lastXY;
     Point dragCnt = new Point(0,0);
+
+
+    //Monomer edditting
+
+    Monomer lastMon = null;
 
     public Display(Dimension size)
     {
@@ -353,6 +360,49 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         aboutF.add(aboutP);
         aboutF.pack();
         aboutF.setVisible(false);
+
+
+
+       //popup menu
+      final JMenuItem removeMonomerMI = new JMenuItem("Remove");
+       final JMenuItem changeStateMI = new JMenuItem("State");
+
+        ActionListener edit = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(e.getSource() == removeMonomerMI)
+                {
+                    map.remove(lastMon.getLocation());
+                    for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_FLEXIBLE))
+                    {
+                        (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
+
+                    }
+                    for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_RIGID))
+                    {
+                        (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
+
+                    }
+                    canvas.repaint();
+
+                }
+                else if(e.getSource() == changeStateMI)
+                {
+                      String state =JOptionPane.showInputDialog("New State:");
+                        if(!state.isEmpty())
+                            lastMon.setState(state);
+                    canvas.repaint();
+                }
+            }
+        };
+        editMonMenu.add(changeStateMI);
+        editMonMenu.add(removeMonomerMI);
+        removeMonomerMI.addActionListener(edit);
+        changeStateMI.addActionListener(edit);
+
+
+
+
     }
 
     @Override
@@ -865,12 +915,103 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void mouseDragged(MouseEvent e)
     {
-        if(lastXY==null)
-            lastXY = e.getPoint();
-        Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, -(e.getY()  - lastXY.y) );
-        dragCnt.translate(e.getX()  - lastXY.x, e.getY() - lastXY.y );
 
-        lastXY = e.getPoint();
+
+        if(e.isAltDown())
+        {
+            boolean fin = false;
+            Monomer tmp = null;
+            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+             if(map.containsKey(gp))
+             {
+                 tmp = map.get(gp) ;
+
+
+             }else fin=true ;
+
+
+             if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
+             {
+
+
+                 lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_RIGID);
+                 tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_RIGID);
+
+                  canvas.repaint();
+
+
+             }
+            lastMon = tmp;
+
+
+        }
+        else if(e.isShiftDown())
+        {
+            boolean fin = false;
+            Monomer tmp = null;
+            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+            if(map.containsKey(gp))
+            {
+                tmp = map.get(gp) ;
+
+
+            }else fin=true ;
+
+
+            if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
+            {
+
+
+                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_FLEXIBLE);
+                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_FLEXIBLE);
+
+                canvas.repaint();
+
+
+            }
+            lastMon = tmp;
+        }
+        else if(SwingUtilities.isMiddleMouseButton(e))
+        {
+            boolean fin = false;
+            Monomer tmp = null;
+            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+            if(map.containsKey(gp))
+            {
+                tmp = map.get(gp);
+
+
+
+
+            }else fin=true ;
+
+
+            if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
+            {
+
+
+                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_NONE);
+                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_NONE);
+
+
+
+                canvas.repaint();
+
+
+            }
+            lastMon = tmp;
+        }
+        else if(SwingUtilities.isLeftMouseButton(e))
+        {
+            if(lastXY==null)
+                lastXY = e.getPoint();
+            Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, -(e.getY()  - lastXY.y) );
+            dragCnt.translate(e.getX()  - lastXY.x, e.getY() - lastXY.y );
+
+            lastXY = e.getPoint();
+        }
+
+
         //if(!Simulation.isRunning)
         canvas.repaint();
     }
@@ -887,12 +1028,29 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         System.out.println(e.getPoint() + " and " + Simulation.getCanvasToGridPosition(e.getPoint()) + " canvXYOf: " + Simulation.canvasXYoffset);
 
 
-
-        if(map.containsKey(Simulation.getCanvasToGridPosition(e.getPoint())))
+        Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+        if(map.containsKey(gp))
         {
              Monomer tmp = map.get(Simulation.getCanvasToGridPosition(e.getPoint()));
+            lastMon=tmp;
           //  tmp.setState("awe");
             posLockMon = tmp;
+        }
+        if(e.isControlDown() && SwingUtilities.isRightMouseButton(e) )
+        {
+
+
+            if( !map.containsKey(gp))
+            {
+
+                String state = JOptionPane.showInputDialog("State: ");
+                if(!state.isEmpty())
+                    map.addMonomer(new Monomer(gp, state));
+            }
+        }
+        else if(map.containsKey(gp)&& SwingUtilities.isRightMouseButton(e))
+        {
+            editMonMenu.show(canvas, e.getX(), e.getY());
         }
 
         canvas.repaint();
