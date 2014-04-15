@@ -38,7 +38,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Configuration map;
 
     //GRaphics
-
+    Monomer posLockMon;
     float canvasStrokeSize = 2.0f;
 
     //Menus
@@ -86,6 +86,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     //For panning
     Point lastXY;
+    Point dragCnt = new Point(0,0);
 
     public Display(Dimension size)
     {
@@ -186,34 +187,21 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     try
                     {
                         if(!Simulation.isRecording)
-                        Thread.sleep((long) (speedRate*1000.0*map.executeTime));
+                        Thread.sleep((long) (30 + speedRate*1000.0*map.executeTime));
 
 
                         map.executeFrame();
-                        if(Simulation.animate)
-                        {
-                            Pair<Point,Point>  minMaxPair = Simulation.calculateMinMax(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, Simulation.canvasXYoffset, canvas.getSize());
-                            Point minXY = minMaxPair.getValue0();
-                            Point maxXY = minMaxPair.getValue1();
-                            Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, Simulation.canvasXYoffset, canvas.getSize());
-                            if(nubotDim.width < canvas.getWidth()  )
+
+                            if(Simulation.agitationON)
                             {
-                            if(minXY.x < 0)
-                                Simulation.canvasXYoffset.translate(-1*minXY.x,0);
-                            if(maxXY.x + Simulation.monomerRadius*2 > canvas.getWidth())
-                                Simulation.canvasXYoffset.translate(canvas.getWidth() - (maxXY.x + Simulation.monomerRadius*2), 0);
-                            }
-                            if(nubotDim.height < canvas.getHeight())
-                            {
-                            if(minXY.y < 0)
-                               Simulation.canvasXYoffset.translate(0, minXY.y);
-                            if(maxXY.y > canvas.getHeight())
-                                Simulation.canvasXYoffset.translate(0, (maxXY.y + Simulation.monomerRadius*2) - canvas.getHeight());
+                                Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
+                                Simulation.canvasXYoffset.translate(canvas.getWidth()/2 - monLockCVPos.x  + dragCnt.x, -canvas.getHeight()/2 + monLockCVPos.y - dragCnt.y );
+
                             }
 
 
                             canvas.repaint();
-                        }
+
                         statusSimulation.setText("Simulating...");
                             totalTime+= map.executeTime;
                         statusMonomerNumber.setText("Monomers: "+map.getSize());
@@ -441,6 +429,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                         if (Simulation.rulesLoaded && Simulation.configLoaded)
                         {
+
+                            Random rand = new Random(System.currentTimeMillis());
+                            posLockMon = (Monomer)map.values().toArray()[rand.nextInt(map.size())];
+                            System.out.println(rand.nextInt());
                             simStart.setEnabled(true);
                             record.setEnabled(true);
                             statusSimulation.setText("Ready to Start ");
@@ -454,6 +446,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             {
 
             }
+
 
             System.out.println("Load Rules");
         }
@@ -558,7 +551,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         canvas.repaint();
                         if (Simulation.configLoaded && (Simulation.rulesLoaded || Simulation.agitationON))
                         {
-
+                            Random rand = new Random();
+                            posLockMon = (Monomer)map.values().toArray()[rand.nextInt(map.size())];
+                            System.out.println(posLockMon.getState());
                             simStart.setEnabled(true);
                             record.setEnabled(true);
                             statusSimulation.setText("Ready to Start");
@@ -871,6 +866,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         if(lastXY==null)
             lastXY = e.getPoint();
         Simulation.canvasXYoffset.translate(e.getX()  - lastXY.x, -(e.getY()  - lastXY.y) );
+        dragCnt.translate(e.getX()  - lastXY.x, e.getY() - lastXY.y );
 
         lastXY = e.getPoint();
         //if(!Simulation.isRunning)
@@ -885,6 +881,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void mouseClicked(MouseEvent e)
     {
+
+        System.out.println(e.getPoint() + " and " + Simulation.getCanvasToGridPosition(e.getPoint()) + " canvXYOf: " + Simulation.canvasXYoffset);
+
+
+
+        if(map.containsKey(Simulation.getCanvasToGridPosition(e.getPoint())))
+        {
+             Monomer tmp = map.get(Simulation.getCanvasToGridPosition(e.getPoint()));
+            tmp.setState("awe");
+        }
+
+        canvas.repaint();
     }
 
     @Override

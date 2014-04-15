@@ -717,7 +717,7 @@ public class Configuration extends HashMap<Point, Monomer>
 
             //will be the frame counter, reset when we inc or dec
             int carryCounter = 0;
-            int  radius = 15;
+            int  radius = 5;
             //****************
             for(Triplet<Integer,Double, ArrayList<Monomer>> pba : record)
             {
@@ -761,7 +761,7 @@ public class Configuration extends HashMap<Point, Monomer>
                         else duration = normalDuration;
 
 
-                        qtWr.write(0, tempBFI, duration  );
+                        qtWr.write(0, tempBFI, 1  );
                         carryCounter++;
 
                     }
