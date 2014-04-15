@@ -27,7 +27,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
-public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener
+public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener, KeyListener
+
 {
     int fontSize = 20;
     Timer timer;
@@ -114,6 +115,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         System.out.println(canvas.getSize());
         mainFrame.setVisible(true);
         mainFrame.addComponentListener(this);
+        mainFrame.addKeyListener(this);
         canvas.addMouseWheelListener(this);
         canvas.addMouseMotionListener(this);
         canvas.addMouseListener(this);
@@ -889,7 +891,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         if(map.containsKey(Simulation.getCanvasToGridPosition(e.getPoint())))
         {
              Monomer tmp = map.get(Simulation.getCanvasToGridPosition(e.getPoint()));
-            tmp.setState("awe");
+          //  tmp.setState("awe");
+            posLockMon = tmp;
         }
 
         canvas.repaint();
@@ -914,5 +917,37 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void mouseExited(MouseEvent e)
     {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_SPACE)
+        {
+
+            if(!Simulation.isPaused)
+            {
+                timer.stop();
+                Simulation.isRunning = false;
+                Simulation.isPaused = true;
+            }
+            else
+            {
+                timer.start();
+                simHeartBeat = new Thread(simRunnable);
+                simHeartBeat.start();
+                Simulation.isRunning = true;
+                Simulation.isPaused = false;
+            }
+        }
     }
 }
