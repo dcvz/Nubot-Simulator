@@ -196,17 +196,25 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     try
                     {
                         if(!Simulation.isRecording)
-                        Thread.sleep((long) (30 + speedRate*1000.0*map.executeTime));
+                         Thread.sleep((long) (30 + speedRate*1000.0*map.executeTime));
 
 
                         map.executeFrame();
 
+                        if(posLockMon!=null && map.containsKey(posLockMon.getLocation()))
+                        {
                             if(Simulation.agitationON)
                             {
                                 Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
                                 Simulation.canvasXYoffset.translate(canvas.getWidth()/2 - monLockCVPos.x  + dragCnt.x, -canvas.getHeight()/2 + monLockCVPos.y - dragCnt.y );
 
                             }
+                        }
+                        else
+                        {
+                            Random rand  = new Random();
+                            posLockMon = (Monomer)map.values().toArray()[rand.nextInt(map.getSize())];
+                        }
 
 
                             canvas.repaint();
@@ -372,13 +380,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == removeMonomerMI)
                 {
-
+                     ArrayList<Byte> tmpDirListRig =    (ArrayList<Byte>)lastMon.getNeighborBondDirs().get(Bond.TYPE_RIGID).clone();
                     for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_FLEXIBLE))
                     {
                         (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
 
                     }
-                    for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_RIGID))
+
+                    for(Byte b : tmpDirListRig )
                     {
                         (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
 

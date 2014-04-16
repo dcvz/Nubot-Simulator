@@ -167,17 +167,27 @@ public class Configuration extends HashMap<Point, Monomer>
             {
                 monList.add(new Monomer(m));
             }
-          //  timeAccum +=executeTime;
-           // if(timeAccum > 1.0/(double)frameRate) {
-           long repeat = Math.round( (timeAccum) /  (1.0/(double)frameRate));
 
-                 recordFrameHistory.add(Triplet.with((int)repeat,frametime, monList));
+            if(Simulation.agitationON)
+            {
+              timeAccum +=executeTime;
+              if(timeAccum > .005) {
+
+                 System.out.println(timeAccum + " " + recordFrameHistory.size());
+                recordFrameHistory.add(Triplet.with(1,frametime, monList));
                 timeAccum = 0;
-          //  }
+              }
+
+
+            }
+            else
+            {   System.out.print("#$@#");
+                recordFrameHistory.add(Triplet.with(1,frametime, monList));
+            }
 
             if(timeElapsed > Simulation.recordingLength || isFinished)
             {
-                saveRecord("dog.ser");
+               // saveRecord("dog.ser");
                 saveVideo("dog.ser");
                 Simulation.isRecording = false;
                 Simulation.isRunning = false;
@@ -680,7 +690,7 @@ public class Configuration extends HashMap<Point, Monomer>
     public void saveVideo(String recordLocation)
     {
         System.out.println("DFGDFG");
-        ArrayList<Triplet<Integer,Double, ArrayList<Monomer>>> record = readRecord(recordLocation);
+        ArrayList<Triplet<Integer,Double, ArrayList<Monomer>>> record = recordFrameHistory;//readRecord(recordLocation);
         int frameCount = 0;
         boolean avi = false;
 
@@ -701,32 +711,38 @@ public class Configuration extends HashMap<Point, Monomer>
 
             //the ideal duration to render each nubot frame to hit the ideal video frame count
 
-            double targetFrameDuration = (double)targetNumFrames / (double)record.size();  //TFD
+         //   double targetFrameDuration = (double)targetNumFrames / (double)record.size();  //TFD
 
             //round of the target frame duration, this will be default timing
-            long normalDuration = Math.round(targetFrameDuration);
+           // long normalDuration = Math.round(targetFrameDuration);
             //now calculate the amount of missed frames because of the round
-            double missedFrames = (normalDuration - targetFrameDuration) * record.size();
+           // double missedFrames = (normalDuration - targetFrameDuration) * record.size();
 
             //now get the amount of frames to skip to increment or decrement by 1 to adjust to nubot timing
-            int everySoFramesIncDec = record.size() / Math.abs((int)missedFrames);
+          //  int everySoFramesIncDec = record.size() / Math.abs((int)missedFrames);
 
             //get inc or dec
-            int IncDec = missedFrames > 0 ? -1 : 1;
+          //  int IncDec = missedFrames > 0 ? -1 : 1;
             long duration = 0;
 
             //will be the frame counter, reset when we inc or dec
             int carryCounter = 0;
             int  radius = 5;
+            boolean start = true;
+            Random rand = new Random();
+            Monomer posLockMon = null;
+            Point offset = new Point(400, -300 );
+
             //****************
             for(Triplet<Integer,Double, ArrayList<Monomer>> pba : record)
             {
 
                 try {
 
+
                     BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
 
-                    Point offset = new Point(400, -300 );
+
 
                     Graphics2D g2 = (Graphics2D)tempBFI.getGraphics();
                     g2.setBackground(Color.white);
@@ -737,6 +753,8 @@ public class Configuration extends HashMap<Point, Monomer>
                     g2.setColor(Color.black);
                     g2.drawString("Time: "  + timeEl + " Frame #: "  + frameCount, 0, 20 );
                     radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue2(), radius, offset, new Dimension(800,600));
+                   // offset.translate(400 - Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).x, -300 + Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).y );
+                   // System.out.println(posLockMon.getLocation());
 
                     for(Monomer m : pba.getValue2())
                     {
@@ -749,16 +767,18 @@ public class Configuration extends HashMap<Point, Monomer>
 
                     }
 
+
+
                     try{
 
-                        if(carryCounter >=everySoFramesIncDec)
+                       // if(carryCounter >=everySoFramesIncDec)
                         {
                             carryCounter = 0;
-                            duration = normalDuration + IncDec;
+                          //  duration = normalDuration + IncDec;
                              System.out.println("incdec");
 
                         }
-                        else duration = normalDuration;
+                       // else duration = normalDuration;
 
 
                         qtWr.write(0, tempBFI, 1  );
