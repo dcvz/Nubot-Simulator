@@ -372,7 +372,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == removeMonomerMI)
                 {
-                    map.remove(lastMon.getLocation());
+
                     for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_FLEXIBLE))
                     {
                         (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
@@ -383,6 +383,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
 
                     }
+                    map.remove(lastMon.getLocation());
                     canvas.repaint();
 
                 }

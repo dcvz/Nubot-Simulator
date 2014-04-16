@@ -85,9 +85,10 @@ public class
                 mutOffset.translate(0, radius*2);
 
             }
-        } else {
+        }
+
             if (minXY.x < 0) {
-                mutOffset.translate(Math.abs(minXY.x) + radius, 0);
+               // mutOffset.translate(Math.abs(minXY.x) + radius, 0);
             }
             if (minXY.y < 0) {
 
@@ -104,7 +105,7 @@ public class
                 mutOffset.translate(0, -1 * (imgSize.height - (maxXY.y + radius * 2)));
 
             }
-        }
+
 
         return radius;
 

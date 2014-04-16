@@ -23,5 +23,8 @@ public class Main
                 Display mainWindow = new Display(window);
             }
         });
+
+
+
     }
 }
