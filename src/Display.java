@@ -918,91 +918,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     {
 
 
-        if(e.isAltDown())
-        {
-            boolean fin = false;
-            Monomer tmp = null;
-            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
-             if(map.containsKey(gp))
-             {
-                 tmp = map.get(gp) ;
-
-
-             }else fin=true ;
-
-
-             if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
-             {
-
-
-                 lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_RIGID);
-                 tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_RIGID);
-
-                  canvas.repaint();
-
-
-             }
-            lastMon = tmp;
-
-
-        }
-        else if(e.isShiftDown())
-        {
-            boolean fin = false;
-            Monomer tmp = null;
-            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
-            if(map.containsKey(gp))
-            {
-                tmp = map.get(gp) ;
-
-
-            }else fin=true ;
-
-
-            if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
-            {
-
-
-                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_FLEXIBLE);
-                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_FLEXIBLE);
-
-                canvas.repaint();
-
-
-            }
-            lastMon = tmp;
-        }
-        else if(SwingUtilities.isMiddleMouseButton(e))
-        {
-            boolean fin = false;
-            Monomer tmp = null;
-            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
-            if(map.containsKey(gp))
-            {
-                tmp = map.get(gp);
-
-
-
-
-            }else fin=true ;
-
-
-            if(!fin && lastMon!=null && tmp!= null && !tmp.equals(lastMon))
-            {
-
-
-                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation() ), Bond.TYPE_NONE);
-                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation() ), Bond.TYPE_NONE);
-
-
-
-                canvas.repaint();
-
-
-            }
-            lastMon = tmp;
-        }
-        else if(SwingUtilities.isLeftMouseButton(e))
+        if(SwingUtilities.isLeftMouseButton(e))
         {
             if(lastXY==null)
                 lastXY = e.getPoint();
@@ -1010,6 +926,41 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             dragCnt.translate(e.getX()  - lastXY.x, e.getY() - lastXY.y );
 
             lastXY = e.getPoint();
+        }
+
+
+        if(SwingUtilities.isRightMouseButton(e)) {
+            boolean fin = false;
+            Monomer tmp = null;
+            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+            if (map.containsKey(gp)) {
+                tmp = map.get(gp);
+
+
+            } else fin = true;
+
+
+            if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
+
+                if (e.isAltDown() && e.isShiftDown()) {
+                    lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_NONE);
+                    tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_NONE);
+                } else if (e.isShiftDown()) {
+                    lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_RIGID);
+                    tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_RIGID);
+
+                }
+                else if (e.isAltDown()) {
+                    lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_FLEXIBLE);
+                    tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
+                }
+
+                canvas.repaint();
+
+
+            }
+            lastMon = tmp;
+
         }
 
 
