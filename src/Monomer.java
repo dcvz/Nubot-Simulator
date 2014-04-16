@@ -7,10 +7,7 @@
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Monomer implements Serializable{
     static final long serialVersionUID = 1234L;
@@ -38,11 +35,21 @@ public class Monomer implements Serializable{
      */
     private HashMap<Byte, ArrayList<Byte>> neighborBondDirs = new HashMap<Byte, ArrayList<Byte>>();//Hashmap(BondType, ArrayList<Direction>)
 
+
+    /**
+     * id
+     * @serial
+     */
+    private  int id;
+
     //================================================================================
     // Constructors
     //================================================================================
     public Monomer(Monomer m)
     {
+
+
+        this.id = m.getId();
         this.state = m.getState();
         this.location = m.getLocation();
         Set<Map.Entry<Byte, ArrayList<Byte>>> copyFrom1 =   m.getNeighborBondDirs().entrySet();
@@ -65,9 +72,15 @@ public class Monomer implements Serializable{
 
 
     }
+    public int getId()
+    {
+        return id;
+    }
     public Monomer(Point p, String s) {
         this.location = p;
         this.state = s;
+        Random rand = new Random();
+        this.id = rand.nextInt();
         neighborBondDirs.put(Bond.TYPE_RIGID, new ArrayList<Byte>());
         neighborBondDirs.put(Bond.TYPE_FLEXIBLE, new ArrayList<Byte>());
         neighborBondDirs.put(Bond.TYPE_NONE, new ArrayList<Byte>());
@@ -77,6 +90,7 @@ public class Monomer implements Serializable{
         neighborBonds.put(Direction.TYPE_FLAG_SOUTHWEST, Bond.TYPE_NONE);
         neighborBonds.put(Direction.TYPE_FLAG_NORTHWEST, Bond.TYPE_NONE);
         neighborBonds.put(Direction.TYPE_FLAG_WEST, Bond.TYPE_NONE);
+
     }
 
     //================================================================================
@@ -131,7 +145,10 @@ public class Monomer implements Serializable{
     */
 
     public byte getBondTypeByDir(byte direction) {
-        return neighborBonds.get(direction);
+            if(direction < 33 && direction%2 == 0)
+             return neighborBonds.get(direction);
+        return 0;
+
     }
 
     public ArrayList<Byte> getDirsByBondType(byte bondType) {

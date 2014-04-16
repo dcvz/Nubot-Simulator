@@ -216,7 +216,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             posLockMon = (Monomer)map.values().toArray()[rand.nextInt(map.getSize())];
                         }
 
-
+                            if(Simulation.animate)
                             canvas.repaint();
 
                         statusSimulation.setText("Simulating...");
@@ -380,19 +380,35 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource() == removeMonomerMI)
                 {
-                     ArrayList<Byte> tmpDirListRig =    (ArrayList<Byte>)lastMon.getNeighborBondDirs().get(Bond.TYPE_RIGID).clone();
-                    for(Byte b : lastMon.getNeighborBondDirs().get(Bond.TYPE_FLEXIBLE))
-                    {
-                        (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
 
+
+                    byte dir = 1;
+                    if(lastMon != null)
+                    {
+                    for(int i =0; i < 6; i++ )
+                    {
+
+                        if(lastMon.hasBonds())
+                        {
+
+
+                                if(map.containsKey(Direction.getNeighborPosition(lastMon.getLocation(), dir)))
+                                {
+                                    Monomer neighbor = map.get(Direction.getNeighborPosition(lastMon.getLocation(), dir)) ;
+                                    System.out.println(Direction.getOppositeDir(Direction.TYPE_FLAG_EAST));
+                                    neighbor.adjustBond(Direction.getOppositeDir(dir), Bond.TYPE_NONE);
+                                    System.out.println(neighbor.hasBonds() + "SDFS");
+                                }
+
+
+
+                            dir = (byte)(dir <<1);
+                        }
+                        }
+                       map.remove(lastMon.getLocation());
                     }
 
-                    for(Byte b : tmpDirListRig )
-                    {
-                        (map.get(Direction.getNeighborPosition(lastMon.getLocation(), b))).adjustBond( Direction.getOppositeDir(b), Bond.TYPE_NONE);
 
-                    }
-                    map.remove(lastMon.getLocation());
                     canvas.repaint();
 
                 }
@@ -949,8 +965,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             } else fin = true;
 
 
-            if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
 
+            if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
+                System.out.println(tmp.getLocation() + " " + lastMon.getLocation());
                 if (e.isAltDown() && e.isShiftDown()) {
                     lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_NONE);
                     tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_NONE);
@@ -962,6 +979,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 else if (e.isAltDown()) {
                     lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_FLEXIBLE);
                     tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
+                    System.out.println(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()) + " " + tmp.getBondTypeByDir(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation())));
                 }
 
                 canvas.repaint();
