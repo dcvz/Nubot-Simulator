@@ -145,7 +145,7 @@ public class Monomer implements Serializable{
     */
 
     public byte getBondTypeByDir(byte direction) {
-            if(direction < 33 && direction%2 == 0)
+            if(direction < 33 && direction%2 == 0 || direction == 1)
              return neighborBonds.get(direction);
         return 0;
 

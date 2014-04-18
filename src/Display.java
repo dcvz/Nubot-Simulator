@@ -10,6 +10,8 @@ import org.javatuples.Pair;
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -44,12 +46,23 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     //Menus
     private JMenu file = new JMenu("File");
+    private JMenu edit = new JMenu("Edit");
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
     private JMenu help = new JMenu("Help");
     private JMenu agitationMenu = new JMenu("Agitation");
     private JMenu speedMenu = new JMenu("Speed");
     // create sub-menus for each menu
+    private ButtonGroup bondGroup = new ButtonGroup();
+    private ButtonGroup drawMode = new ButtonGroup();
+    private JCheckBoxMenuItem editToggle = new JCheckBoxMenuItem("Edit Mode");
+    private JRadioButton paint = new JRadioButton("Paint");
+    private JRadioButton single = new JRadioButton("Single");
+    private JRadioButton rigid = new JRadioButton("Rigid");
+    private JRadioButton flexible = new JRadioButton("Flexible");
+    private JRadioButton noBond = new JRadioButton("None");
+
+
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem about = new JMenuItem("About");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
@@ -268,6 +281,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         agitationToggle.addActionListener(this);
 
         menuBar.add(file);
+        menuBar.add(edit);
         menuBar.add(simulation);
         menuBar.add(settings);
         menuBar.add(help);
@@ -286,6 +300,30 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         agitationMenu.add(agitationToggle);
         agitationMenu.add(agitationSetRate);
         settings.add(speedMenu);
+
+        //Edit Menu
+
+         bondGroup = new ButtonGroup();
+        drawMode = new ButtonGroup();
+        bondGroup.add(rigid);
+        bondGroup.add(flexible);
+        bondGroup.add(noBond);
+        noBond.setSelected(true);
+        drawMode.add(paint);
+        drawMode.add(single);
+        single.setSelected(true);
+        paint.setHorizontalAlignment(JMenuItem.CENTER);
+
+        edit.add(editToggle);
+        edit.add(paint) ;
+        edit.add(single);
+        edit.add(new JLabel("-Bonds-"));
+        edit.add(rigid);
+        edit.add(flexible);
+        edit.add(noBond);
+
+
+
 
         mainFrame.setJMenuBar(menuBar);
         // speed Slider
@@ -371,9 +409,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
 
+
+
        //popup menu
       final JMenuItem removeMonomerMI = new JMenuItem("Remove");
        final JMenuItem changeStateMI = new JMenuItem("State");
+
 
         ActionListener edit = new ActionListener() {
             @Override
@@ -419,12 +460,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             lastMon.setState(state);
                     canvas.repaint();
                 }
+
             }
         };
         editMonMenu.add(changeStateMI);
         editMonMenu.add(removeMonomerMI);
+
         removeMonomerMI.addActionListener(edit);
         changeStateMI.addActionListener(edit);
+
 
 
 
@@ -955,6 +999,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
         if(SwingUtilities.isRightMouseButton(e)) {
+
+
             boolean fin = false;
             Monomer tmp = null;
             Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
@@ -966,8 +1012,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
 
-            if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
-                System.out.println(tmp.getLocation() + " " + lastMon.getLocation());
+           // if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
+             //  System.out.println(tmp.getLocation() + " " + lastMon.getLocation());
                 if (e.isAltDown() && e.isShiftDown()) {
                     lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_NONE);
                     tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_NONE);
@@ -981,11 +1027,17 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
                     System.out.println(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()) + " " + tmp.getBondTypeByDir(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation())));
                 }
+                if(e.isControlDown())
+                {
+                    if(paint.isSelected())
+                    map.addMonomer(new Monomer(Simulation.getCanvasToGridPosition(e.getPoint()), "A"));
+                    System.out.println("DD" + Simulation.getCanvasToGridPosition(e.getPoint()) + map.size());
+                }
 
                 canvas.repaint();
 
 
-            }
+           // }
             lastMon = tmp;
 
         }

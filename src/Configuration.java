@@ -753,9 +753,9 @@ public class Configuration extends HashMap<Point, Monomer>
                     g2.setColor(Color.black);
                     g2.drawString("Time: "  + timeEl + " Frame #: "  + frameCount, 0, 20 );
                     radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue2(), radius, offset, new Dimension(800,600));
-                   offset.translate(400 - Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).x, -300 + Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).y );
+                  // offset.translate(400 - Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).x, -300 + Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).y );
 
-                    System.out.println(posLockMon.getLocation());
+                  //  System.out.println(posLockMon.getLocation());
 
                     for(Monomer m : pba.getValue2())
                     {
