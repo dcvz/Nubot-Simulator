@@ -9,10 +9,8 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class AgtionSet extends ArrayList<Agtion>
-{
-    public Agtion selectArbitrary()
-    {
+public class AgtionSet extends ArrayList<Agtion> {
+    public Agtion selectArbitrary() {
         Random rand = new Random();
         int index = rand.nextInt(this.size());
 

@@ -9,13 +9,11 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class Main
-{
-    public static void main(String args[])
-    {
-        Toolkit toolkit =  Toolkit.getDefaultToolkit ();
+public class Main {
+    public static void main(String args[]) {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dim = toolkit.getScreenSize();
-        final Dimension window = new Dimension((int)(dim.width * .9), (int)(dim.height * .9));
+        final Dimension window = new Dimension((int) (dim.width * .9), (int) (dim.height * .9));
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -23,7 +21,6 @@ public class Main
                 Display mainWindow = new Display(window);
             }
         });
-
 
 
     }

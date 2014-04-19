@@ -8,8 +8,7 @@
 
 import java.awt.*;
 
-public class Agtion
-{
+public class Agtion {
     private Point mon;
     private Byte dir;
 
@@ -17,8 +16,7 @@ public class Agtion
     // Constructors
     //================================================================================
 
-    public Agtion(Point p, Byte b)
-    {
+    public Agtion(Point p, Byte b) {
         this.mon = p;
         this.dir = b;
     }
@@ -27,13 +25,23 @@ public class Agtion
     // Accessors
     //================================================================================
 
-    public Point getMon() { return mon; }
-    public Byte getDir() { return dir; }
+    public Point getMon() {
+        return mon;
+    }
+
+    public Byte getDir() {
+        return dir;
+    }
 
     //================================================================================
     // Mutators
     //================================================================================\
 
-    public void setMon(Point p) { this.mon = p; }
-    public void setDir(Byte b) { this.dir = b; }
+    public void setMon(Point p) {
+        this.mon = p;
+    }
+
+    public void setDir(Byte b) {
+        this.dir = b;
+    }
 }

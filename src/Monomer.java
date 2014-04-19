@@ -9,28 +9,32 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.*;
 
-public class Monomer implements Serializable{
+public class Monomer implements Serializable {
     static final long serialVersionUID = 1234L;
     /**
-    *Location of monomer on grid
-    * @serial
-    */
+     * Location of monomer on grid
+     *
+     * @serial
+     */
     private Point location;
 
     /**
      * String state of monomer
+     *
      * @serial
      */
     private String state;
 
     /**
      * Hashmap(direction,bondtype)   pass a Direction.Type as key, receive the bondtype, is 0 or Bond.TYPE_NONE if no bond exists, or if no neighbor
+     *
      * @serial
      */
     private HashMap<Byte, Byte> neighborBonds = new HashMap<Byte, Byte>();
 
     /**
      * Hashmap(Bond.Type, ArrayList<Direction.TYPE>)  pass Bond.TYPE as key, receive an ArrayList of Direction.TYPE(Byte) that have this bond type
+     *
      * @serial
      */
     private HashMap<Byte, ArrayList<Byte>> neighborBondDirs = new HashMap<Byte, ArrayList<Byte>>();//Hashmap(BondType, ArrayList<Direction>)
@@ -38,44 +42,41 @@ public class Monomer implements Serializable{
 
     /**
      * id
+     *
      * @serial
      */
-    private  int id;
+    private int id;
 
     //================================================================================
     // Constructors
     //================================================================================
-    public Monomer(Monomer m)
-    {
+    public Monomer(Monomer m) {
 
 
         this.id = m.getId();
         this.state = m.getState();
         this.location = m.getLocation();
-        Set<Map.Entry<Byte, ArrayList<Byte>>> copyFrom1 =   m.getNeighborBondDirs().entrySet();
-        for(Map.Entry<Byte, ArrayList<Byte>> set : copyFrom1)
-        {
+        Set<Map.Entry<Byte, ArrayList<Byte>>> copyFrom1 = m.getNeighborBondDirs().entrySet();
+        for (Map.Entry<Byte, ArrayList<Byte>> set : copyFrom1) {
             ArrayList<Byte> temp = new ArrayList<Byte>();
-            for(Byte b : set.getValue())
-            {
-                 temp.add((Byte)b.byteValue());
+            for (Byte b : set.getValue()) {
+                temp.add((Byte) b.byteValue());
             }
 
             this.neighborBondDirs.put(set.getKey(), temp);
         }
-        Set<Map.Entry<Byte,Byte>> copyFrom2  = m.getNeighborBonds().entrySet();
-        for(Map.Entry<Byte, Byte> set : copyFrom2)
-        {
-            this.neighborBonds.put((Byte)set.getKey().byteValue(), (Byte)set.getValue().byteValue());
+        Set<Map.Entry<Byte, Byte>> copyFrom2 = m.getNeighborBonds().entrySet();
+        for (Map.Entry<Byte, Byte> set : copyFrom2) {
+            this.neighborBonds.put((Byte) set.getKey().byteValue(), (Byte) set.getValue().byteValue());
         }
 
 
-
     }
-    public int getId()
-    {
+
+    public int getId() {
         return id;
     }
+
     public Monomer(Point p, String s) {
         this.location = p;
         this.state = s;
@@ -105,8 +106,13 @@ public class Monomer implements Serializable{
         return state;
     }
 
-    public HashMap<Byte, Byte> getNeighborBonds() { return neighborBonds; }
-    public HashMap<Byte, ArrayList<Byte>> getNeighborBondDirs() { return neighborBondDirs; }
+    public HashMap<Byte, Byte> getNeighborBonds() {
+        return neighborBonds;
+    }
+
+    public HashMap<Byte, ArrayList<Byte>> getNeighborBondDirs() {
+        return neighborBondDirs;
+    }
 
     //================================================================================
     // Mutators
@@ -145,8 +151,8 @@ public class Monomer implements Serializable{
     */
 
     public byte getBondTypeByDir(byte direction) {
-            if(direction < 33 && direction%2 == 0 || direction == 1)
-             return neighborBonds.get(direction);
+        if (direction < 33 && direction % 2 == 0 || direction == 1)
+            return neighborBonds.get(direction);
         return 0;
 
     }
@@ -166,8 +172,7 @@ public class Monomer implements Serializable{
             return Bond.TYPE_NONE;
     }
 
-    public boolean conflicts(Monomer m, byte dir)
-    {
+    public boolean conflicts(Monomer m, byte dir) {
         Point me = getLocation();
         Point meShifted = Direction.translatedPointByDir(me, dir);
         Point neighbor = m.getLocation();
@@ -179,8 +184,7 @@ public class Monomer implements Serializable{
         if (neighborBonds.get(Direction.dirFromPoints(me.getLocation(), neighbor.getLocation())) == Bond.TYPE_RIGID)
             return true;
 
-        if (neighborBonds.get(Direction.dirFromPoints(me.getLocation(), neighbor.getLocation())) == Bond.TYPE_FLEXIBLE)
-        {
+        if (neighborBonds.get(Direction.dirFromPoints(me.getLocation(), neighbor.getLocation())) == Bond.TYPE_FLEXIBLE) {
             if (!m.adjacent(meShifted))
                 return true;
         }
@@ -189,25 +193,22 @@ public class Monomer implements Serializable{
     }
 
     // is monomer adjacent to point p?
-    boolean adjacent(Point p)
-    {
-        if((Math.abs(getLocation().x - p.x) > 1) || (Math.abs(getLocation().y - p.y) > 1))
+    boolean adjacent(Point p) {
+        if ((Math.abs(getLocation().x - p.x) > 1) || (Math.abs(getLocation().y - p.y) > 1))
             return false;
-        if(getLocation().x == p.x && getLocation().y == p.y )
+        if (getLocation().x == p.x && getLocation().y == p.y)
             return false;
-        else if(Math.abs(getLocation().x - p.x + getLocation().y - p.y) <= 1)
+        else if (Math.abs(getLocation().x - p.x + getLocation().y - p.y) <= 1)
             return true;
         else
             return false;
     }
 
-    public void shift(byte dir)
-    {
+    public void shift(byte dir) {
         location = Direction.translatedPointByDir(location, dir);
     }
 
-    public void adjustFlexibleBond(Monomer m, byte dir, HashMap<Byte, Byte> buffer)
-    {
+    public void adjustFlexibleBond(Monomer m, byte dir, HashMap<Byte, Byte> buffer) {
         adjustBond(Direction.dirFromPoints(getLocation(), m.getLocation()), Bond.TYPE_NONE);
         m.adjustBond(Direction.dirFromPoints(m.getLocation(), getLocation()), Bond.TYPE_NONE);
 
