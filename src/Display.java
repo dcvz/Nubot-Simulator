@@ -62,6 +62,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JRadioButton noBond = new JRadioButton("None");
 
 
+
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem exportC = new JMenuItem("Export Configuration");
     private JMenuItem about = new JMenuItem("About");
@@ -120,9 +121,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Graphics2D hudGFx;
 
     //configurator modes/values
-    boolean paintMode = false;
+    boolean brushMode = false;
     boolean singleMode = true;
-    String state = "A";
+    boolean flexibleMode = false;
+    boolean rigidMode = false;
+
+    String stateVal = "A";
 
 
 
@@ -343,6 +347,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(simulation);
         menuBar.add(settings);
         menuBar.add(help);
+
         help.add(about);
        // file.add(ruleMk);
         file.add(loadR);
@@ -1057,7 +1062,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void mouseDragged(MouseEvent e) {
 
 
-        if (SwingUtilities.isLeftMouseButton(e)) {
+        if (SwingUtilities.isLeftMouseButton(e) && !e.isAltDown()) {
             if (lastXY == null)
                 lastXY = e.getPoint();
             Simulation.canvasXYoffset.translate(e.getX() - lastXY.x, -(e.getY() - lastXY.y));
@@ -1067,7 +1072,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
 
 
-        if (SwingUtilities.isRightMouseButton(e)) {
+  /*      if (SwingUtilities.isRightMouseButton(e)) {
 
 
             boolean fin = false;
@@ -1106,7 +1111,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             // }
             lastMon = tmp;
 
+        }   */
+
+
+        if(e.isAltDown())
+        {   if(brushMode )
+            {
+                map.addMonomer(new Monomer(Simulation.getCanvasToGridPosition(e.getPoint()), stateVal));
+            }
         }
+
 
 
         //if(!Simulation.isRunning)
@@ -1173,24 +1187,62 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void keyPressed(KeyEvent e) {
 
         System.out.println(e.getKeyCode());
-
-        if(e.isControlDown())
+        int keyCode = e.getKeyCode();
+        if(e.isControlDown() && !e.isAltDown() && !e.isShiftDown())
         {
-            int keyCode = e.getKeyCode();
+
             switch(keyCode)
             {
+
                 case KeyEvent.VK_1:
-                    showToast(20, 40, "Paint Mode", 1200);
-                    paintMode =true;
+                    showToast(20, 40, "Brush", 1200);
+                    brushMode =true;
                     singleMode =false;
                     break;
                 case KeyEvent.VK_2:
-                    showToast(20, 40, "Single Mode", 1200);
-                    paintMode =false;
+                    showToast(20, 40, "Single", 1200);
+                    brushMode =false;
                     singleMode =true;
                     break;
             }
+
         }
+        else if(e.isAltDown() && !e.isControlDown() && !e.isShiftDown())
+        {
+
+            switch(keyCode)
+            {
+
+                case KeyEvent.VK_1:
+                    showToast(20, 40, "Rigid", 1200);
+                    flexibleMode = false;
+                    rigidMode = true;
+                    break;
+                case KeyEvent.VK_2:
+                    showToast(20, 40, "Flexible", 1200);
+                    rigidMode =false;
+                    flexibleMode =true;
+                    break;
+                case KeyEvent.VK_3:
+                    showToast(20, 40, "No Bond", 1200);
+                    rigidMode =false;
+                    flexibleMode =false;
+                    break;
+            }
+
+        }
+        else if(e.isShiftDown() && e.isControlDown())
+        {
+            switch(keyCode)
+            {
+                case KeyEvent.VK_1:
+                     String state = JOptionPane.showInputDialog("Set paint state:");
+                    if(state.length() > 0)
+                     stateVal = state;
+            }
+
+        }
+
 
     }
 
