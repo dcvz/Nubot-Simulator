@@ -8,6 +8,7 @@
 import org.monte.media.quicktime.QuickTimeWriter;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -18,17 +19,14 @@ import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Display implements ActionListener, ComponentListener, MouseWheelListener, MouseMotionListener, MouseListener, KeyListener
 
@@ -65,6 +63,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
     private JMenuItem loadR = new JMenuItem("Load Rules");
+    private JMenuItem exportC = new JMenuItem("Export Configuration");
     private JMenuItem about = new JMenuItem("About");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
     private JMenuItem menuClear = new JMenuItem("Clear");
@@ -73,7 +72,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem simStop = new JMenuItem("Stop");
     private JMenuItem simPause = new JMenuItem("Pause");
     private JMenuItem record = new JMenuItem("Record");
-    private JMenuItem ruleMk = new JMenuItem("Rule Create");
+    private JMenuItem ruleMk = new JMenuItem("Rule Creator");
     private JCheckBoxMenuItem agitationToggle = new JCheckBoxMenuItem("On");
     private JMenuItem agitationSetRate = new JMenuItem("Set Rate");
 
@@ -116,9 +115,21 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private QuickTimeWriter qtWr;
     private double timeAccum = 0;
 
+    //Graphics
+    BufferedImage hudBFI;
+    Graphics2D hudGFx;
+
+    //configurator modes/values
+    boolean paintMode = false;
+    boolean singleMode = true;
+    String state = "A";
+
+
 
 
     public Display(Dimension size) {
+
+
 
         //Threads
 
@@ -156,7 +167,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         canvas.addMouseListener(this);
         canvasStrokeSize = Simulation.monomerRadius / 3;
         //for the nubot graphics/image & visuals
-
+        hudBFI = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        hudGFx = (Graphics2D)hudBFI.getGraphics();
+        hudGFx.setColor(Color.BLACK);
+        hudGFx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        hudGFx.setFont(new Font("TimesRoman", Font.BOLD, 20));
 
         ////
         //Status Bar  setup
@@ -231,7 +246,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                 Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
                                 if(Simulation.isRecording)
                                 Simulation.canvasXYoffset.translate(800 / 2 - monLockCVPos.x , -600 / 2 + monLockCVPos.y);
-                                else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, canvas.getHeight() / 2 + monLockCVPos.y - dragCnt.y);
+                                else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 + monLockCVPos.y - dragCnt.y);
                             }
                         } else {
                             Random rand = new Random();
@@ -301,6 +316,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 drawMonomers(g);
+                g.drawImage(hudBFI, 0, 0, null);
             }
         };
         canvas.setSize(mainFrame.getSize());
@@ -312,6 +328,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         loadR.addActionListener(this);
         about.addActionListener(this);
         loadC.addActionListener(this);
+        exportC.addActionListener(this);
         menuClear.addActionListener(this);
         menuQuit.addActionListener(this);
         simPause.addActionListener(this);
@@ -327,9 +344,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(settings);
         menuBar.add(help);
         help.add(about);
-        file.add(ruleMk);
+       // file.add(ruleMk);
         file.add(loadR);
         file.add(loadC);
+        file.add(exportC);
         file.add(new JSeparator(SwingConstants.HORIZONTAL));
         file.add(menuClear);
         file.add(menuQuit);
@@ -497,6 +515,69 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == exportC)
+        {
+            int mapSize = map.size();
+
+
+            if(mapSize > 0)
+            {
+           String saveFN = JOptionPane.showInputDialog("File Name", ".conf");
+            System.out.println("sdfs");
+           File file = new File(saveFN);
+            try{
+                BufferedWriter bfW = new BufferedWriter(new FileWriter(file));
+                bfW.write("States:");
+                bfW.newLine();
+
+                Set<Map.Entry<Point, Monomer>> setPM = map.entrySet();
+
+                    for(Map.Entry<Point, Monomer> set : setPM)
+                    {
+                         bfW.write((int)set.getKey().getX() + " " + (int)set.getKey().getY() + " " +set.getValue().getState() );
+                         bfW.newLine();
+                    }
+                    bfW.newLine();
+                    bfW.write("Bonds:");
+                    bfW.newLine();
+                    for(Map.Entry<Point, Monomer> set : setPM)
+                    {
+                        ArrayList<Byte> rigidList = set.getValue().getDirsByBondType(Bond.TYPE_RIGID);
+                        ArrayList<Byte> flexList = set.getValue().getDirsByBondType(Bond.TYPE_FLEXIBLE);
+                        Point startPoint = set.getKey();
+                        for(Byte d : rigidList)
+                        {
+                            Point neighborPoint = Direction.getNeighborPosition(set.getKey(), d);
+                            bfW.write(startPoint.x + " " + startPoint.y + " " + neighborPoint.x + " " + neighborPoint.y + " " + 1);
+                            bfW.newLine();
+
+                        }
+                        for(Byte d : flexList)
+                        {
+                            Point neighborPoint = Direction.getNeighborPosition(set.getKey(), d);
+                            bfW.write(startPoint.x + " " + startPoint.y + " " + neighborPoint.x + " " + neighborPoint.y + " " + 2);
+                            bfW.newLine();
+
+                        }
+
+
+                    }
+
+
+
+                bfW.close();
+            }
+
+            catch(IOException exc)
+            {
+
+            }
+            }
+            else JOptionPane.showMessageDialog(mainFrame, "No monomers in current configuration.");
+
+
+
+        }
         if (e.getSource() == loadR) {
             map.timeElapsed = 0;
             map.rules.clear();
@@ -580,6 +661,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             System.out.println("Load Rules");
         } else if (e.getSource() == loadC) {
+
+
             map.timeElapsed = 0;
             statusTime.setText("Time: " + map.timeElapsed);
             map.clear();
@@ -854,6 +937,34 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
     }
+    public void showToast(int x, int y, String text, int duration)
+    {
+        hudGFx.setComposite(AlphaComposite.Clear);
+        hudGFx.fillRect(0,0, canvas.getWidth(), canvas.getWidth());
+        hudGFx.setComposite(AlphaComposite.SrcOver);
+        hudGFx.drawString(text, x, y);
+        canvas.repaint();
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        Runnable clearBFI = new Runnable() {
+            @Override
+            public void run() {
+                hudGFx.setComposite(AlphaComposite.Clear);
+                hudGFx.fillRect(0,0, canvas.getWidth(), canvas.getWidth());
+                hudGFx.setComposite(AlphaComposite.SrcOver);
+                canvas.repaint();
+
+
+
+            }
+        } ;
+
+
+        executor.schedule(clearBFI, duration, TimeUnit.MILLISECONDS);
+
+
+
+
+    }
 
 
     public synchronized void drawBond(Monomer m, Graphics2D g) {
@@ -921,7 +1032,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
         if (e.getWheelRotation() == 1.0 && Simulation.monomerRadius > 2) {
-            Simulation.monomerRadius = (int) Math.round(Simulation.monomerRadius * .92);
+            int newRadius = (int) Math.round(Simulation.monomerRadius * .92);
+            Simulation.monomerRadius = newRadius;
+            if(Simulation.monomerRadius == newRadius && Simulation.monomerRadius > 0)
+            {
+                 Simulation.monomerRadius--;
+            }
             canvasStrokeSize = Simulation.monomerRadius / 3;
 
 
@@ -1050,10 +1166,31 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     @Override
     public void keyTyped(KeyEvent e) {
 
+
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
+
+        System.out.println(e.getKeyCode());
+
+        if(e.isControlDown())
+        {
+            int keyCode = e.getKeyCode();
+            switch(keyCode)
+            {
+                case KeyEvent.VK_1:
+                    showToast(20, 40, "Paint Mode", 1200);
+                    paintMode =true;
+                    singleMode =false;
+                    break;
+                case KeyEvent.VK_2:
+                    showToast(20, 40, "Single Mode", 1200);
+                    paintMode =false;
+                    singleMode =true;
+                    break;
+            }
+        }
 
     }
 
