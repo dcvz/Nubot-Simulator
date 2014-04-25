@@ -125,6 +125,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     boolean singleMode = true;
     boolean flexibleMode = false;
     boolean rigidMode = false;
+    boolean statePaint = false;
+    boolean eraser = false;
 
     String stateVal = "A";
 
@@ -270,6 +272,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                     try
                                     {
                                         if(timeAccum > .0050) {
+                                            Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(800,600));
+                                            while(nubotDim.width + Simulation.monomerRadius*2 > 800 || nubotDim.height + Simulation.monomerRadius*2
+                                                    > 600) {
+                                                Simulation.monomerRadius--;
+                                                 nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(800,600));
+                                            }
+
+
+
                                             drawMonomers(g2);
                                             qtWr.write(0, bfi, 1);
                                             timeAccum = 0;
@@ -476,26 +487,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 if (e.getSource() == removeMonomerMI) {
 
 
-                    byte dir = 1;
-                    if (lastMon != null) {
-                        for (int i = 0; i < 6; i++) {
-
-                            if (lastMon.hasBonds()) {
-
-
-                                if (map.containsKey(Direction.getNeighborPosition(lastMon.getLocation(), dir))) {
-                                    Monomer neighbor = map.get(Direction.getNeighborPosition(lastMon.getLocation(), dir));
-                                    System.out.println(Direction.getOppositeDir(Direction.TYPE_FLAG_EAST));
-                                    neighbor.adjustBond(Direction.getOppositeDir(dir), Bond.TYPE_NONE);
-
-                                }
-
-
-                                dir = (byte) (dir << 1);
-                            }
-                        }
-                        map.remove(lastMon.getLocation());
-                    }
+                   map.removeMonomer(lastMon);
 
 
                     canvas.repaint();
@@ -1062,7 +1054,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void mouseDragged(MouseEvent e) {
 
 
-        if (SwingUtilities.isLeftMouseButton(e) && !e.isAltDown()) {
+        if (SwingUtilities.isLeftMouseButton(e) && !e.isAltDown() && !e.isControlDown()) {
             if (lastXY == null)
                 lastXY = e.getPoint();
             Simulation.canvasXYoffset.translate(e.getX() - lastXY.x, -(e.getY() - lastXY.y));
@@ -1115,9 +1107,21 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
         if(e.isAltDown())
-        {   if(brushMode )
+        {      Point cPoint = Simulation.getCanvasToGridPosition(e.getPoint());
+
+            if(brushMode )
             {
-                map.addMonomer(new Monomer(Simulation.getCanvasToGridPosition(e.getPoint()), stateVal));
+
+                map.addMonomer(new Monomer(cPoint, stateVal));
+            }
+            else if(eraser)
+            {
+
+                if(map.containsKey(cPoint))
+                {
+                    map.remove(map.get(cPoint));
+                }
+
             }
         }
 
@@ -1198,11 +1202,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     showToast(20, 40, "Brush", 1200);
                     brushMode =true;
                     singleMode =false;
+                    eraser = false;
                     break;
                 case KeyEvent.VK_2:
                     showToast(20, 40, "Single", 1200);
                     brushMode =false;
                     singleMode =true;
+                    eraser = false;
+                    break;
+                case KeyEvent.VK_3:
+                    showToast(20,40, "Eraser", 1200);
+                    brushMode = false;
+                    singleMode = false;
+                    eraser = true;
                     break;
             }
 
@@ -1239,6 +1251,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                      String state = JOptionPane.showInputDialog("Set paint state:");
                     if(state.length() > 0)
                      stateVal = state;
+                    break;
+                case KeyEvent.VK_2:
+                    statePaint = true;
+                    showToast(20,40, "State Paint", 1200);
+
             }
 
         }

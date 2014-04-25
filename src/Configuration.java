@@ -752,6 +752,30 @@ public class Configuration extends HashMap<Point, Monomer> {
             }
         }
     }
+    public void removeMonomer(Monomer lastMon)
+    {
+        byte dir = 1;
+        if (lastMon != null) {
+            for (int i = 0; i < 6; i++) {
+
+                if (lastMon.hasBonds()) {
+
+
+                    if (containsKey(Direction.getNeighborPosition(lastMon.getLocation(), dir))) {
+                        Monomer neighbor = get(Direction.getNeighborPosition(lastMon.getLocation(), dir));
+                        System.out.println(Direction.getOppositeDir(Direction.TYPE_FLAG_EAST));
+                        neighbor.adjustBond(Direction.getOppositeDir(dir), Bond.TYPE_NONE);
+                        System.out.println("SFSF");
+
+                    }
+
+
+                    dir = (byte) (dir << 1);
+                }
+            }
+            remove(lastMon.getLocation());
+        }
+    }
 
 
 }

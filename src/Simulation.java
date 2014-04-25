@@ -121,6 +121,7 @@ public class
         return new Dimension(nubotWidth, nubotHeight);
     }
 
+
     public static Pair<Point, Point> calculateMinMax(ArrayList<Monomer> monList, int radius, Point mutOffset, Dimension bounds) {
 
 
@@ -140,6 +141,7 @@ public class
 
         return Pair.with(minXY, maxXY);
     }
+
 
 
 }
