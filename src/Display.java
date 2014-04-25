@@ -66,6 +66,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem exportC = new JMenuItem("Export Configuration");
     private JMenuItem about = new JMenuItem("About");
+    private JMenuItem keyCommandsHelp = new JMenuItem("Key Commands");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
     private JMenuItem menuClear = new JMenuItem("Clear");
     private JMenuItem menuQuit = new JMenuItem("Quit");
@@ -80,7 +81,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JPopupMenu editMonMenu = new JPopupMenu();
 
     // edit tool bar
-    JToolBar editToolBar = new JToolBar(JToolBar.HORIZONTAL);
+    JMenuBar editToolBar = new JMenuBar();
+
 
     //Status bar
 
@@ -124,10 +126,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Graphics2D hudGFx;
 
     //configurator modes/values
+    boolean editMode = false;
     boolean brushMode = false;
     boolean singleMode = true;
     boolean flexibleMode = false;
     boolean rigidMode = false;
+    boolean noBondMode = true;
     boolean statePaint = false;
     boolean eraser = false;
 
@@ -360,6 +364,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(editToolBar);
 
         help.add(about);
+        help.add(keyCommandsHelp);
+        keyCommandsHelp.addActionListener(this);
        // file.add(ruleMk);
         file.add(loadR);
         file.add(loadC);
@@ -407,10 +413,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         editToolBar.add(flexible);
         editToolBar.add(noBond);
 
-        editToolBar.setPreferredSize(new Dimension(20,20));
-        editToolBar.setFloatable(false);
+        editToolBar.setPreferredSize(new Dimension(20, 20));
+        //editToolBar.setFloatable(false);
+        editBrush.addActionListener(this);
+        editState.addActionListener(this);
+        editEraser.addActionListener(this);
+        single.addActionListener(this);
+        rigid.addActionListener(this);
+        flexible.addActionListener(this);
+        noBond.addActionListener(this);
 
         mainFrame.setJMenuBar(menuBar);
+
+
         // speed Slider
         JSlider speedSlider = new JSlider(JSlider.VERTICAL, -speedMax, speedMax, 0);
         speedSlider.setMajorTickSpacing(20);
@@ -510,6 +525,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     canvas.repaint();
                 }
 
+
             }
         };
         editMonMenu.add(changeStateMI);
@@ -523,6 +539,67 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        if(e.getSource() == rigid)
+        {
+            flexibleMode = false;
+            rigidMode = true;
+            noBondMode = false;
+
+        }
+        if(e.getSource() == flexible)
+        {
+            rigidMode = false;
+            flexibleMode = true;
+            noBondMode = false;
+
+        }
+        if(e.getSource() == noBond)
+        {
+            rigidMode = false;
+            flexibleMode = false;
+            noBondMode = true;
+        }
+        if(e.getSource() == editBrush )
+        {
+            System.out.println("SDFDSF");
+            brushMode = true;
+            singleMode = false;
+            statePaint = false;
+            eraser = false;
+
+        }
+        if(e.getSource() == editEraser )
+        {
+            brushMode = false;
+            singleMode = false;
+            statePaint = false;
+            eraser = true;
+
+        }
+        if(e.getSource() == editState )
+        {
+            brushMode = false;
+            singleMode = false;
+            statePaint = true;
+            eraser = false;
+
+        }
+        if(e.getSource() == single )
+        {
+            brushMode = true;
+            singleMode = true;
+            statePaint = false;
+            eraser = false;
+
+        }
+
+
+        if(e.getSource() == keyCommandsHelp)
+        {
+            String commands = "Ctrl + 1 : Brush\nCtrl + 2 : State Mode\nCtrl + 3 : Single\nCtrl + 4: Eraser\nAlt + 1 : Rigid\nAlt + 2 : Flexible\nAlt + 3 :No Bond\nCtrl + Shift + 1 : Set State Value";
+            JOptionPane.showMessageDialog(canvas, commands);
+        }
         if(e.getSource() == exportC)
         {
             int mapSize = map.size();
@@ -885,6 +962,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             System.out.println("record button started");
         } else if (e.getSource() == editToggle) {
             System.out.println("edit Toggle");
+            editMode = true;
             editToolBar.setVisible(editToggle.getState());
         }
     }
@@ -947,7 +1025,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void showToast(int x, int y, String text, int duration)
     {
         hudGFx.setComposite(AlphaComposite.Clear);
-        hudGFx.fillRect(0,0, canvas.getWidth(), canvas.getWidth());
+        hudGFx.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
         hudGFx.setComposite(AlphaComposite.SrcOver);
         hudGFx.drawString(text, x, y);
         canvas.repaint();
@@ -1099,7 +1177,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             } else if (e.isAltDown()) {
                 lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_FLEXIBLE);
                 tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
-                System.out.println(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()) + " " + tmp.getBondTypeByDir(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation())));
+
             }
             if (e.isControlDown()) {
                 if (paint.isSelected())
@@ -1116,21 +1194,51 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }   */
 
 
-        if(e.isAltDown())
-        {      Point cPoint = Simulation.getCanvasToGridPosition(e.getPoint());
+        if(editMode) {
+            if (e.isAltDown()) {
+                Point cPoint = Simulation.getCanvasToGridPosition(e.getPoint());
 
-            if(brushMode )
-            {
+                if (brushMode) {
 
-                map.addMonomer(new Monomer(cPoint, stateVal));
-            }
-            else if(eraser)
-            {
+                    map.addMonomer(new Monomer(cPoint, stateVal));
+                } else if (eraser) {
 
-                if(map.containsKey(cPoint))
-                {
-                    map.remove(map.get(cPoint));
+                    if (map.containsKey(cPoint)) {
+                        map.removeMonomer(cPoint);
+                        canvas.repaint();
+                    }
+
                 }
+                else if(statePaint)
+                {
+                    if(map.containsKey(cPoint))
+                    {
+                        map.get(cPoint).setState(stateVal);
+                    }
+                }
+            } else if (e.isControlDown()) {
+                Monomer tmp = null;
+                Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
+                if (map.containsKey(gp)) {
+                    tmp = map.get(gp);
+
+
+                }
+                if (lastMon != null && tmp != null) {
+                    if (flexibleMode) {
+                        lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_FLEXIBLE);
+                        tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
+                    } else if (rigidMode) {
+                        lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_RIGID);
+                        tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_RIGID);
+                    } else if (noBondMode) {
+                        lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_NONE);
+                        tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_NONE);
+                    }
+                }
+
+
+                lastMon = tmp;
 
             }
         }
@@ -1213,19 +1321,31 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     brushMode =true;
                     singleMode =false;
                     eraser = false;
+                    editBrush.setSelected(true);
                     break;
-                case KeyEvent.VK_2:
+                case KeyEvent.VK_3:
                     showToast(20, 40, "Single", 1200);
                     brushMode =false;
                     singleMode =true;
+                    single.setSelected(true);
                     eraser = false;
                     break;
-                case KeyEvent.VK_3:
+                case KeyEvent.VK_4:
                     showToast(20,40, "Eraser", 1200);
                     brushMode = false;
                     singleMode = false;
+                    editEraser.setSelected(true);
                     eraser = true;
                     break;
+                case KeyEvent.VK_2:
+                    editState.setSelected(true);
+                    brushMode = false;
+                    eraser = false;
+                    singleMode = false;
+                    statePaint = true;
+                    showToast(20,40, "State Paint", 1200);
+                    break;
+
             }
 
         }
@@ -1238,16 +1358,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 case KeyEvent.VK_1:
                     showToast(20, 40, "Rigid", 1200);
                     flexibleMode = false;
+                    rigid.setSelected(true);
                     rigidMode = true;
                     break;
                 case KeyEvent.VK_2:
                     showToast(20, 40, "Flexible", 1200);
                     rigidMode =false;
                     flexibleMode =true;
+                    flexible.setSelected(true);
                     break;
                 case KeyEvent.VK_3:
                     showToast(20, 40, "No Bond", 1200);
                     rigidMode =false;
+                    noBond.setSelected(true);
                     flexibleMode =false;
                     break;
             }
@@ -1262,9 +1385,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     if(state.length() > 0)
                      stateVal = state;
                     break;
-                case KeyEvent.VK_2:
-                    statePaint = true;
-                    showToast(20,40, "State Paint", 1200);
+
+
 
             }
 

@@ -752,17 +752,17 @@ public class Configuration extends HashMap<Point, Monomer> {
             }
         }
     }
-    public void removeMonomer(Monomer lastMon)
+    public void removeMonomer(Monomer monomer)
     {
         byte dir = 1;
-        if (lastMon != null) {
+        if (monomer != null) {
             for (int i = 0; i < 6; i++) {
 
-                if (lastMon.hasBonds()) {
+                if (monomer.hasBonds()) {
 
 
-                    if (containsKey(Direction.getNeighborPosition(lastMon.getLocation(), dir))) {
-                        Monomer neighbor = get(Direction.getNeighborPosition(lastMon.getLocation(), dir));
+                    if (containsKey(Direction.getNeighborPosition(monomer.getLocation(), dir))) {
+                        Monomer neighbor = get(Direction.getNeighborPosition(monomer.getLocation(), dir));
                         System.out.println(Direction.getOppositeDir(Direction.TYPE_FLAG_EAST));
                         neighbor.adjustBond(Direction.getOppositeDir(dir), Bond.TYPE_NONE);
                         System.out.println("SFSF");
@@ -773,8 +773,38 @@ public class Configuration extends HashMap<Point, Monomer> {
                     dir = (byte) (dir << 1);
                 }
             }
-            remove(lastMon.getLocation());
+            remove(monomer.getLocation());
         }
+    }
+    public void removeMonomer(Point pt)
+    {
+        if(this.containsKey(pt))
+        {
+            Monomer monomer = this.get(pt);
+            byte dir = 1;
+            if (monomer != null) {
+                for (int i = 0; i < 6; i++) {
+
+                    if (monomer.hasBonds()) {
+
+
+                        if (containsKey(Direction.getNeighborPosition(monomer.getLocation(), dir))) {
+                            Monomer neighbor = get(Direction.getNeighborPosition(monomer.getLocation(), dir));
+                            System.out.println(Direction.getOppositeDir(Direction.TYPE_FLAG_EAST));
+                            neighbor.adjustBond(Direction.getOppositeDir(dir), Bond.TYPE_NONE);
+                            System.out.println("SFSF");
+
+                        }
+
+
+                        dir = (byte) (dir << 1);
+                    }
+                }
+                remove(monomer.getLocation());
+            }
+
+        }
+
     }
 
 
