@@ -263,10 +263,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
                                     BufferedImage bfi = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+
                                     Graphics2D g2 = (Graphics2D)bfi.getGraphics();
+                                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                                    g2.setFont(new Font("TimesRoman", Font.PLAIN, 10));
                                     g2.setColor(Color.white);
                                     g2.fillRect(0,0,800,600);
-
+                                    g2.setColor(Color.BLACK);
+                                    g2.drawString("#Monomers: " + map.getSize(), 20, 40);
+                                    g2.drawString("Step: " + map.nubotFrameNumber, 20, 50);
+                                    g2.drawString("Elapsed: " +map.timeElapsed, 20, 60);
                                     try
                                     {
                                         if(timeAccum > .0050) {
@@ -930,6 +936,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
         } else if (e.getSource() == record) {
 
+
+            map.resetVals();
             String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time):");
             double recordingLength = Double.parseDouble(input);
             if (recordingLength > 0) {
@@ -1010,11 +1018,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         map.values().toArray(mapTemp);
 
         ArrayList<Monomer> tempMonList = new ArrayList<Monomer>();
-        for (Monomer m : mapTemp) {
-            drawBond(m, (Graphics2D) g);
 
+        for (Monomer m : mapTemp) {
+            if(Simulation.monomerRadius >=7)
+            drawBond(m, (Graphics2D) g);
             tempMonList.add(new Monomer(m));
+
         }
+
+
         for (Monomer m : tempMonList) {
 
             drawMonomer(m, (Graphics2D) g);

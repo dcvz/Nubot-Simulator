@@ -29,6 +29,7 @@ public class Configuration extends HashMap<Point, Monomer> {
     private Random rand = new Random();
     private int frameRate = 10;
     private double timeAccum = 0;
+    public int nubotFrameNumber = 0;
 
     public int getSize() {
         return this.size();
@@ -145,22 +146,22 @@ public class Configuration extends HashMap<Point, Monomer> {
             }
 
             if (Simulation.agitationON) {
-                timeAccum += executeTime;
+             /*   timeAccum += executeTime;
                 if (timeAccum > .005) {
 
                     System.out.println(timeAccum + " " + recordFrameHistory.size());
                     recordFrameHistory.add(Triplet.with(1, frametime, monList));
-                    timeAccum = 0;
+                    timeAccum = 0;   */
                 }
 
 
             } else {
-                System.out.print("#$@#");
-                recordFrameHistory.add(Triplet.with(1, frametime, monList));
+              /*  System.out.print("#$@#");
+                recordFrameHistory.add(Triplet.with(1, frametime, monList));    */
             }
 
             if (timeElapsed > Simulation.recordingLength || isFinished) {
-                // saveRecord("dog.ser");
+                //saveRecord("dog.ser");
              //   saveVideo("dog.ser");
                 Simulation.isRecording = false;
                 Simulation.isRunning = false;
@@ -169,10 +170,12 @@ public class Configuration extends HashMap<Point, Monomer> {
 
             }
 
+        ++nubotFrameNumber;
+        return executeTime;
 
         }
-        return executeTime;
-    }
+
+
 
     // given a ruleset, compute a list of all possible actions
     // that can be executed in our current configuration
@@ -571,6 +574,15 @@ public class Configuration extends HashMap<Point, Monomer> {
         recordFrameHistory = new ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>>();
     }
 
+    //some values need to be reset before re-use of the configuration object.
+    public void resetVals()
+    {
+        timeElapsed = 0;
+        nubotFrameNumber=0;
+
+
+
+    }
     public void saveVideo(String recordLocation) {
         System.out.println("DFGDFG");
         ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>> record = recordFrameHistory;//readRecord(recordLocation);
