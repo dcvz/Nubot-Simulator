@@ -39,13 +39,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //Config and rules
     Configuration map;
 
-    //GRaphics
+    //Graphics
     Monomer posLockMon;
     float canvasStrokeSize = 2.0f;
 
     //Menus
     private JMenu file = new JMenu("File");
-    private JMenu edit = new JMenu("Edit");
     private JMenu simulation = new JMenu("Simulation");
     private JMenu settings = new JMenu("Settings");
     private JMenu help = new JMenu("Help");
@@ -54,14 +53,13 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     // create sub-menus for each menu
     private ButtonGroup bondGroup = new ButtonGroup();
     private ButtonGroup drawMode = new ButtonGroup();
+
     private JCheckBoxMenuItem editToggle = new JCheckBoxMenuItem("Edit Mode");
     private JRadioButton paint = new JRadioButton("Paint");
     private JRadioButton single = new JRadioButton("Single");
     private JRadioButton rigid = new JRadioButton("Rigid");
     private JRadioButton flexible = new JRadioButton("Flexible");
     private JRadioButton noBond = new JRadioButton("None");
-
-
 
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem exportC = new JMenuItem("Export Configuration");
@@ -78,6 +76,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem agitationSetRate = new JMenuItem("Set Rate");
 
     private JPopupMenu editMonMenu = new JPopupMenu();
+
+    // edit tool bar
+    JToolBar editToolBar = new JToolBar(JToolBar.HORIZONTAL);
 
     //Status bar
 
@@ -107,7 +108,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Point dragCnt = new Point(0, 0);
 
 
-    //Monomer edditting
+    //Monomer editing
 
     Monomer lastMon = null;
 
@@ -130,18 +131,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     String stateVal = "A";
 
-
-
-
     public Display(Dimension size) {
-
-
-
         //Threads
-
         final ExecutorService executorService = Executors.newFixedThreadPool(4);
-
-
 
         mainFrame.setBackground(Color.WHITE);
         mainFrame.getContentPane().setBackground(Color.WHITE);
@@ -352,12 +344,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         record.addActionListener(this);
         agitationSetRate.addActionListener(this);
         agitationToggle.addActionListener(this);
+        editToggle.addActionListener(this);
+        editToolBar.setVisible(false);
 
         menuBar.add(file);
-        menuBar.add(edit);
         menuBar.add(simulation);
         menuBar.add(settings);
         menuBar.add(help);
+        menuBar.add(editToggle);
+        editToggle.setMaximumSize(new Dimension(50,50));
+        menuBar.add(editToolBar);
 
         help.add(about);
        // file.add(ruleMk);
@@ -378,7 +374,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         settings.add(speedMenu);
 
         //Edit Menu
-
         bondGroup = new ButtonGroup();
         drawMode = new ButtonGroup();
         bondGroup.add(rigid);
@@ -390,14 +385,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         single.setSelected(true);
         paint.setHorizontalAlignment(JMenuItem.CENTER);
 
-        edit.add(editToggle);
-        edit.add(paint);
-        edit.add(single);
-        edit.add(new JLabel("-Bonds-"));
-        edit.add(rigid);
-        edit.add(flexible);
-        edit.add(noBond);
+        editToolBar.add(paint);
+        editToolBar.add(single);
+        editToolBar.add(new JLabel("|Bonds:"));
+        editToolBar.add(rigid);
+        editToolBar.add(flexible);
+        editToolBar.add(noBond);
 
+        editToolBar.setPreferredSize(new Dimension(20,20));
+        editToolBar.setFloatable(false);
 
         mainFrame.setJMenuBar(menuBar);
         // speed Slider
@@ -406,9 +402,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         speedSlider.setMinorTickSpacing(10);
         speedSlider.setPaintTicks(true);
         Hashtable speedLabels = new Hashtable();
-        speedLabels.put(-speedMax, new JLabel("Slow"));
+        speedLabels.put(-speedMax, new JLabel("Fast"));
         speedLabels.put(0, new JLabel("Normal"));
-        speedLabels.put(speedMax, new JLabel("Fast"));
+        speedLabels.put(speedMax, new JLabel("Slow"));
         speedSlider.setInverted(true);
         speedSlider.setLabelTable(speedLabels);
         speedSlider.setPaintLabels(true);
@@ -658,8 +654,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             System.out.println("Load Rules");
         } else if (e.getSource() == loadC) {
-
-
             map.timeElapsed = 0;
             statusTime.setText("Time: " + map.timeElapsed);
             map.clear();
@@ -872,10 +866,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 statusSimulation.setText("Recording.");
                 JOptionPane.showMessageDialog(mainFrame, "The simulation is recording and will not be animated.");
 
-
-
             }
             System.out.println("record button started");
+        } else if (e.getSource() == editToggle) {
+            System.out.println("edit Toggle");
+            editToolBar.setVisible(editToggle.getState());
         }
     }
 
