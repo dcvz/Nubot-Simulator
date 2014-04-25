@@ -55,7 +55,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private ButtonGroup drawMode = new ButtonGroup();
 
     private JCheckBoxMenuItem editToggle = new JCheckBoxMenuItem("Edit Mode");
-    private JRadioButton paint = new JRadioButton("Paint");
+    private JRadioButton editBrush= new JRadioButton("Brush");
+    private JRadioButton editEraser = new JRadioButton("Eraser");
+    private JRadioButton editState = new JRadioButton("State");
     private JRadioButton single = new JRadioButton("Single");
     private JRadioButton rigid = new JRadioButton("Rigid");
     private JRadioButton flexible = new JRadioButton("Flexible");
@@ -346,13 +348,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         agitationToggle.addActionListener(this);
         editToggle.addActionListener(this);
         editToolBar.setVisible(false);
+        editToolBar.setFocusable(false);
 
         menuBar.add(file);
         menuBar.add(simulation);
         menuBar.add(settings);
         menuBar.add(help);
         menuBar.add(editToggle);
-        editToggle.setMaximumSize(new Dimension(50,50));
+        editToggle.setMaximumSize(new Dimension(100,50));
+        editToggle.setFocusable(false);
         menuBar.add(editToolBar);
 
         help.add(about);
@@ -373,20 +377,31 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         agitationMenu.add(agitationSetRate);
         settings.add(speedMenu);
 
-        //Edit Menu
+        //Edit ToolBar
         bondGroup = new ButtonGroup();
         drawMode = new ButtonGroup();
         bondGroup.add(rigid);
+        rigid.setFocusable(false);
         bondGroup.add(flexible);
+        flexible.setFocusable(false);
         bondGroup.add(noBond);
+        noBond.setFocusable(false);
         noBond.setSelected(true);
-        drawMode.add(paint);
+        drawMode.add(editBrush);
+        editBrush.setFocusable(false);
+        drawMode.add(editState);
+        editState.setFocusable(false);
         drawMode.add(single);
+        single.setFocusable(false);
+        drawMode.add(editEraser);
+        editEraser.setFocusable(false);
         single.setSelected(true);
-        paint.setHorizontalAlignment(JMenuItem.CENTER);
+        editBrush.setHorizontalAlignment(JMenuItem.CENTER);
 
-        editToolBar.add(paint);
+        editToolBar.add(editBrush);
+        editToolBar.add(editState);
         editToolBar.add(single);
+        editToolBar.add(editEraser);
         editToolBar.add(new JLabel("|Bonds:"));
         editToolBar.add(rigid);
         editToolBar.add(flexible);
