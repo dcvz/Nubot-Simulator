@@ -66,7 +66,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem exportC = new JMenuItem("Export Configuration");
     private JMenuItem about = new JMenuItem("About");
-    private JMenuItem keyCommandsHelp = new JMenuItem("Key Commands");
+    private JMenuItem usagesHelp = new JMenuItem("Edit Mode Usage");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
     private JMenuItem menuClear = new JMenuItem("Clear");
     private JMenuItem menuQuit = new JMenuItem("Quit");
@@ -370,8 +370,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(editToolBar);
 
         help.add(about);
-        help.add(keyCommandsHelp);
-        keyCommandsHelp.addActionListener(this);
+        help.add(usagesHelp);
+        usagesHelp.addActionListener(this);
        // file.add(ruleMk);
         file.add(loadR);
         file.add(loadC);
@@ -601,9 +601,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
 
 
-        if(e.getSource() == keyCommandsHelp)
+        if(e.getSource() == usagesHelp)
         {
-            String commands = "Ctrl + 1 : Brush\nCtrl + 2 : State Mode\nCtrl + 3 : Single\nCtrl + 4: Eraser\nAlt + 1 : Rigid\nAlt + 2 : Flexible\nAlt + 3 :No Bond\nCtrl + Shift + 1 : Set State Value";
+            String commands = "Ctrl + Drag : Monomer/State\nAlt + Drag : Bonds\nCtrl + 1 : Brush\nCtrl + 2 : State Mode\nCtrl + 3 : Single\nCtrl + 4: Eraser\nAlt + 1 : Rigid\nAlt + 2 : Flexible\nAlt + 3 : No Bond\nCtrl + Shift + 1 : Set State Value";
             JOptionPane.showMessageDialog(canvas, commands);
         }
         if(e.getSource() == exportC)
