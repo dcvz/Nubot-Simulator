@@ -14,10 +14,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,6 +27,8 @@ public class Configuration extends HashMap<Point, Monomer> {
     private int frameRate = 10;
     private double timeAccum = 0;
     public int nubotFrameNumber = 0;
+    private HashMap<Point, Monomer> initialFrame = new HashMap<Point, Monomer>();
+    private HashMap<Point, Monomer> storedFrame = new HashMap<Point, Monomer>();
 
     public int getSize() {
         return this.size();
@@ -123,7 +122,7 @@ public class Configuration extends HashMap<Point, Monomer> {
                     if (actions.size() < 1) {
                         isFinished = true;
 
-                        Simulation.isRunning = false;
+                       Simulation.isRunning = false;
                         break;
                     }
                     selectedAc = actions.selectArbitrary();
@@ -153,22 +152,22 @@ public class Configuration extends HashMap<Point, Monomer> {
                     recordFrameHistory.add(Triplet.with(1, frametime, monList));
                     timeAccum = 0;   */
                 }
-
-
-            } else {
-              /*  System.out.print("#$@#");
-                recordFrameHistory.add(Triplet.with(1, frametime, monList));    */
-            }
-
             if (timeElapsed > Simulation.recordingLength || isFinished) {
                 //saveRecord("dog.ser");
-             //   saveVideo("dog.ser");
+                //   saveVideo("dog.ser");
                 Simulation.isRecording = false;
                 Simulation.isRunning = false;
                 Simulation.recordingLength = 0;
                 isFinished = true;
 
             }
+
+            } else {
+              /*  System.out.print("#$@#");
+                recordFrameHistory.add(Triplet.with(1, frametime, monList));    */
+            }
+
+
 
         ++nubotFrameNumber;
         return executeTime;
@@ -817,6 +816,39 @@ public class Configuration extends HashMap<Point, Monomer> {
 
         }
 
+    }
+    public void storeConfig()
+    {
+
+         storedFrame = new HashMap<Point, Monomer>();
+         for(Map.Entry<Point, Monomer> set : this.entrySet())
+         {
+             storedFrame.put(new Point(set.getKey()), new Monomer(set.getValue()));
+         }
+    }
+    public void storeCurrentAsInitial()
+    {
+        initialFrame = new HashMap<Point, Monomer>();
+        for(Map.Entry<Point, Monomer> set : this.entrySet())
+        {
+            initialFrame.put(new Point(set.getKey()), new Monomer(set.getValue()));
+        }
+
+    }
+
+    public void loadInitialConfig()
+    {
+        if(initialFrame != null && initialFrame.size() > 0)
+        {
+
+
+            this.clear();
+
+            for(Map.Entry<Point, Monomer> set : initialFrame.entrySet())
+            {
+                this.put(new Point(set.getKey()), new Monomer(set.getValue()));
+            }
+        }
     }
 
 

@@ -66,8 +66,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     private JMenuItem loadR = new JMenuItem("Load Rules");
     private JMenuItem exportC = new JMenuItem("Export Configuration");
     private JMenuItem about = new JMenuItem("About");
-    private JMenuItem usagesHelp = new JMenuItem("Edit Mode Usage");
+    private JMenuItem usagesHelp = new JMenuItem("Configurer Usage");
     private JMenuItem loadC = new JMenuItem("Load Configuration");
+    private JMenuItem menuReload = new JMenuItem("Reload");
     private JMenuItem menuClear = new JMenuItem("Clear");
     private JMenuItem menuQuit = new JMenuItem("Quit");
     private JMenuItem simStart = new JMenuItem("Start");
@@ -126,6 +127,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     Graphics2D hudGFx;
 
     //configurator modes/values
+
     boolean editMode = false;
     boolean brushMode = false;
     boolean singleMode = true;
@@ -237,66 +239,40 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         simRunnable = new Runnable() {
             @Override
             public void run() {
+
+                canvas.repaint();
                 while (Simulation.isRunning) {
                     try {
                         if (!Simulation.isRecording)
                             Thread.sleep((long) (30 + speedRate * 1000.0 * map.executeTime));
 
 
-                        timeAccum += map.executeFrame();
 
+                        timeAccum += map.executeFrame();
+                        if (Simulation.animate) {
+                            canvas.repaint();
+                        }
                         if (posLockMon != null && map.containsKey(posLockMon.getLocation())) {
                             if (Simulation.agitationON) {
                                 Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
                                 if(Simulation.isRecording)
-                                Simulation.canvasXYoffset.translate(800 / 2 - monLockCVPos.x , -600 / 2 + monLockCVPos.y);
+                                    Simulation.canvasXYoffset.translate(800 / 2 - monLockCVPos.x , -600 / 2 + monLockCVPos.y);
                                 else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 + monLockCVPos.y - dragCnt.y);
                             }
+                            else
+                                Simulation.canvasXYoffset.setLocation(400,-300);
                         } else {
                             Random rand = new Random();
                             posLockMon = (Monomer) map.values().toArray()[rand.nextInt(map.getSize())];
+
                         }
+                        if (Simulation.isRecording) {
 
-                        if (Simulation.animate)
-                            canvas.repaint();
-                        else if (Simulation.isRecording) {
-
-
-                                    BufferedImage bfi = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-
-                                    Graphics2D g2 = (Graphics2D)bfi.getGraphics();
-                                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                                    g2.setFont(new Font("TimesRoman", Font.PLAIN, 10));
-                                    g2.setColor(Color.white);
-                                    g2.fillRect(0,0,800,600);
-                                    g2.setColor(Color.BLACK);
-                                    g2.drawString("#Monomers: " + map.getSize(), 20, 40);
-                                    g2.drawString("Step: " + map.nubotFrameNumber, 20, 50);
-                                    g2.drawString("Elapsed: " +map.timeElapsed, 20, 60);
-                                    try
-                                    {
-                                        if(timeAccum > .0050) {
-                                            Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(800,600));
-                                            while(nubotDim.width + Simulation.monomerRadius*2 > 800 || nubotDim.height + Simulation.monomerRadius*2
-                                                    > 600) {
-                                                Simulation.monomerRadius--;
-                                                 nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(800,600));
-                                            }
-
-
-
-                                            drawMonomers(g2);
-                                            qtWr.write(0, bfi, 1);
-                                            timeAccum = 0;
-                                        }
-
-                                    }
-                                    catch (Exception e)
-                                    {
-
-                                        System.out.println(e.getMessage());
-                                    }
-
+                                System.out.println(timeAccum + " timeacc");
+                                if(timeAccum > 0.01667) {
+                                    encodeFrame(800, 600, qtWr, (int) Math.round(timeAccum / .016667));
+                                    timeAccum=0;
+                                }
 
 
 
@@ -348,6 +324,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         about.addActionListener(this);
         loadC.addActionListener(this);
         exportC.addActionListener(this);
+        menuReload.addActionListener(this);
         menuClear.addActionListener(this);
         menuQuit.addActionListener(this);
         simPause.addActionListener(this);
@@ -365,18 +342,19 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(settings);
         menuBar.add(help);
         menuBar.add(editToggle);
-        editToggle.setMaximumSize(new Dimension(100,50));
+        editToggle.setMaximumSize(new Dimension(100, 50));
         editToggle.setFocusable(false);
         menuBar.add(editToolBar);
 
         help.add(about);
         help.add(usagesHelp);
         usagesHelp.addActionListener(this);
-       // file.add(ruleMk);
+        // file.add(ruleMk);
         file.add(loadR);
         file.add(loadC);
         file.add(exportC);
         file.add(new JSeparator(SwingConstants.HORIZONTAL));
+        file.add(menuReload);
         file.add(menuClear);
         file.add(menuQuit);
         simulation.add(simStart);
@@ -519,7 +497,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 if (e.getSource() == removeMonomerMI) {
 
 
-                   map.removeMonomer(lastMon);
+                    map.removeMonomer(lastMon);
 
 
                     canvas.repaint();
@@ -553,20 +531,20 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             noBondMode = false;
 
         }
-        if(e.getSource() == flexible)
+        else if(e.getSource() == flexible)
         {
             rigidMode = false;
             flexibleMode = true;
             noBondMode = false;
 
         }
-        if(e.getSource() == noBond)
+        else if(e.getSource() == noBond)
         {
             rigidMode = false;
             flexibleMode = false;
             noBondMode = true;
         }
-        if(e.getSource() == editBrush )
+        else if(e.getSource() == editBrush )
         {
             System.out.println("SDFDSF");
             brushMode = true;
@@ -575,7 +553,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             eraser = false;
 
         }
-        if(e.getSource() == editEraser )
+        else if(e.getSource() == editEraser )
         {
             brushMode = false;
             singleMode = false;
@@ -583,7 +561,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             eraser = true;
 
         }
-        if(e.getSource() == editState )
+        else if(e.getSource() == editState )
         {
             brushMode = false;
             singleMode = false;
@@ -591,7 +569,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             eraser = false;
 
         }
-        if(e.getSource() == single )
+        else if(e.getSource() == single )
         {
             brushMode = true;
             singleMode = true;
@@ -601,32 +579,32 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
 
 
-        if(e.getSource() == usagesHelp)
+        else if(e.getSource() == usagesHelp)
         {
-            String commands = "Ctrl + Drag : Monomer/State\nAlt + Drag : Bonds\nCtrl + 1 : Brush\nCtrl + 2 : State Mode\nCtrl + 3 : Single\nCtrl + 4: Eraser\nAlt + 1 : Rigid\nAlt + 2 : Flexible\nAlt + 3 : No Bond\nCtrl + Shift + 1 : Set State Value";
+            String commands = "Ctrl + Drag : Monomer/State\nShift + Drag : Bonds\nCtrl + 1 : Brush\nCtrl + 2 : State Mode\nCtrl + 3 : Single\nCtrl + 4: Eraser\nShift + 1 : Rigid\nShift + 2 : Flexible\nShift + 3 : No Bond\nCtrl + Shift + 1 : Set State Value";
             JOptionPane.showMessageDialog(canvas, commands);
         }
-        if(e.getSource() == exportC)
+       else if(e.getSource() == exportC)
         {
             int mapSize = map.size();
 
 
             if(mapSize > 0)
             {
-           String saveFN = JOptionPane.showInputDialog("File Name", ".conf");
-            System.out.println("sdfs");
-           File file = new File(saveFN);
-            try{
-                BufferedWriter bfW = new BufferedWriter(new FileWriter(file));
-                bfW.write("States:");
-                bfW.newLine();
+                String saveFN = JOptionPane.showInputDialog("File Name", ".conf");
+                System.out.println("sdfs");
+                File file = new File(saveFN);
+                try{
+                    BufferedWriter bfW = new BufferedWriter(new FileWriter(file));
+                    bfW.write("States:");
+                    bfW.newLine();
 
-                Set<Map.Entry<Point, Monomer>> setPM = map.entrySet();
+                    Set<Map.Entry<Point, Monomer>> setPM = map.entrySet();
 
                     for(Map.Entry<Point, Monomer> set : setPM)
                     {
-                         bfW.write((int)set.getKey().getX() + " " + (int)set.getKey().getY() + " " +set.getValue().getState() );
-                         bfW.newLine();
+                        bfW.write((int)set.getKey().getX() + " " + (int)set.getKey().getY() + " " +set.getValue().getState() );
+                        bfW.newLine();
                     }
                     bfW.newLine();
                     bfW.write("Bonds:");
@@ -656,20 +634,20 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
 
-                bfW.close();
-            }
+                    bfW.close();
+                }
 
-            catch(IOException exc)
-            {
+                catch(IOException exc)
+                {
 
-            }
+                }
             }
             else JOptionPane.showMessageDialog(mainFrame, "No monomers in current configuration.");
 
 
 
         }
-        if (e.getSource() == loadR) {
+        else if (e.getSource() == loadR) {
             map.timeElapsed = 0;
             map.rules.clear();
             try {
@@ -830,7 +808,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         statusConfig.setText("Config loaded ");
                         statusMonomerNumber.setText("Monomers: " + map.getSize());
 
-
+                        map.storeCurrentAsInitial();
                         canvas.repaint();
                         if (Simulation.configLoaded && (Simulation.rulesLoaded || Simulation.agitationON)) {
                             Random rand = new Random();
@@ -845,10 +823,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             } catch (Exception exc) {
             }
             System.out.println("Load config");
-        } else if (e.getSource() == menuClear) {
-            clearGraphics();
+        }
+        else if(e.getSource() == menuReload)
+        {       map.clear();
+                map.loadInitialConfig();
+                canvas.repaint();
+                System.out.println("Reload configuration");
 
-            canvas.repaint();
+        } else if (e.getSource() == menuClear) {
+
+
             map.clear();
             map.rules.clear();
             map.timeElapsed = 0;
@@ -874,6 +858,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             simStop.setEnabled(false);
             loadC.setEnabled(true);
             loadR.setEnabled(true);
+            canvas.repaint();
             System.out.println("clear ");
         } else if (e.getSource() == menuQuit) {
             System.out.println("quit application");
@@ -938,13 +923,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
             map.resetVals();
-            String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time):");
+            String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time)");
             double recordingLength = Double.parseDouble(input);
             if (recordingLength > 0) {
 
                 try{
                     qtWr = new QuickTimeWriter(new File("Test.mov"));
-                    qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
+                    qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 60, 800, 600);
+
+                    encodeFrame(800, 600, qtWr, (int) Math.ceil(map.executeFrame() / .01667));
+
                     Simulation.canvasXYoffset.setLocation(400, -300);
 
                 }
@@ -967,6 +955,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 JOptionPane.showMessageDialog(mainFrame, "The simulation is recording and will not be animated.");
 
             }
+
             System.out.println("record button started");
         } else if (e.getSource() == editToggle) {
             System.out.println("edit Toggle");
@@ -1021,7 +1010,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
         for (Monomer m : mapTemp) {
             if(Simulation.monomerRadius >=7)
-            drawBond(m, (Graphics2D) g);
+                drawBond(m, (Graphics2D) g);
             tempMonList.add(new Monomer(m));
 
         }
@@ -1036,18 +1025,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     }
     public void showToast(int x, int y, String text, int duration)
     {
-        hudGFx.setComposite(AlphaComposite.Clear);
-        hudGFx.fillRect(0, 0, canvas.getWidth(), canvas.getWidth());
-        hudGFx.setComposite(AlphaComposite.SrcOver);
+        clearGraphics(hudGFx);
         hudGFx.drawString(text, x, y);
         canvas.repaint();
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         Runnable clearBFI = new Runnable() {
             @Override
             public void run() {
-                hudGFx.setComposite(AlphaComposite.Clear);
-                hudGFx.fillRect(0,0, canvas.getWidth(), canvas.getWidth());
-                hudGFx.setComposite(AlphaComposite.SrcOver);
+                clearGraphics(hudGFx);
                 canvas.repaint();
 
 
@@ -1097,11 +1082,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     }
 
 
-    private void clearGraphics() {
-        Graphics2D g = (Graphics2D) canvas.getGraphics();
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, mainFrame.getSize().width, mainFrame.getSize().height);
-        g.setComposite(AlphaComposite.SrcOver);
+    private void clearGraphics( Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setComposite(AlphaComposite.Clear);
+        g2.fillRect(0, 0, mainFrame.getSize().width, mainFrame.getSize().height);
+        g2.setComposite(AlphaComposite.SrcOver);
     }
 
     @Override
@@ -1133,7 +1118,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.monomerRadius = newRadius;
             if(Simulation.monomerRadius == newRadius && Simulation.monomerRadius > 0)
             {
-                 Simulation.monomerRadius--;
+                Simulation.monomerRadius--;
             }
             canvasStrokeSize = Simulation.monomerRadius / 3;
 
@@ -1154,7 +1139,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     public void mouseDragged(MouseEvent e) {
 
 
-        if (SwingUtilities.isLeftMouseButton(e) && !e.isAltDown() && !e.isControlDown()) {
+        if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown() && !e.isControlDown() ) {
             if (lastXY == null)
                 lastXY = e.getPoint();
             Simulation.canvasXYoffset.translate(e.getX() - lastXY.x, -(e.getY() - lastXY.y));
@@ -1163,51 +1148,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             lastXY = e.getPoint();
         }
 
-
-  /*      if (SwingUtilities.isRightMouseButton(e)) {
-
-
-            boolean fin = false;
-            Monomer tmp = null;
-            Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
-            if (map.containsKey(gp)) {
-                tmp = map.get(gp);
-
-
-            } else fin = true;
-
-
-            // if (!fin && lastMon != null && tmp != null && !tmp.equals(lastMon)) {
-            //  System.out.println(tmp.getLocation() + " " + lastMon.getLocation());
-            if (e.isAltDown() && e.isShiftDown()) {
-                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_NONE);
-                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_NONE);
-            } else if (e.isShiftDown()) {
-                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_RIGID);
-                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_RIGID);
-
-            } else if (e.isAltDown()) {
-                lastMon.adjustBond(Direction.dirFromPoints(lastMon.getLocation(), tmp.getLocation()), Bond.TYPE_FLEXIBLE);
-                tmp.adjustBond(Direction.dirFromPoints(tmp.getLocation(), lastMon.getLocation()), Bond.TYPE_FLEXIBLE);
-
-            }
-            if (e.isControlDown()) {
-                if (paint.isSelected())
-                    map.addMonomer(new Monomer(Simulation.getCanvasToGridPosition(e.getPoint()), "A"));
-                System.out.println("DD" + Simulation.getCanvasToGridPosition(e.getPoint()) + map.size());
-            }
-
-            canvas.repaint();
-
-
-            // }
-            lastMon = tmp;
-
-        }   */
-
-
         if(editMode) {
-            if (e.isAltDown()) {
+            if (e.isControlDown()) {
                 Point cPoint = Simulation.getCanvasToGridPosition(e.getPoint());
 
                 if (brushMode) {
@@ -1228,7 +1170,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         map.get(cPoint).setState(stateVal);
                     }
                 }
-            } else if (e.isControlDown()) {
+            } else if (e.isShiftDown() ) {
                 Monomer tmp = null;
                 Point gp = Simulation.getCanvasToGridPosition(e.getPoint());
                 if (map.containsKey(gp)) {
@@ -1361,7 +1303,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             }
 
         }
-        else if(e.isAltDown() && !e.isControlDown() && !e.isShiftDown())
+        else if(e.isShiftDown() && !e.isControlDown() && !e.isAltDown())
         {
 
             switch(keyCode)
@@ -1393,9 +1335,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             switch(keyCode)
             {
                 case KeyEvent.VK_1:
-                     String state = JOptionPane.showInputDialog("Set paint state:");
+                    String state = JOptionPane.showInputDialog("Set paint state:");
                     if(state.length() > 0)
-                     stateVal = state;
+                        stateVal = state;
                     break;
 
 
@@ -1423,5 +1365,44 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 Simulation.isPaused = false;
             }
         }
+    }
+
+    public void encodeFrame(int width, int height, QuickTimeWriter qtwriter, int frames)
+    {
+        BufferedImage bfi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2 = (Graphics2D)bfi.getGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setFont(new Font("TimesRoman", Font.PLAIN, 10));
+        g2.setColor(Color.white);
+        g2.fillRect(0,0,width,height);
+        g2.setColor(Color.BLACK);
+        g2.drawString("#Monomers: " + map.getSize(), 20, 40);
+        g2.drawString("Step: " + map.nubotFrameNumber, 20, 50);
+        g2.drawString("Elapsed: " + Double.toString(map.timeElapsed).substring(0,4), 20, 60);
+        try
+        {
+
+                Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
+                while(nubotDim.width + Simulation.monomerRadius*2 > width || nubotDim.height + Simulation.monomerRadius*2
+                        > height) {
+                    Simulation.monomerRadius--;
+                    nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
+                }
+
+
+
+                drawMonomers(g2);
+                qtwriter.write(0, bfi, frames);
+
+
+
+        }
+        catch (Exception e)
+        {
+
+            System.out.println(e.getMessage());
+        }
+
     }
 }
