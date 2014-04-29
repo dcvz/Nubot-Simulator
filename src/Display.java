@@ -121,6 +121,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     //Video
     private QuickTimeWriter qtWr;
     private double timeAccum = 0;
+    private int nubottimeratio = 1;
 
     //Graphics
     BufferedImage hudBFI;
@@ -247,8 +248,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             Thread.sleep((long) (30 + speedRate * 1000.0 * map.executeTime));
 
 
-
-                        timeAccum += map.executeFrame();
+                        double executionTime = map.executeFrame();
+                        timeAccum += executionTime;
                         if (Simulation.animate) {
                             canvas.repaint();
                         }
@@ -263,18 +264,18 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                 Simulation.canvasXYoffset.setLocation(400,-300);
                         } else {
                             Random rand = new Random();
-                            posLockMon = (Monomer) map.values().toArray()[rand.nextInt(map.getSize())];
+                            posLockMon = (Monomer) map.values().toArray()[rand.nextInt(map.getStoredFrame().size())];
 
                         }
                         if (Simulation.isRecording) {
 
                                 System.out.println(timeAccum + " timeacc");
-                                if(timeAccum > 0.01667) {
-                                    encodeFrame(800, 600, qtWr, (int) Math.round(timeAccum / .016667));
+                                if(timeAccum > 0.01667/(double)nubottimeratio) {
+                                    encodeFrame(800, 600, qtWr, (int) Math.round(timeAccum / (.016667/(double)nubottimeratio)), map.getStoredFrame(), map.nubotFrameNumber-1, map.timeElapsed - executionTime );
                                     timeAccum=0;
                                 }
 
-
+                                 map.storeConfig();
 
                         }
 
@@ -283,11 +284,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         statusMonomerNumber.setText("Monomers: " + map.getSize());
                         statusTime.setText("Time: " + map.timeElapsed);
                     } catch (Exception e) {
-                        System.out.println(e.getMessage() + "SDF");
+                        System.out.println(e.getMessage());
                     }
                 }
                 try
                 {
+                    encodeFrame(800, 600, qtWr, 10, new ArrayList<Monomer>(map.values()), map.nubotFrameNumber, map.timeElapsed);
                     qtWr.close();
                 }
                 catch(Exception e)
@@ -310,7 +312,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                drawMonomers(g);
+                drawMonomers(g, new ArrayList<Monomer>(map.values()));
                 g.drawImage(hudBFI, 0, 0, null);
             }
         };
@@ -827,7 +829,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         else if(e.getSource() == menuReload)
         {       map.clear();
                 map.loadInitialConfig();
+                map.resetVals();
                 canvas.repaint();
+                statusTime.setText("Time: 0.0");
                 System.out.println("Reload configuration");
 
         } else if (e.getSource() == menuClear) {
@@ -925,14 +929,16 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             map.resetVals();
             String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time)");
             double recordingLength = Double.parseDouble(input);
+            int nt = Integer.parseInt(JOptionPane.showInputDialog(mainFrame, "Real to Nubot time ratio"));
+            nubottimeratio = nt > 0 ? nt : 1;
             if (recordingLength > 0) {
 
                 try{
                     qtWr = new QuickTimeWriter(new File("Test.mov"));
                     qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 60, 800, 600);
 
-                    encodeFrame(800, 600, qtWr, (int) Math.ceil(map.executeFrame() / .01667));
-
+                    encodeFrame(800, 600, qtWr, (int) Math.ceil(map.executeFrame() / (.01667/(double)nubottimeratio)),new ArrayList<Monomer>(map.values()), 1, 0);
+                    map.storeConfig();
                     Simulation.canvasXYoffset.setLocation(400, -300);
 
                 }
@@ -1001,10 +1007,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 /*Y Coord */    xyPos.y + Simulation.monomerRadius + (int) (bounds.getHeight() / 3.5));
     }
 
-    public synchronized void drawMonomers(Graphics g) {
+    public synchronized void drawMonomers(Graphics g, ArrayList<Monomer> monList) {
 
-        Monomer[] mapTemp = new Monomer[map.getSize()];
-        map.values().toArray(mapTemp);
+        Monomer[] mapTemp = new Monomer[monList.size()];
+        monList.toArray(mapTemp);
 
         ArrayList<Monomer> tempMonList = new ArrayList<Monomer>();
 
@@ -1367,7 +1373,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
     }
 
-    public void encodeFrame(int width, int height, QuickTimeWriter qtwriter, int frames)
+    public void encodeFrame(int width, int height, QuickTimeWriter qtwriter, int frames, ArrayList<Monomer> monList, int frameNumber, double timeElapsed)
     {
         BufferedImage bfi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -1377,22 +1383,22 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         g2.setColor(Color.white);
         g2.fillRect(0,0,width,height);
         g2.setColor(Color.BLACK);
-        g2.drawString("#Monomers: " + map.getSize(), 20, 40);
-        g2.drawString("Step: " + map.nubotFrameNumber, 20, 50);
-        g2.drawString("Elapsed: " + Double.toString(map.timeElapsed).substring(0,4), 20, 60);
+        g2.drawString("#Monomers: " + monList.size(), 20, 40);
+        g2.drawString("Step: " + frameNumber, 20, 50);
+        g2.drawString("Elapsed: " + Double.toString(timeElapsed), 20, 60);
         try
         {
 
-                Dimension nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
+                Dimension nubotDim = Simulation.calculateNubotDimension(monList, Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
                 while(nubotDim.width + Simulation.monomerRadius*2 > width || nubotDim.height + Simulation.monomerRadius*2
                         > height) {
                     Simulation.monomerRadius--;
-                    nubotDim = Simulation.calculateNubotDimension(new ArrayList<Monomer>(map.values()), Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
+                    nubotDim = Simulation.calculateNubotDimension(monList, Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
                 }
 
 
 
-                drawMonomers(g2);
+                drawMonomers(g2, monList);
                 qtwriter.write(0, bfi, frames);
 
 

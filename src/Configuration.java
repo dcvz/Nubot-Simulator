@@ -826,6 +826,13 @@ public class Configuration extends HashMap<Point, Monomer> {
              storedFrame.put(new Point(set.getKey()), new Monomer(set.getValue()));
          }
     }
+    public ArrayList<Monomer> getStoredFrame(){
+        return new ArrayList<Monomer>(storedFrame.values());
+    }
+    public HashMap<Point, Monomer> getStoredFrameHashMap()
+    {
+        return storedFrame;
+    }
     public void storeCurrentAsInitial()
     {
         initialFrame = new HashMap<Point, Monomer>();
