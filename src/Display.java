@@ -148,7 +148,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
     public Display(Dimension size) {
         //video
-        nubotVideo = new NubotVideo(800,600, QuickTimeWriter.VIDEO_PNG, 60, "TestTest");
+
 
         //Threads
         final ExecutorService executorService = Executors.newFixedThreadPool(4);
