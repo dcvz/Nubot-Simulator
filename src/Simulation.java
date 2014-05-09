@@ -25,7 +25,7 @@ public class
     public static boolean isRunning = false;
     public static boolean agitationON = false;
     public static boolean isRecording = false;
-    public static double recordingLength = 0;
+    public static int recordingLength = 0;
     public static boolean animate = true;
 
     public static double agitationRate = 0.0;
@@ -131,10 +131,10 @@ public class
         for (Monomer m : monList) {
             Point gridLocation = m.getLocation();
             Point pixelLocation = Simulation.getCanvasPosition(gridLocation, mutOffset, radius);
-            maxXY.x = Math.max(maxXY.x, pixelLocation.x);
-            minXY.x = Math.min(minXY.x, pixelLocation.x);
-            maxXY.y = Math.max(maxXY.y, pixelLocation.y);
-            minXY.y = Math.min(minXY.y, pixelLocation.y);
+            maxXY.x = Math.max(maxXY.x, pixelLocation.x + canvasXYoffset.x);
+            minXY.x = Math.min(minXY.x, pixelLocation.x + canvasXYoffset.x);
+            maxXY.y = Math.max(maxXY.y, pixelLocation.y + -canvasXYoffset.y);
+            minXY.y = Math.min(minXY.y, pixelLocation.y + -canvasXYoffset.y );
 
         }
 

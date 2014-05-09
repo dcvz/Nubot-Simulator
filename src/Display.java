@@ -5,6 +5,7 @@
 // Copyright (c) 2014 Algorithmic Self-Assembly Research Group. All rights reserved.
 //
 
+import org.javatuples.Pair;
 import org.monte.media.quicktime.QuickTimeWriter;
 
 import javax.swing.*;
@@ -119,9 +120,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
     //Video
-    private QuickTimeWriter qtWr;
     private double timeAccum = 0;
-    private int nubottimeratio = 1;
+    private double nubRatio =0;
+    private int fps = 60;
+    private int recordingLength = 0;
+    private int maxFrames = 0;
+
+    NubotVideo nubotVideo;
+
 
     //Graphics
     BufferedImage hudBFI;
@@ -141,6 +147,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     String stateVal = "A";
 
     public Display(Dimension size) {
+        //video
+        nubotVideo = new NubotVideo(800,600, QuickTimeWriter.VIDEO_PNG, 60, "TestTest");
+
         //Threads
         final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -242,6 +251,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             public void run() {
 
                 canvas.repaint();
+                int frameRate = 60;
+                if(Simulation.isRecording){
+                    frameRate = nubotVideo.getFrameRate();
+                }
                 while (Simulation.isRunning) {
                     try {
                         if (!Simulation.isRecording)
@@ -257,25 +270,58 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                             if (Simulation.agitationON) {
                                 Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
                                 if(Simulation.isRecording)
-                                    Simulation.canvasXYoffset.translate(800 / 2 - monLockCVPos.x , -600 / 2 + monLockCVPos.y);
-                                else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 + monLockCVPos.y - dragCnt.y);
+                                    Simulation.canvasXYoffset.translate(nubotVideo.getResWidth()/ 2 - monLockCVPos.x , -nubotVideo.getResHeight()/ 2 + monLockCVPos.y);
+                                else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 +  monLockCVPos.y - dragCnt.y);
                             }
-                            else
-                                Simulation.canvasXYoffset.setLocation(400,-300);
+
                         } else {
+                            System.out.println("poslock");
                             Random rand = new Random();
                             posLockMon = (Monomer) map.values().toArray()[rand.nextInt(map.getStoredFrame().size())];
 
                         }
                         if (Simulation.isRecording) {
 
-                                System.out.println(timeAccum + " timeacc");
-                                if(timeAccum > 0.01667/(double)nubottimeratio) {
-                                    encodeFrame(800, 600, qtWr, (int) Math.round(timeAccum / (.016667/(double)nubottimeratio)), map.getStoredFrame(), map.nubotFrameNumber-1, map.timeElapsed - executionTime );
-                                    timeAccum=0;
-                                }
 
-                                 map.storeConfig();
+
+                                 if(timeAccum*nubRatio > nubotVideo.getFrameDuration())
+                                 {
+                                     int rep = (int)Math.floor((timeAccum*nubRatio) / nubotVideo.getFrameDuration());
+                                     if(rep > frameRate)
+                                     {
+                                        int repDiv = rep / frameRate;
+                                         System.out.println("Rep: " + rep + " repDiv: " + repDiv);
+                                        for(int i = 0; i < repDiv; i++)
+                                        {
+                                            nubotVideo.encodeFrame(frameRate);
+                                        }
+                                            nubotVideo.encodeFrame((rep - (rep/frameRate)*frameRate));
+                                     }
+                                     else
+                                     {
+
+                                        rep = rep > 1 ? rep  : 1;
+                                         nubotVideo.encodeFrame(rep);
+                                     }
+
+                                    //get min and max frame draw points
+                                     Pair<Point, Point> minMaxXY = Simulation.calculateMinMax(new ArrayList<Monomer> (map.values()), Simulation.monomerRadius, new Point(0, 0), nubotVideo.getRes());
+                                    //get the caculation dimension of the map
+                                     Dimension nubotDimension = new Dimension(minMaxXY.getValue1().x - minMaxXY.getValue0().x + Simulation.monomerRadius*2  , minMaxXY.getValue1().y - minMaxXY.getValue0().y + Simulation.monomerRadius*2);
+                                     //reduce monomer radius if it exceeds the video resolution
+                                     if(nubotDimension.width > nubotVideo.getResWidth() || nubotDimension.getHeight() > nubotVideo.getResHeight())
+                                         Simulation.monomerRadius--;
+                                     //translate the canvas xy offset left or up if there is a draw point outside the right and bottom bounderies
+                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue1().x + 2*Simulation.monomerRadius > nubotVideo.getResWidth() ? -minMaxXY.getValue1().x - 2*Simulation.monomerRadius  +  nubotVideo.getResWidth() : 0,  minMaxXY.getValue1().y + 2*Simulation.monomerRadius > nubotVideo.getResHeight() ? minMaxXY.getValue1().y + 2*Simulation.monomerRadius - nubotVideo.getResHeight()  : 0);             //translate right and down if minimum draw points are outside
+                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue0().x < 0 ? Math.abs(minMaxXY.getValue0().x) : 0 , minMaxXY.getValue0().y < 0 ? -Math.abs(minMaxXY.getValue0().y) : 0  );
+
+                                     drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0, 6), new ArrayList<Monomer>(map.values()));
+                                     nubotVideo.encodeFrame(1);
+                                     timeAccum =0;
+                                 }
+                            drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0,6), new ArrayList<Monomer>(map.values()));
+
+
 
                         }
 
@@ -289,8 +335,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                 }
                 try
                 {
-                    encodeFrame(800, 600, qtWr, 10, new ArrayList<Monomer>(map.values()), map.nubotFrameNumber, map.timeElapsed);
-                    qtWr.close();
+
                 }
                 catch(Exception e)
                 {
@@ -299,7 +344,11 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                 statusSimulation.setText("Simulation finished ");
                 if (map.isFinished)
+                {   nubotVideo.encodeFrame(1);
+                    nubotVideo.finish();
+
                     JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
+                }
             }
         };
     }
@@ -344,6 +393,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         menuBar.add(settings);
         menuBar.add(help);
         menuBar.add(editToggle);
+        menuBar.setFocusable(false);
         editToggle.setMaximumSize(new Dimension(100, 50));
         editToggle.setFocusable(false);
         menuBar.add(editToolBar);
@@ -848,6 +898,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             Simulation.isRecording = false;
             Simulation.agitationON = false;
 
+            //Simulation values
+            Simulation.canvasXYoffset.move(canvas.getWidth()/2, -canvas.getHeight()/2);
+
+
             ///// Statusbar Text
             statusSimulation.setText("Waiting on Files ");
             statusRules.setText("No Rules ");
@@ -856,7 +910,8 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             totalTime = 0.0;
             statusMonomerNumber.setText("Monomers: 0");
 
-            simHeartBeat.interrupt();
+            if(simHeartBeat != null && simHeartBeat.isAlive() )
+                simHeartBeat.interrupt();
             simStart.setEnabled(false);
             simPause.setEnabled(false);
             simStop.setEnabled(false);
@@ -928,23 +983,26 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
             map.resetVals();
             String input = JOptionPane.showInputDialog(mainFrame, "Recording length(Nubot Time)");
-            double recordingLength = Double.parseDouble(input);
-            int nt = Integer.parseInt(JOptionPane.showInputDialog(mainFrame, "Real to Nubot time ratio"));
-            nubottimeratio = nt > 0 ? nt : 1;
+            recordingLength = Integer.parseInt(input);
+            maxFrames = recordingLength * fps;
+            double nt = Double.parseDouble(JOptionPane.showInputDialog(mainFrame, "Real to Nubot time ratio"));
+            nubRatio = nt > 0 ? nt : 1;
             if (recordingLength > 0) {
 
                 try{
-                    qtWr = new QuickTimeWriter(new File("Test.mov"));
-                    qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 60, 800, 600);
+                    nubotVideo = new NubotVideo(800,600,QuickTimeWriter.VIDEO_PNG,60, "Testyo");
+                    Simulation.canvasXYoffset.move(400,-300);
+                    drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + map.timeElapsed, new ArrayList<Monomer>(map.values()));
+                    nubotVideo.encodeFrame(1);
 
-                    encodeFrame(800, 600, qtWr, (int) Math.ceil(map.executeFrame() / (.01667/(double)nubottimeratio)),new ArrayList<Monomer>(map.values()), 1, 0);
-                    map.storeConfig();
+
+
                     Simulation.canvasXYoffset.setLocation(400, -300);
 
                 }
                 catch(Exception exc)
                 {
-                    System.out.println(exc.getMessage() + "SDF");
+                    System.out.println("recording : exc.getMessage()");
                 }
                 Simulation.animate = false;
                 Simulation.recordingLength = recordingLength;
@@ -1008,6 +1066,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
     }
 
     public synchronized void drawMonomers(Graphics g, ArrayList<Monomer> monList) {
+
 
         Monomer[] mapTemp = new Monomer[monList.size()];
         monList.toArray(mapTemp);
@@ -1373,35 +1432,27 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
         }
     }
 
-    public void encodeFrame(int width, int height, QuickTimeWriter qtwriter, int frames, ArrayList<Monomer> monList, int frameNumber, double timeElapsed)
+    public void drawNubotVideoFrame(BufferedImage bfi, String topLeftString, ArrayList<Monomer> monList)
     {
-        BufferedImage bfi = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-        Graphics2D g2 = (Graphics2D)bfi.getGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setFont(new Font("TimesRoman", Font.PLAIN, 10));
-        g2.setColor(Color.white);
-        g2.fillRect(0,0,width,height);
-        g2.setColor(Color.BLACK);
-        g2.drawString("#Monomers: " + monList.size(), 20, 40);
-        g2.drawString("Step: " + frameNumber, 20, 50);
-        g2.drawString("Elapsed: " + Double.toString(timeElapsed), 20, 60);
+        int width = bfi.getWidth();
+        int height = bfi.getHeight();
+        Graphics2D gfx = (Graphics2D)bfi.getGraphics();
+
+        gfx.setColor(Color.white);
+        gfx.fillRect(0,0,width,height);
+        gfx.setColor(Color.BLACK);
+        int lc = 1;
+        for(String line : topLeftString.split("\n"))
+        {
+            Rectangle2D strDim = gfx.getFont().getStringBounds(line, 0, line.length(), gfx.getFontRenderContext());
+            gfx.drawString(line, 20, 40+(int)strDim.getHeight()*lc++);
+        }
+
         try
         {
 
-                Dimension nubotDim = Simulation.calculateNubotDimension(monList, Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
-                while(nubotDim.width + Simulation.monomerRadius*2 > width || nubotDim.height + Simulation.monomerRadius*2
-                        > height) {
-                    Simulation.monomerRadius--;
-                    nubotDim = Simulation.calculateNubotDimension(monList, Simulation.monomerRadius, new Point(0,0), new Dimension(width,height));
-                }
-
-
-
-                drawMonomers(g2, monList);
-                qtwriter.write(0, bfi, frames);
-
-
+                drawMonomers(gfx, monList);
 
         }
         catch (Exception e)
