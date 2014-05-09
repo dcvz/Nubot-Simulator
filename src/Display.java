@@ -260,7 +260,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if (!Simulation.isRecording)
                             Thread.sleep((long) (30 + speedRate * 1000.0 * map.executeTime));
 
-
+                        map.storeConfig();
                         double executionTime = map.executeFrame();
                         timeAccum += executionTime;
                         if (Simulation.animate) {
@@ -269,9 +269,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                         if (posLockMon != null && map.containsKey(posLockMon.getLocation())) {
                             if (Simulation.agitationON) {
                                 Point monLockCVPos = Simulation.getCanvasPosition(posLockMon.getLocation());
-                                if(Simulation.isRecording)
-                                    Simulation.canvasXYoffset.translate(nubotVideo.getResWidth()/ 2 - monLockCVPos.x , -nubotVideo.getResHeight()/ 2 + monLockCVPos.y);
-                                else  Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 +  monLockCVPos.y - dragCnt.y);
+                               if(Simulation.isRecording)
+                                    Simulation.canvasXYoffset.translate(nubotVideo.getResWidth()/ 2 -monLockCVPos.x , -nubotVideo.getResHeight()/ 2 + monLockCVPos.y);
+                               else Simulation.canvasXYoffset.translate(canvas.getWidth()/ 2 - monLockCVPos.x + dragCnt.x, -canvas.getHeight() / 2 +  monLockCVPos.y - dragCnt.y);
                             }
 
                         } else {
@@ -311,9 +311,15 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                      //reduce monomer radius if it exceeds the video resolution
                                      if(nubotDimension.width > nubotVideo.getResWidth() || nubotDimension.getHeight() > nubotVideo.getResHeight())
                                      {
+                                         if(Simulation.monomerRadius>1)
                                          Simulation.monomerRadius--;
                                          canvasStrokeSize = Simulation.monomerRadius / 3;
                                      }
+                                     //re-calculate dimensions
+                                     minMaxXY = Simulation.calculateMinMax(new ArrayList<Monomer> (map.values()), Simulation.monomerRadius, new Point(0, 0), nubotVideo.getRes());
+                                     nubotDimension = new Dimension(minMaxXY.getValue1().x - minMaxXY.getValue0().x + Simulation.monomerRadius*2  , minMaxXY.getValue1().y - minMaxXY.getValue0().y + Simulation.monomerRadius*2);
+
+
 
                                      if(!Simulation.agitationON)
                                      {
@@ -322,6 +328,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                                      //translate right and down if minimum draw points are outside
                                      Simulation.canvasXYoffset.translate(minMaxXY.getValue0().x < 0 ? Math.abs(minMaxXY.getValue0().x) + (nubotVideo.getResWidth() - minMaxXY.getValue1().x) /2  : 0 , minMaxXY.getValue0().y < 0 ? -Math.abs(minMaxXY.getValue0().y) - (nubotVideo.getResHeight() - minMaxXY.getValue1().y)/2  : 0  );
+                                     }
+                                     else
+                                     {
+
+
+                                       /* Simulation.canvasXYoffset.translate(minMaxXY.getValue1().x + Simulation.monomerRadius*2 > nubotVideo.getResWidth() ? -(minMaxXY.getValue0().x)/2 : 0, minMaxXY.getValue1().y + Simulation.monomerRadius*2 > nubotVideo.getResHeight() ? (minMaxXY.getValue0().y)/2 : 0);
+                                         Simulation.canvasXYoffset.translate(minMaxXY.getValue0().x < 0 ? (nubotDimension.width - minMaxXY.getValue1().x)/2 : 0, minMaxXY.getValue0().y < 0 ? -(nubotVideo.getResHeight() - minMaxXY.getValue1().y)/2 : 0 );    */
+
                                      }
 
                                      drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0, 6), new ArrayList<Monomer>(map.values()));
@@ -353,7 +367,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                 statusSimulation.setText("Simulation finished ");
                 if (map.isFinished)
-                {   nubotVideo.encodeFrame(1);
+                {   nubotVideo.encodeFrame(60);
                     nubotVideo.finish();
 
                     JOptionPane.showMessageDialog(canvas, "No more rules can be applied!", "Finished", JOptionPane.OK_OPTION);
