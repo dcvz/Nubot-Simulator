@@ -295,12 +295,12 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                         {
                                             nubotVideo.encodeFrame(frameRate);
                                         }
-                                            nubotVideo.encodeFrame((rep - (rep/frameRate)*frameRate));
+                                            nubotVideo.encodeFrame(rep % frameRate);
                                      }
                                      else
                                      {
 
-                                        rep = rep > 1 ? rep  : 1;
+                                        rep = rep > 1 ? rep -1 : 1;
                                          nubotVideo.encodeFrame(rep);
                                      }
 
@@ -312,8 +312,10 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                      if(nubotDimension.width > nubotVideo.getResWidth() || nubotDimension.getHeight() > nubotVideo.getResHeight())
                                          Simulation.monomerRadius--;
                                      //translate the canvas xy offset left or up if there is a draw point outside the right and bottom bounderies
-                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue1().x + 2*Simulation.monomerRadius > nubotVideo.getResWidth() ? -minMaxXY.getValue1().x - 2*Simulation.monomerRadius  +  nubotVideo.getResWidth() : 0,  minMaxXY.getValue1().y + 2*Simulation.monomerRadius > nubotVideo.getResHeight() ? minMaxXY.getValue1().y + 2*Simulation.monomerRadius - nubotVideo.getResHeight()  : 0);             //translate right and down if minimum draw points are outside
-                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue0().x < 0 ? Math.abs(minMaxXY.getValue0().x) : 0 , minMaxXY.getValue0().y < 0 ? -Math.abs(minMaxXY.getValue0().y) : 0  );
+                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue1().x + 2*Simulation.monomerRadius > nubotVideo.getResWidth() ? -minMaxXY.getValue1().x - 2*Simulation.monomerRadius  +  nubotVideo.getResWidth() -(nubotVideo.getResWidth()- nubotDimension.width )/2 : 0,  minMaxXY.getValue1().y + 2*Simulation.monomerRadius > nubotVideo.getResHeight() ? minMaxXY.getValue1().y + 2*Simulation.monomerRadius - nubotVideo.getResHeight()  + (nubotVideo.getResHeight()- nubotDimension.height )/2 : 0);
+
+                                     //translate right and down if minimum draw points are outside
+                                     Simulation.canvasXYoffset.translate(minMaxXY.getValue0().x < 0 ? Math.abs(minMaxXY.getValue0().x) + (nubotVideo.getResWidth() - minMaxXY.getValue1().x) /2  : 0 , minMaxXY.getValue0().y < 0 ? -Math.abs(minMaxXY.getValue0().y) - (nubotVideo.getResHeight() - minMaxXY.getValue1().y)/2  : 0  );
 
                                      drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0, 6), new ArrayList<Monomer>(map.values()));
                                      nubotVideo.encodeFrame(1);
