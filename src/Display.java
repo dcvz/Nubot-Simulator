@@ -284,7 +284,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
 
-                                 if(timeAccum*nubRatio > nubotVideo.getFrameDuration())
+                                 if(timeAccum*nubRatio >= nubotVideo.getFrameDuration())
                                  {
                                      int rep = (int)Math.floor((timeAccum*nubRatio) / nubotVideo.getFrameDuration());
                                      if(rep > frameRate)
@@ -295,12 +295,14 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                         {
                                             nubotVideo.encodeFrame(frameRate);
                                         }
-                                            nubotVideo.encodeFrame(rep % frameRate);
+
+
+                                         rep = ((rep % frameRate) > 1) ? (rep % frameRate) -1 : 0;
+                                         nubotVideo.encodeFrame(rep);
                                      }
                                      else
                                      {
-
-                                        rep = rep > 1 ? rep -1 : 1;
+                                         rep = (rep > 1) ? rep -1 : 0;
                                          nubotVideo.encodeFrame(rep);
                                      }
 
@@ -340,7 +342,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
                                      drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0, 6), new ArrayList<Monomer>(map.values()));
                                      nubotVideo.encodeFrame(1);
-                                     timeAccum =0;
+                                     timeAccum = timeAccum % nubotVideo.getFrameDuration();
                                  }
                             drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + Double.toString(map.timeElapsed).substring(0,6), new ArrayList<Monomer>(map.values()));
 
@@ -1013,7 +1015,9 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
             if (recordingLength > 0) {
 
                 try{
-                    nubotVideo = new NubotVideo(800,600,QuickTimeWriter.VIDEO_PNG,60, "Testyo");
+                    String vidName = JOptionPane.showInputDialog("Video Name","Name");
+                    vidName = vidName.length()>0 ? vidName : rulesFileName;
+                    nubotVideo = new NubotVideo(800,600,QuickTimeWriter.VIDEO_PNG,20, vidName);
                     Simulation.canvasXYoffset.move(400,-300);
                     drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.nubotFrameNumber + "\nTime: " + map.timeElapsed, new ArrayList<Monomer>(map.values()));
                     nubotVideo.encodeFrame(1);
