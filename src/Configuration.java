@@ -7,28 +7,22 @@
 
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
-import org.monte.media.quicktime.QuickTimeWriter;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Configuration extends HashMap<Point, Monomer> {
     public RuleSet rules;
     public boolean isFinished;
     public double timeElapsed;
-    public int numberOfActions;
     private Random rand = new Random();
-    private int frameRate = 10;
-    private double timeAccum = 0;
-    public int nubotFrameNumber = 0;
-    private HashMap<Point, Monomer> initialFrame = new HashMap<Point, Monomer>();
-    private HashMap<Point, Monomer> storedFrame = new HashMap<Point, Monomer>();
+    public int markovStep = 0;
+
+    public double timeStep;
+    private ActionSet actions;
+    private AgtionSet agtions;
+    private boolean timeStepCalculated;
+
 
     public int getSize() {
         return this.size();
@@ -42,9 +36,6 @@ public class Configuration extends HashMap<Point, Monomer> {
     //================================================================================
 
 
-    Runnable recordRunnable;
-    String recordLocation = ".";
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
     private ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>> recordFrameHistory;
 
     //================================================================================
@@ -55,10 +46,7 @@ public class Configuration extends HashMap<Point, Monomer> {
         rules = new RuleSet();
         isFinished = false;
         timeElapsed = 0.0;
-        numberOfActions = 0;
-        initRecord();
-
-
+        timeStepCalculated = false;
     }
     //================================================================================
     // Functionality Methods
@@ -74,19 +62,33 @@ public class Configuration extends HashMap<Point, Monomer> {
         }
     }
 
-    public double executeFrame() {
-        ActionSet actions = computeActionSet();
-        AgtionSet agtions = new AgtionSet();
-        Action selectedAc = null;
-        Agtion selectedAg;
-        double frametime = 0;
+    public double computeTimeStep()
+    {
+        actions = computeActionSet();
+        agtions = new AgtionSet();
 
         if (Simulation.agitationON)
             agtions = computeAgtionSet();
 
-        numberOfActions = actions.size() + agtions.size();
+        int numberOfActions = actions.size() + agtions.size();
 
         if (numberOfActions > 0) {
+            timeStepCalculated = true;
+            timeStep = Simulation.calculateExpDistribution(numberOfActions);
+            return (timeElapsed + timeStep);
+        }
+        else {
+            timeStepCalculated = false;
+            isFinished = true;
+            return timeElapsed;
+        }
+    }
+
+    public void executeFrame() {
+        Action selectedAc = null;
+        Agtion selectedAg;
+
+        if (timeStepCalculated) {
             if (Simulation.agitationON) {
                 double percent = (double) actions.size() / (double) (actions.size() + agtions.size());
                 double pick = rand.nextDouble();
@@ -101,9 +103,8 @@ public class Configuration extends HashMap<Point, Monomer> {
                         selectedAc = actions.selectArbitrary();
 
                     } while (!executeAction(selectedAc));
-                    frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
-                    executeTime = frametime;
-                    timeElapsed += frametime;
+
+                    timeElapsed += timeStep;
                 } else {
                     do {
                         if (actions.size() + agtions.size() < 1) {
@@ -113,9 +114,8 @@ public class Configuration extends HashMap<Point, Monomer> {
                         }
                         selectedAg = agtions.selectArbitrary();
                     } while (!executeAgtion(selectedAg));
-                    frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
-                    executeTime = frametime;
-                    timeElapsed += frametime;
+
+                    timeElapsed += timeStep;
                 }
             } else {
                 do {
@@ -127,9 +127,8 @@ public class Configuration extends HashMap<Point, Monomer> {
                     }
                     selectedAc = actions.selectArbitrary();
                 } while (!executeAction(selectedAc));
-                frametime = Simulation.calculateExpDistribution(numberOfActions + 1);
-                executeTime = frametime;
-                timeElapsed += frametime;
+
+                timeElapsed += timeStep;
             }
         } else {
             isFinished = true;
@@ -145,12 +144,7 @@ public class Configuration extends HashMap<Point, Monomer> {
             }
 
             if (Simulation.agitationON) {
-             /*   timeAccum += executeTime;
-                if (timeAccum > .005) {
 
-                    System.out.println(timeAccum + " " + recordFrameHistory.size());
-                    recordFrameHistory.add(Triplet.with(1, frametime, monList));
-                    timeAccum = 0;   */
                 }
             if (timeElapsed > Simulation.recordingLength || isFinished) {
                 //saveRecord("dog.ser");
@@ -169,8 +163,8 @@ public class Configuration extends HashMap<Point, Monomer> {
 
 
 
-        ++nubotFrameNumber;
-        return executeTime;
+        ++markovStep;
+
 
         }
 
@@ -523,246 +517,17 @@ public class Configuration extends HashMap<Point, Monomer> {
         }
     }
 
-    public void saveRecord(String saveLocation) {
-
-        try {
-            FileOutputStream fileOut = new FileOutputStream(saveLocation);
-            ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
-
-
-            try {
-                objOut.writeObject(recordFrameHistory);
-
-            } catch (Exception e) {
-                System.out.println("Exception writing object.");
-            } finally {
-                fileOut.close();
-                objOut.close();
-            }
-
-
-        } catch (Exception e) {
-            System.out.println("Exception thrown writing history: " + e.toString());
-        }
-
-    }
-
-    public ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>> readRecord(String location) {
-        try {
-            FileInputStream fileIn = new FileInputStream(location);
-            ObjectInputStream objIn = new ObjectInputStream(fileIn);
-            try {
-                return (ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>>) objIn.readObject();
-
-            } catch (Exception e) {
-                System.out.println("Exception reading object");
-            } finally {
-                fileIn.close();
-                objIn.close();
-            }
-
-
-        } catch (Exception e) {
-            System.out.println("Exception thrown reading history: " + e.getMessage());
-
-        }
-        return null;
-    }
-
-    public void initRecord() {
-        recordFrameHistory = new ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>>();
-    }
 
     //some values need to be reset before re-use of the configuration object.
     public void resetVals()
     {
         timeElapsed = 0;
-        nubotFrameNumber=0;
+        markovStep =0;
 
 
 
     }
-    public void saveVideo(String recordLocation) {
-        System.out.println("DFGDFG");
-        ArrayList<Triplet<Integer, Double, ArrayList<Monomer>>> record = recordFrameHistory;//readRecord(recordLocation);
-        int frameCount = 0;
-        boolean avi = false;
 
-
-        try {
-            QuickTimeWriter qtWr = new QuickTimeWriter(new File("Test.mov"));
-            qtWr.addVideoTrack(QuickTimeWriter.VIDEO_PNG, 30, 800, 600);
-
-            double timeEl = 0;
-
-            //******
-            //*Calculations to adjust the timings to be closer to nubot time
-
-
-            //number of frames that would have to be rendered to hit closest to the nubot timing
-            //30FPS
-            long targetNumFrames = Math.round(timeElapsed) * qtWr.getMediaTimeScale(0);  //TNF
-
-            //the ideal duration to render each nubot frame to hit the ideal video frame count
-
-            //   double targetFrameDuration = (double)targetNumFrames / (double)record.size();  //TFD
-
-            //round of the target frame duration, this will be default timing
-            // long normalDuration = Math.round(targetFrameDuration);
-            //now calculate the amount of missed frames because of the round
-            // double missedFrames = (normalDuration - targetFrameDuration) * record.size();
-
-            //now get the amount of frames to skip to increment or decrement by 1 to adjust to nubot timing
-            //  int everySoFramesIncDec = record.size() / Math.abs((int)missedFrames);
-
-            //get inc or dec
-            //  int IncDec = missedFrames > 0 ? -1 : 1;
-            long duration = 0;
-
-            //will be the frame counter, reset when we inc or dec
-            int carryCounter = 0;
-            int radius = 5;
-            boolean start = true;
-            Random rand = new Random();
-            Monomer posLockMon = null;
-            Point offset = new Point(400, -300);
-
-            //****************
-            for (Triplet<Integer, Double, ArrayList<Monomer>> pba : record) {
-
-                try {
-
-
-                    BufferedImage tempBFI = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
-
-
-                    Graphics2D g2 = (Graphics2D) tempBFI.getGraphics();
-                    g2.setBackground(Color.white);
-                    g2.setColor(Color.white);
-                    g2.fillRect(0, 0, 800, 600);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                    g2.setColor(Color.black);
-                    g2.drawString("Time: " + timeEl + " Frame #: " + frameCount, 0, 20);
-                    radius = Simulation.caclulateProperRadiusMutateOffset(pba.getValue2(), radius, offset, new Dimension(800, 600));
-                    // offset.translate(400 - Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).x, -300 + Simulation.getCanvasPosition(posLockMon.getLocation(), offset, radius).y );
-
-                    //  System.out.println(posLockMon.getLocation());
-
-                    for (Monomer m : pba.getValue2()) {
-                        drawBond(m, g2, radius, offset);
-
-                    }
-                    for (Monomer m : pba.getValue2()) {
-                        drawMonomer(m, g2, radius, offset);
-
-                    }
-
-
-                    try {
-
-                        // if(carryCounter >=everySoFramesIncDec)
-                        {
-                            carryCounter = 0;
-                            //  duration = normalDuration + IncDec;
-                            System.out.println("incdec");
-
-                        }
-                        // else duration = normalDuration;
-
-
-                        qtWr.write(0, tempBFI, 1);
-                        carryCounter++;
-
-                    } catch (Exception e) {
-
-                        System.out.println(e.getMessage());
-
-                    }
-                    timeEl += pba.getValue1();
-
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-
-            } //For Pair<>
-            qtWr.close();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-    }
-
-
-    private void drawMonomer(Monomer m, Graphics2D g, int radius, Point offset) {
-
-        Point xyPos = Simulation.getCanvasPosition(m.getLocation(), offset, radius);
-
-        int fontSize = 15;
-        int monomerWidthAdjustment = radius / 4;
-        int monomerWidth = radius * 2 - monomerWidthAdjustment;
-        int monomerHeight = radius * 2;
-        g.setColor(Color.WHITE);
-        g.fillOval(
-                /*X coord*/   xyPos.x,
-                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
-                /*Width  */   monomerWidth,
-                /*Height */   monomerHeight);
-        g.setStroke(new BasicStroke(radius / 10));
-        g.setColor(new Color(2, 180, 206));
-        g.drawOval(
-                /*X coord*/   xyPos.x,
-                /*Y coord*/   xyPos.y,//  -1* (m.getLocation().y * (int)(Math.sqrt(3) * Simulation.monomerRadius)),
-                /*Width  */   monomerWidth,
-                /*Height */   monomerHeight);
-        g.setColor(Color.white);
-        Rectangle2D bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
-        while (bounds.getWidth() < monomerWidth - 2 && bounds.getHeight() < monomerHeight - 2) {
-            g.setFont(g.getFont().deriveFont((float) ++fontSize));
-            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
-        }
-        while (bounds.getWidth() > monomerWidth - 2 || bounds.getHeight() > monomerHeight - 2) {
-            g.setFont(g.getFont().deriveFont((float) --fontSize));
-            bounds = g.getFont().getStringBounds(m.getState(), 0, m.getState().length(), g.getFontRenderContext());
-        }
-        g.setColor(Color.BLACK);
-        g.drawString(
-                /*String */     m.getState(),
-                /*X Coord */    xyPos.x + radius - (int) bounds.getWidth() / 2 - monomerWidthAdjustment / 2,
-                /*Y Coord */    xyPos.y + radius + (int) (bounds.getHeight() / 3.5));
-    }
-
-    public void drawBond(Monomer m, Graphics2D g, int radius, Point offset) {
-
-        Monomer tempMon = new Monomer(m);
-        if (tempMon.hasBonds()) {
-            ArrayList<Byte> rigidDirList = tempMon.getDirsByBondType(Bond.TYPE_RIGID);
-            ArrayList<Byte> flexibleDirList = tempMon.getDirsByBondType(Bond.TYPE_FLEXIBLE);
-
-            g.setColor(Color.RED);
-            for (Byte dir : rigidDirList) {
-                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), offset, radius);
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), offset, radius);
-                start.translate(radius, radius);
-                end.translate(radius, radius);
-                g.setStroke(new BasicStroke(radius / 3));
-                g.draw(new Line2D.Float(start.x - radius / 3.5f, start.y, end.x, end.y));
-            }
-
-            for (Byte dir : flexibleDirList) {
-                Point start = Simulation.getCanvasPosition(tempMon.getLocation(), offset, radius);
-                Point end = Simulation.getCanvasPosition(Direction.getNeighborPosition(tempMon.getLocation(), dir), offset, radius);
-                start.translate(radius, radius);
-                end.translate(radius, radius);
-                g.setStroke(new BasicStroke((radius / 3) * 1.20f));
-                g.setColor(Color.RED);
-                g.draw(new Line2D.Float(start.x - radius / 3.5f, start.y, end.x, end.y));
-                g.setColor(Color.WHITE);
-                g.setStroke(new BasicStroke((radius / 3) * .80f));
-                g.draw(new Line2D.Float(start.x - radius / 3.5f, start.y, end.x, end.y));
-            }
-        }
-    }
     public void removeMonomer(Monomer monomer)
     {
         byte dir = 1;
@@ -816,46 +581,6 @@ public class Configuration extends HashMap<Point, Monomer> {
 
         }
 
-    }
-    public void storeConfig()
-    {
-
-         storedFrame = new HashMap<Point, Monomer>();
-         for(Map.Entry<Point, Monomer> set : this.entrySet())
-         {
-             storedFrame.put(new Point(set.getKey()), new Monomer(set.getValue()));
-         }
-    }
-    public ArrayList<Monomer> getStoredFrame(){
-        return new ArrayList<Monomer>(storedFrame.values());
-    }
-    public HashMap<Point, Monomer> getStoredFrameHashMap()
-    {
-        return storedFrame;
-    }
-    public void storeCurrentAsInitial()
-    {
-        initialFrame = new HashMap<Point, Monomer>();
-        for(Map.Entry<Point, Monomer> set : this.entrySet())
-        {
-            initialFrame.put(new Point(set.getKey()), new Monomer(set.getValue()));
-        }
-
-    }
-
-    public void loadInitialConfig()
-    {
-        if(initialFrame != null && initialFrame.size() > 0)
-        {
-
-
-            this.clear();
-
-            for(Map.Entry<Point, Monomer> set : initialFrame.entrySet())
-            {
-                this.put(new Point(set.getKey()), new Monomer(set.getValue()));
-            }
-        }
     }
 
 
