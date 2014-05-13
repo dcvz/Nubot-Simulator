@@ -277,7 +277,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                                  {
 
                                      drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.markovStep + "\nTime: " + Double.toString(map.timeElapsed).substring(0, 6), new ArrayList<Monomer>(map.values()));
-                                     nubotVideo.encodeFrame((long)(  (fakeFloorRealT - Simulation.lastr) / nubotVideo.getFrameDuration() )   -1    );
+                                     nubotVideo.encodeFrame((long)Math.round((fakeFloorRealT - Simulation.lastr) / nubotVideo.getFrameDuration() )   -1    );
                                      System.out.println( (((fakeFloorRealT - Simulation.lastr) / nubotVideo.getFrameDuration() )  - 1 )  + "ffrt/gfd-1 ") ;
                                      map.executeFrame();
                                      nubotVideo.encodeFrame(1);
@@ -286,7 +286,7 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
 
 
 
-                                    //get min and max frame draw points
+                                    //get min and max frame draw points0
                                      Pair<Point, Point> minMaxXY = Simulation.calculateMinMax(new ArrayList<Monomer> (map.values()), Simulation.monomerRadius, new Point(0, 0), nubotVideo.getRes());
                                     //get the caculation dimension of the map
                                      Dimension nubotDimension = new Dimension(minMaxXY.getValue1().x - minMaxXY.getValue0().x + Simulation.monomerRadius*2  , minMaxXY.getValue1().y - minMaxXY.getValue0().y + Simulation.monomerRadius*2);
@@ -1002,7 +1002,6 @@ public class Display implements ActionListener, ComponentListener, MouseWheelLis
                     vidName = vidName.length()>0 ? vidName : rulesFileName;
                     nubotVideo = new NubotVideo(800,600,QuickTimeWriter.VIDEO_PNG,20, vidName);
                     Simulation.canvasXYoffset.move(400,-300);
-                    map.executeFrame();
                     drawNubotVideoFrame(nubotVideo.getBFI(), "#Monomers: " + map.size() + "\nStep: " + map.markovStep + "\nTime: " + map.timeElapsed, new ArrayList<Monomer>(map.values()));
                     nubotVideo.encodeFrame(1);
 
