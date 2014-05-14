@@ -33,8 +33,10 @@ Before you can start a simulation you must load a configuration and, unless you 
 
 The ruleset file format ends with the .rules extension and more closely follows the specifications presented in the model for interactions:
 
+```
 M1.state M2.state bondTYPE Direction M1'.state M2'.state bondTYPE' Direction'
+```
 
 Directions: N, NE, E, SE, S, SW, W, NW
 
-Example: [wiggles.rules]]("http://faculty.utpa.edu/orgs/asarg/examples/wiggles.rules")
+Example: [wiggles.rules]("http://faculty.utpa.edu/orgs/asarg/examples/wiggles.rules")
