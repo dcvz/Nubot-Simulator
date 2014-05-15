@@ -12,6 +12,15 @@ import java.awt.*;
 import java.util.*;
 
 public class Configuration extends HashMap<Point, Monomer> {
+   //Singleton
+    public static Configuration instance;
+    public static synchronized Configuration getInstance()
+    {
+        if(instance == null)
+            instance = new Configuration();
+        return instance;
+    }
+
     public RuleSet rules;
     public boolean isFinished;
     public double timeElapsed;
@@ -22,6 +31,7 @@ public class Configuration extends HashMap<Point, Monomer> {
     private ActionSet actions;
     private AgtionSet agtions;
     private boolean timeStepCalculated;
+
 
 
     public int getSize() {

@@ -17,6 +17,7 @@ public class
         Simulation {
     public static Point canvasXYoffset;
     public static double lastr=0;
+    public static double speedRate =0;
     public static volatile
     int monomerRadius = 15;
     public static boolean configLoaded = false;

@@ -13,12 +13,12 @@ public class Main {
     public static void main(String args[]) {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dim = toolkit.getScreenSize();
-        final Dimension window = new Dimension((int) (dim.width * .9), (int) (dim.height * .9));
+        final Dimension windowSize = new Dimension((int) (dim.width * .9), (int) (dim.height * .9));
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                Display mainWindow = new Display(window);
+                Driver mainWindow = new Driver(windowSize);
             }
         });
 
